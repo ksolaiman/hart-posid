@@ -8,6 +8,13 @@ import re
 from typing import Iterable
 
 
+try:
+    from nltk.tokenize import sent_tokenize, word_tokenize
+except ModuleNotFoundError:
+    sent_tokenize = None
+    word_tokenize = None
+
+
 @dataclass(frozen=True)
 class CandidateSentence:
     """
@@ -23,22 +30,39 @@ class CandidateSentence:
 
 def split_sentences(text: str) -> list[str]:
     """
-    Lightweight sentence splitter.
+    Split text with NLTK's sentence tokenizer.
 
-    For the first implementation we avoid tying the candidate-selection
-    layer to NLTK or spaCy. This can later be replaced by the tokenizer
-    used in the original POSID implementation.
+    The fallback keeps this low-level helper usable before the optional NLTK
+    tokenizer data has been downloaded.
     """
     if not text:
         return []
 
-    sentences = re.split(r"(?<=[.!?])\s+", text.strip())
+    try:
+        if sent_tokenize is None:
+            raise LookupError
+        sentences = sent_tokenize(text)
+    except LookupError:
+        sentences = re.split(r"(?<=[.!?])\s+", text.strip())
 
     return [
         sentence.strip()
         for sentence in sentences
         if sentence.strip()
     ]
+
+
+def tokenize_words(text: str) -> list[str]:
+    """Tokenize a string with NLTK's word tokenizer."""
+    if not text:
+        return []
+
+    try:
+        if word_tokenize is None:
+            raise LookupError
+        return word_tokenize(text)
+    except LookupError:
+        return re.findall(r"\w+(?:['’-]\w+)*|[^\w\s]", text, re.UNICODE)
 
 
 class CandidateSelector(ABC):
