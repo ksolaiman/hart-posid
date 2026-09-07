@@ -311,132 +311,201 @@ Do not fabricate numeric semantic scores.
 
 ## 12. Current data and annotation architecture
 
-The current experiments should use the existing **Schema 1.0** annotations directly as stored gold.
+The data layer is implemented and should now be treated as a completed checkpoint unless a concrete bug or new requirement appears.
 
-Primary current annotation source:
+### Local layout
 
-```text
-InciText/Annotation/annotations.json
-```
-
-The source tree and dataset tree are siblings under the same project root:
+The source tree and InciText dataset are siblings under the same project root:
 
 ```text
 project-root/
 ├── src/
+│   └── hart/
 └── InciText/
     └── Annotation/
         ├── annotations.json
-        └── consolidated_report_metadata.json
+        ├── consolidated_annotation_file.json
+        ├── consolidated_report_metadata.json
+        └── report_metadata.json
 ```
 
-Do not rewrite all old annotations into Schema 2.0 for the current benchmark.
+Do not hardcode machine-specific absolute paths.
 
-The design goal is instead to isolate annotation storage format behind a loader/adapter boundary.
+### Current data/schema package
 
-### Intended data-layer structure
+Use:
 
 ```text
 src/hart/
 ├── data/
 │   ├── document.py
+│   ├── loaders.py
 │   ├── legacy_adapter.py
-│   └── loaders/
-│       ├── base.py
-│       ├── legacy_annotations.py
-│       ├── facebook.py
-│       └── schema2.py
-│
+│   └── consolidate_annotations.py
 └── schema/
     ├── models.py
     └── normalize.py
 ```
 
-`facebook.py` and `schema2.py` may remain empty placeholders until those formats are actually needed.
+Do not introduce a separate `data/loaders/` package at this stage.
 
-A separate `manifest.py` and `validators.py` are deferred for now; they should be added only if a concrete requirement appears.
+`manifest.py` and `validators.py` are deferred unless a concrete need emerges.
 
-### Canonical in-memory representation
+### Authoritative source-document inventory
 
-All source-specific loaders must normalize annotations into the same internal representation.
-
-Canonical rule:
+The only authoritative source for document membership and source paths is:
 
 ```text
-document_id -> list[PersonAnnotation]
+InciText/Annotation/consolidated_report_metadata.json
 ```
 
-Every document maps to a list, including documents with only one annotated person.
+Do not use:
 
-The one known legacy document containing two people should load as two separate person records associated with the same `document_id`.
+```text
+InciText/Annotation/report_metadata.json
+```
 
-If the source annotation has no explicit person identifier, generate deterministic runtime-only IDs such as:
+for document discovery.
+
+Do not recursively scan `InciText/`, infer membership from folder contents, or substitute alternate files.
+
+Source paths are resolved against the `InciText/` root and must remain inside that root.
+
+The implemented loader first creates a lightweight metadata-only `DocumentRecord` index, then reads text lazily/on demand.
+
+Conceptually:
+
+```text
+consolidated_report_metadata.json
+        ↓
+metadata-only DocumentRecord index
+        ↓
+load_document(record) on demand
+```
+
+Full-corpus text reads are reserved for explicit benchmark/test passes.
+
+### Annotation consolidation
+
+The root legacy file:
+
+```text
+InciText/Annotation/annotations.json
+```
+
+is incomplete for the current corpus.
+
+The preparation utility:
+
+```text
+src/hart/data/consolidate_annotations.py
+```
+
+uses the authoritative consolidated metadata to derive the relevant annotation inputs and builds:
+
+```text
+InciText/Annotation/consolidated_annotation_file.json
+```
+
+The utility is metadata-driven and does not blindly scan folders.
+
+It:
+
+1. reads authoritative document IDs and annotation/source paths from `consolidated_report_metadata.json`
+2. uses only annotation inputs associated with those authoritative records
+3. skips folders with no standalone annotation file, including `Generated_flash_2`
+4. merges by `document_id`
+5. preserves the raw list-of-persons structure
+6. tolerates identical duplicates without duplicating them
+7. fails on conflicting duplicates
+8. never modifies original annotation files
+
+Verified consolidated output:
+
+```text
+Documents:       558
+People:          553
+Empty lists:       6
+Single-person:   551
+Two-person:        1
+```
+
+### Runtime annotation source
+
+The runtime legacy annotation source is:
+
+```text
+InciText/Annotation/consolidated_annotation_file.json
+```
+
+not the incomplete root `annotations.json`.
+
+The runtime flow is:
+
+```text
+consolidated_annotation_file.json
+        ↓
+legacy_adapter.py
+        ↓
+canonical in-memory PersonAnnotation objects
+```
+
+### Canonical representation and schema isolation
+
+Canonical annotation contract:
+
+```python
+dict[str, list[PersonAnnotation]]
+```
+
+Every document maps to a list of person annotations.
+
+The one known two-person document remains two separate `PersonAnnotation` records for the same `document_id`.
+
+If a stable source person ID is unavailable, deterministic runtime-only IDs may be created as:
 
 ```text
 <document_id>:0
 <document_id>:1
 ```
 
-These IDs are internal conveniences only and must not be written back into the original Schema 1.0 file.
+These IDs are internal only and are never written back to the source files.
 
-The canonical runtime model should be defined under `schema/models.py`. A minimal conceptual form is:
+Legacy string `"null"` values are normalized at the adapter/normalization boundary.
 
-```python
-@dataclass
-class PersonAnnotation:
-    document_id: str
-    person_id: str | None
-    role: str | None
-    attributes: dict
-```
+The current experiments do not require rewriting stored annotations into Schema 2.0.
 
-The exact fields may evolve, but downstream code must depend on this canonical model rather than the raw Schema 1.0 dictionary layout.
+The design goal is schema isolation: a future annotation format should need only a new loader/adapter that emits the same canonical model. Downstream extractors, experiment runners, and evaluation should not depend on the on-disk annotation schema.
 
-### Loader boundary
+### Implemented data-layer checkpoint
 
-Conceptually:
+The following are implemented:
 
-```text
-annotations.json (Schema 1.0)
-        ↓
-LegacyAnnotationLoader
-        ↓
-canonical in-memory representation
-        ↓
-all extractors / runs / evaluation / experiments
-```
+- metadata-only `DocumentRecord`
+- lazy `load_document_index()`
+- on-demand `load_document()`
+- generator-based `load_documents()`
+- path-containment checks
+- media-type handling
+- legacy consolidation utility
+- canonical legacy adapter
+- recursive normalization checks
+- data-loading tests
 
-If another annotation format is introduced later:
+Verified data test state:
 
 ```text
-new annotation schema
-        ↓
-NewSchemaAnnotationLoader
-        ↓
-same canonical in-memory representation
-        ↓
-unchanged downstream code
+Document index:          558 unique IDs
+Annotation documents:    558
+People:                  553
+Empty lists:               6
+Single-person documents: 551
+Two-person documents:      1
+Metadata/annotation IDs: exact match
 ```
 
-Changing the on-disk annotation schema should therefore require only a new loader/adapter, not modifications to experiment runners, extractors, or evaluation.
+The candidate package remains a separate completed checkpoint and should not be modified while working on later layers.
 
-### Facebook data
-
-A future `facebook.py` loader can normalize the Facebook annotations into the same canonical model.
-
-If the Facebook annotations are instead rewritten to match the legacy Schema 1.0 format, they may reuse the legacy loader. No decision is required yet.
-
-### Normalization
-
-`schema/normalize.py` is responsible for canonicalizing values needed by downstream evaluation, such as representation differences in measurements, colors, clothing items, and categorical values.
-
-The raw stored annotations should remain untouched.
-
-### Metadata
-
-`InciText/Annotation/consolidated_report_metadata.json` can be used to recover document/source/subset metadata as needed.
-
-A separate manifest abstraction is not required at the current stage unless dataset discovery or source metadata management becomes difficult.
 
 
 ## 13. Benchmark plan
@@ -520,137 +589,8 @@ For local Codex or any coding agent:
 
 ## 18. Immediate next step
 
-Before implementing anything new, inspect the local repository and compare it against:
+Candidate retrieval and the current data-ingestion/annotation-adaptation layer are both implemented checkpoints.
 
-- `AGENTS.md`
-- this file
+The next implementation work should move to the extraction layer, beginning with POSID property extraction and later the stacked candidate composition needed for the legacy POSID variants.
 
-For the current candidate stage, the candidate package and candidate smoke test remain the active implementation scope. When the data layer is implemented next, preserve Schema 1.0 on disk and introduce the loader/canonical-model boundary described above.
-
-
-### Authoritative document inventory
-
-The authoritative index for InciText document discovery is:
-
-```text
-InciText/Annotation/consolidated_report_metadata.json
-```
-
-Only paths listed in this file should be used to locate source documents.
-
-Do not use:
-
-```text
-InciText/Annotation/report_metadata.json
-```
-
-for dataset/document discovery.
-
-Do not recursively scan the `InciText/` directory and do not infer dataset membership from whatever files or folders happen to be present.
-
-Required behavior:
-
-- read document/path membership from `consolidated_report_metadata.json`
-- read the listed source paths from `InciText/Annotation/consolidated_report_metadata.json` and resolve those source paths under the `InciText/` dataset root
-- reject any path that resolves outside the dataset root
-- if a listed file is missing, report the error rather than searching for an alternate copy
-- do not include additional documents that are not listed in the consolidated metadata
-
-This makes dataset membership deterministic and prevents excluded or auxiliary folders from entering experiments merely because they exist on disk.
-
-The document/annotation flows are separate:
-
-```text
-InciText/Annotation/consolidated_report_metadata.json
-                ↓
-      authoritative source paths
-                ↓
-             loaders.py
-                ↓
-             Document
-```
-
-```text
-InciText/Annotation/annotations.json
-                ↓
-        legacy_adapter.py
-                ↓
-      PersonAnnotation(s)
-```
-
-Join source documents and annotations using `document_id`.
-
-
-### Lazy source-text loading
-
-Document discovery and document text loading are separate concerns.
-
-Load the lightweight authoritative metadata index first.
-
-Do not read the full corpus text eagerly during initialization.
-
-Load source text lazily/on demand for the requested document, or iterate documents explicitly during benchmark/test runs that require full-corpus processing.
-
-This avoids unnecessary I/O and keeps coding/agent workflows from pulling the entire corpus into context unnecessarily.
-
-### Annotation consolidation
-
-The legacy root file:
-
-```text
-InciText/Annotation/annotations.json
-```
-
-is not the complete annotation source for the current corpus.
-
-Per-folder annotation files should be consolidated into one generated file:
-
-```text
-InciText/Annotation/consolidated_annotation_file.json
-```
-
-Use:
-
-```text
-src/hart/data/consolidate_annotations.py
-```
-
-for this preparation step.
-
-The consolidation utility must use:
-
-```text
-InciText/Annotation/consolidated_report_metadata.json
-```
-
-as the authoritative dataset index.
-
-It must **not** blindly scan folders.
-
-Required logic:
-
-1. read the authoritative document IDs and source paths from `consolidated_report_metadata.json`
-2. derive only the source folders represented by those authoritative records
-3. locate the annotation files associated with those folders
-4. skip folders with no standalone annotation file, including `Generated_flash_2`
-5. merge annotations by `document_id`
-6. retain only authoritative document IDs
-7. preserve the original list-of-persons structure without normalization at consolidation time
-8. accept identical duplicate annotations without duplication
-9. raise an error on conflicting duplicate annotations
-10. never modify original annotation files
-11. write only `consolidated_annotation_file.json`
-
-The generated consolidated annotation file then becomes the runtime legacy annotation source:
-
-```text
-consolidated_annotation_file.json
-        ↓
-legacy_adapter.py
-        ↓
-canonical in-memory PersonAnnotation objects
-```
-
-Normalization of legacy values such as the string `"null"` belongs in the adapter/normalization boundary, not in the consolidation utility.
-
-This keeps consolidation separate from runtime loading and keeps future schema support isolated behind loader/adapter boundaries.
+Do not reopen completed candidate or data-layer code unless a concrete bug or requirement is identified.
