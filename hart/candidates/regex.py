@@ -22,23 +22,15 @@ class RegexSelector(CandidateSelector):
     def __init__(
         self,
         ignore_case: bool = True,
-        word_boundaries: bool = True,
     ):
         self.ignore_case = ignore_case
-        self.word_boundaries = word_boundaries
 
     def _compile_query(self, query: str) -> re.Pattern:
         query = query.strip()
         if not query:
             raise ValueError("query must not be empty")
 
-        escaped = re.escape(query)
-
-        if self.word_boundaries:
-            pattern = rf"\b{escaped}\b"
-        else:
-            pattern = escaped
-
+        pattern = rf"{re.escape(query)}[^.]*"
         flags = re.IGNORECASE if self.ignore_case else 0
 
         return re.compile(pattern, flags)
@@ -60,11 +52,13 @@ class RegexSelector(CandidateSelector):
 
                 pattern = self._compile_query(query)
 
-                if pattern.search(sentence):
+                match = pattern.search(sentence)
+
+                if match:
                     results.append(
                         CandidateSentence(
                             sentence_id=sentence_id,
-                            text=sentence,
+                            text=match.group(0).strip(),
                             score=1.0,
                             query=query,
                         )

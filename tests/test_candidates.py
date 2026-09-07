@@ -4,22 +4,17 @@ from hart.candidates import RegexSelector, Word2VecSelector, WordNetSelector, Ze
 
 
 class FakeVectors:
-    values = {
-        "red": [1.0, 0.0],
-        "dress": [1.0, 0.0],
-        "blue": [0.0, 1.0],
-        "car": [0.0, 1.0],
-    }
-
-    def __getitem__(self, token):
-        return self.values[token]
+    def similarity(self, token, query):
+        if token.lower() not in {"red", "dress", "blue", "car"}:
+            raise KeyError(token)
+        return 1.0 if token.lower() == query else 0.0
 
 
 class FakeSynset:
     def __init__(self, name):
         self.name = name
 
-    def path_similarity(self, other):
+    def wup_similarity(self, other):
         return 1.0 if self.name == other.name else 0.0
 
 
@@ -47,9 +42,35 @@ def test_wordnet_selector_uses_injected_wordnet():
 
 
 def test_zero_shot_selector_uses_injected_classifier():
-    def classifier(text, candidate_labels, multi_label):
-        return {"labels": candidate_labels, "scores": [0.8, 0.2]}
+    calls = []
 
-    results = ZeroShotSelector(classifier, threshold=0.75).select("A red dress.", ["clothing", "vehicle"])
-    assert len(results) == 1
+    def classifier(text, candidate_labels, hypothesis_template, multi_label):
+        calls.append(
+            (
+                text,
+                [hypothesis_template.format(query) for query in candidate_labels],
+                multi_label,
+            )
+        )
+        score = 0.75 if text == "First sentence." else 0.8
+        return {"labels": candidate_labels, "scores": [score, 0.2]}
+
+    results = ZeroShotSelector(classifier, threshold=0.75).select(
+        "First sentence. Second sentence. Third sentence.",
+        ["clothing", "vehicle"],
+    )
+
+    assert [result.sentence_id for result in results] == [1]
     assert results[0].score == 0.8
+    assert calls == [
+        (
+            "First sentence.",
+            ["This text is about clothing", "This text is about vehicle"],
+            False,
+        ),
+        (
+            "Second sentence.",
+            ["This text is about clothing", "This text is about vehicle"],
+            False,
+        ),
+    ]

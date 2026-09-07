@@ -7,30 +7,61 @@ from .base import CandidateSelector, CandidateSentence, split_sentences, tokeniz
 
 
 class WordNetSelector(CandidateSelector):
-    """Select sentences using the highest WordNet path similarity."""
+    """Select sentences using configurable noun-synset Wu-Palmer similarity."""
 
-    def __init__(self, threshold: float | None = None, wordnet: Any = None, pos: str | None = None):
+    def __init__(
+        self,
+        threshold: float | None = None,
+        wordnet: Any = None,
+        synset_strategy: str = "first",
+    ):
+        if synset_strategy not in {"first", "max_all", "average"}:
+            raise ValueError("synset_strategy must be 'first', 'max_all', or 'average'")
         if wordnet is None:
             from nltk.corpus import wordnet as wordnet_corpus
             wordnet = wordnet_corpus
         self.wordnet = wordnet
         self.threshold = threshold
-        self.pos = pos
+        self.synset_strategy = synset_strategy
 
     def _synsets(self, token: str) -> list[Any]:
-        return self.wordnet.synsets(token, pos=self.pos) if self.pos else self.wordnet.synsets(token)
+        return self.wordnet.synsets(token, pos="n")
 
-    def _score(self, sentence: str, query: str) -> float:
-        sentence_synsets = [synset for token in tokenize_words(sentence.lower()) for synset in self._synsets(token)]
-        query_synsets = [synset for token in tokenize_words(query.lower()) for synset in self._synsets(token)]
-        similarities = [left.path_similarity(right) or 0.0 for left in sentence_synsets for right in query_synsets]
-        return max(similarities, default=0.0)
+    def _score(self, sentence: str, query: str) -> float | None:
+        sentence_synsets = [self._synsets(token) for token in tokenize_words(sentence.lower())]
+        query_synsets = [self._synsets(token) for token in tokenize_words(query.lower())]
+
+        # Historical WordNet candidate synset strategy remains unresolved;
+        # first/max-all/average are supported, with first used for legacy
+        # reproduction until original code confirms the behavior.
+        if self.synset_strategy == "first":
+            sentence_synsets = [synsets[:1] for synsets in sentence_synsets]
+            query_synsets = [synsets[:1] for synsets in query_synsets]
+
+        similarities = [
+            score
+            for left_synsets in sentence_synsets
+            for right_synsets in query_synsets
+            for left in left_synsets
+            for right in right_synsets
+            if (score := left.wup_similarity(right)) is not None
+        ]
+
+        if not similarities:
+            return None
+        if self.synset_strategy == "average":
+            return sum(similarities) / len(similarities)
+        return max(similarities)
 
     def select(self, text: str, queries: Iterable[str]) -> list[CandidateSentence]:
         queries = list(queries)
         results = []
         for sentence_id, sentence in enumerate(split_sentences(text)):
-            matches = [(self._score(sentence, query), query) for query in queries]
+            matches = [
+                (score, query)
+                for query in queries
+                if (score := self._score(sentence, query)) is not None
+            ]
             if not matches:
                 continue
             score, query = max(matches)
