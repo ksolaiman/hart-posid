@@ -4,15 +4,9 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-import re
 from typing import Iterable
 
-
-try:
-    from nltk.tokenize import sent_tokenize, word_tokenize
-except ModuleNotFoundError:
-    sent_tokenize = None
-    word_tokenize = None
+from nltk.tokenize import sent_tokenize, word_tokenize
 
 
 @dataclass(frozen=True)
@@ -31,23 +25,13 @@ class CandidateSentence:
 def split_sentences(text: str) -> list[str]:
     """
     Split text with NLTK's sentence tokenizer.
-
-    The fallback keeps this low-level helper usable before the optional NLTK
-    tokenizer data has been downloaded.
     """
     if not text:
         return []
 
-    try:
-        if sent_tokenize is None:
-            raise LookupError
-        sentences = sent_tokenize(text)
-    except LookupError:
-        sentences = re.split(r"(?<=[.!?])\s+", text.strip())
-
     return [
         sentence.strip()
-        for sentence in sentences
+        for sentence in sent_tokenize(text)
         if sentence.strip()
     ]
 
@@ -57,12 +41,7 @@ def tokenize_words(text: str) -> list[str]:
     if not text:
         return []
 
-    try:
-        if word_tokenize is None:
-            raise LookupError
-        return word_tokenize(text)
-    except LookupError:
-        return re.findall(r"\w+(?:['’-]\w+)*|[^\w\s]", text, re.UNICODE)
+    return word_tokenize(text)
 
 
 class CandidateSelector(ABC):
