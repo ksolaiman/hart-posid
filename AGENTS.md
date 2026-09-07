@@ -333,7 +333,8 @@ src/hart/
 ├── data/
 │   ├── document.py
 │   ├── loaders.py
-│   └── legacy_adapter.py
+│   ├── legacy_adapter.py
+│   └── consolidate_annotations.py
 └── schema/
     ├── models.py
     └── normalize.py
@@ -354,18 +355,18 @@ Do not add `manifest.py` or `validators.py` unless a concrete need emerges.
 
 Use only:
 
-`InciText/consolidated_report_metadata.json`
+`InciText/Annotation/consolidated_report_metadata.json`
 
 as the authoritative source for discovering which InciText documents belong to the dataset and which file paths should be loaded.
 
 Rules:
 
-- do not use `InciText/report_metadata.json` for document discovery
+- do not use `InciText/Annotation/report_metadata.json` for document discovery
 - do not recursively scan `InciText/` for source documents
 - do not infer dataset membership from folder contents
 - do not substitute alternate files if a listed file is missing
 - only load documents whose paths are explicitly present in `consolidated_report_metadata.json`
-- resolve listed paths relative to the `InciText/` root unless the metadata explicitly establishes otherwise
+- read document membership and source paths only from `InciText/Annotation/consolidated_report_metadata.json`; resolve each listed source path against the `InciText/` dataset root unless the metadata explicitly establishes otherwise
 - validate that each resolved path stays inside the `InciText/` root
 - if a listed file is missing, report the missing path instead of searching elsewhere
 - `annotations.json` remains the annotation source; `consolidated_report_metadata.json` determines the authoritative document/path inventory
@@ -373,7 +374,7 @@ Rules:
 The intended ingestion flow is:
 
 ```text
-InciText/consolidated_report_metadata.json
+InciText/Annotation/consolidated_report_metadata.json
                 ↓
       authoritative document paths
                 ↓
@@ -393,6 +394,80 @@ InciText/Annotation/annotations.json
 ```
 
 The two streams should be joined by `document_id`.
+
+### Lazy document text loading
+
+Do not eagerly read all InciText document contents during initialization or loader construction.
+
+Load only the lightweight metadata/index first.
+
+Read document text only when a specific document is requested or when an explicit benchmark/test iterates the corpus.
+
+Production loading should therefore separate document indexing from document text access, for example through on-demand loading or an iterator/generator.
+
+Full-corpus text reads are allowed only in explicit tests or benchmark runs that require them.
+
+### Annotation consolidation
+
+The root legacy file:
+
+`InciText/Annotation/annotations.json`
+
+does not contain the complete set of annotations needed for the current corpus.
+
+Relevant dataset folders contain their own annotation files, except `Generated_flash_2`, which does not have a standalone annotation file.
+
+Create a small consolidation utility at:
+
+`src/hart/data/consolidate_annotations.py`
+
+Its only job is to build:
+
+`InciText/Annotation/consolidated_annotation_file.json`
+
+The consolidation process must be metadata-driven, not directory-scan-driven.
+
+Use:
+
+`InciText/Annotation/consolidated_report_metadata.json`
+
+as the authoritative source of dataset membership and source paths.
+
+Required behavior:
+
+- do not recursively scan `InciText/` for annotation files
+- derive relevant source folders only from documents listed in `consolidated_report_metadata.json`
+- from those authoritative source folders, locate the corresponding per-folder annotation files
+- skip folders that have no standalone annotation file, such as `Generated_flash_2`
+- merge annotation records by `document_id`
+- include only document IDs that are part of the authoritative consolidated metadata
+- preserve each document's existing list-of-persons structure exactly during consolidation
+- if the same `document_id` appears in multiple annotation files with identical content, keep one copy
+- if the same `document_id` appears with conflicting content, fail loudly instead of overwriting
+- never modify the original per-folder annotation files
+- write only the generated consolidated file
+
+The intended flow is:
+
+```text
+InciText/Annotation/consolidated_report_metadata.json
+                ↓
+   authoritative document IDs + source folders
+                ↓
+     relevant per-folder annotation files
+                ↓
+     consolidate_annotations.py
+                ↓
+InciText/Annotation/consolidated_annotation_file.json
+                ↓
+        legacy_adapter.py
+                ↓
+      PersonAnnotation(s)
+```
+
+At runtime, `legacy_adapter.py` should consume `consolidated_annotation_file.json`, not the incomplete root `annotations.json`.
+
+`consolidate_annotations.py` is a data-preparation utility, not part of ordinary document loading.
 
 ### Canonical person representation
 

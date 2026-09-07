@@ -533,7 +533,7 @@ For the current candidate stage, the candidate package and candidate smoke test 
 The authoritative index for InciText document discovery is:
 
 ```text
-InciText/consolidated_report_metadata.json
+InciText/Annotation/consolidated_report_metadata.json
 ```
 
 Only paths listed in this file should be used to locate source documents.
@@ -541,7 +541,7 @@ Only paths listed in this file should be used to locate source documents.
 Do not use:
 
 ```text
-InciText/report_metadata.json
+InciText/Annotation/report_metadata.json
 ```
 
 for dataset/document discovery.
@@ -551,7 +551,7 @@ Do not recursively scan the `InciText/` directory and do not infer dataset membe
 Required behavior:
 
 - read document/path membership from `consolidated_report_metadata.json`
-- resolve those paths under the `InciText/` root
+- read the listed source paths from `InciText/Annotation/consolidated_report_metadata.json` and resolve those source paths under the `InciText/` dataset root
 - reject any path that resolves outside the dataset root
 - if a listed file is missing, report the error rather than searching for an alternate copy
 - do not include additional documents that are not listed in the consolidated metadata
@@ -561,7 +561,7 @@ This makes dataset membership deterministic and prevents excluded or auxiliary f
 The document/annotation flows are separate:
 
 ```text
-InciText/consolidated_report_metadata.json
+InciText/Annotation/consolidated_report_metadata.json
                 ↓
       authoritative source paths
                 ↓
@@ -579,3 +579,78 @@ InciText/Annotation/annotations.json
 ```
 
 Join source documents and annotations using `document_id`.
+
+
+### Lazy source-text loading
+
+Document discovery and document text loading are separate concerns.
+
+Load the lightweight authoritative metadata index first.
+
+Do not read the full corpus text eagerly during initialization.
+
+Load source text lazily/on demand for the requested document, or iterate documents explicitly during benchmark/test runs that require full-corpus processing.
+
+This avoids unnecessary I/O and keeps coding/agent workflows from pulling the entire corpus into context unnecessarily.
+
+### Annotation consolidation
+
+The legacy root file:
+
+```text
+InciText/Annotation/annotations.json
+```
+
+is not the complete annotation source for the current corpus.
+
+Per-folder annotation files should be consolidated into one generated file:
+
+```text
+InciText/Annotation/consolidated_annotation_file.json
+```
+
+Use:
+
+```text
+src/hart/data/consolidate_annotations.py
+```
+
+for this preparation step.
+
+The consolidation utility must use:
+
+```text
+InciText/Annotation/consolidated_report_metadata.json
+```
+
+as the authoritative dataset index.
+
+It must **not** blindly scan folders.
+
+Required logic:
+
+1. read the authoritative document IDs and source paths from `consolidated_report_metadata.json`
+2. derive only the source folders represented by those authoritative records
+3. locate the annotation files associated with those folders
+4. skip folders with no standalone annotation file, including `Generated_flash_2`
+5. merge annotations by `document_id`
+6. retain only authoritative document IDs
+7. preserve the original list-of-persons structure without normalization at consolidation time
+8. accept identical duplicate annotations without duplication
+9. raise an error on conflicting duplicate annotations
+10. never modify original annotation files
+11. write only `consolidated_annotation_file.json`
+
+The generated consolidated annotation file then becomes the runtime legacy annotation source:
+
+```text
+consolidated_annotation_file.json
+        ↓
+legacy_adapter.py
+        ↓
+canonical in-memory PersonAnnotation objects
+```
+
+Normalization of legacy values such as the string `"null"` belongs in the adapter/normalization boundary, not in the consolidation utility.
+
+This keeps consolidation separate from runtime loading and keeps future schema support isolated behind loader/adapter boundaries.
