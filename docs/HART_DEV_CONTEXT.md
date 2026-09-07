@@ -200,31 +200,38 @@ For the reusable implementation, inject the classifier and keep query/threshold 
 
 ## 7. WordNet candidate method
 
-The paper and prior implementation context establish:
+Recovered 2021/2023 artifact now confirms the historical WordNet candidate-selection behavior.
 
-- NLTK WordNet
-- noun synsets
-- Wu-Palmer similarity
-- historical experiment threshold around `0.9`
-- historical query `clothes`
+Historical method:
 
-The exact historical candidate-selection synset strategy remains unresolved.
+1. obtain the **first noun synset of the query** (historically `clothes`)
+2. tokenize each sentence with NLTK
+3. obtain **all noun synsets** for each token
+4. compare the query synset with each token synset using Wu-Palmer similarity
+5. if any valid score is `>= threshold`, return that sentence immediately
+6. otherwise continue to the next sentence
 
-Current implementation should therefore support three explicit strategies:
-
-- `first`: compare only the first noun synset for each term
-- `max_all`: compute valid Wu-Palmer scores across all noun-synset pairs and use the maximum
-- `average`: average all valid Wu-Palmer scores
-
-For the parameterized legacy reproduction call/test, use:
+Conceptually:
 
 ```python
-synset_strategy="first"
+query_synset = wn.synsets(query, "n")[0]
+
+for sentence in nltk.sent_tokenize(text):
+    for token in nltk.word_tokenize(sentence):
+        for token_synset in wn.synsets(token, "n"):
+            score = query_synset.wup_similarity(token_synset)
+            if score is not None and score >= threshold:
+                return [sentence]
 ```
 
-This is a reproduction choice, not a claim that historical candidate code is confirmed to have used first-synset-only behavior.
+Verified historical experiment values remain:
 
-**Standing reminder:** Historical WordNet candidate synset strategy remains unresolved; first/max-all/average are supported, with `first` used for legacy reproduction until original code confirms the behavior.
+- query: `clothes`
+- threshold: `0.9`
+
+This is an asymmetric strategy: **first query noun synset vs all token noun synsets**.
+
+The reusable selector may retain `first`, `max_all`, and `average` strategies for experimentation, but legacy reproduction must use a clearly identified mode matching the verified asymmetric historical behavior. Do not describe `first`-vs-`first` as the historical strategy.
 
 Known separate POSID extraction behavior:
 
@@ -232,7 +239,7 @@ Known separate POSID extraction behavior:
 color = wn.synsets("color", "n")[0]
 ```
 
-This verifies that the first noun synset of `color` was used in later clothing/color interpretation logic. It does not prove that WordNet candidate retrieval used first-synset-only behavior.
+This belongs to later clothing/color interpretation.
 
 ## 8. Tokenization decision
 
@@ -304,7 +311,7 @@ Historical expected qualitative behavior:
 
 - regex: should return a matched span beginning with `wearing`
 - Word2Vec: measure with NLTK pruned Word2Vec vectors
-- WordNet: measure with actual WordNet resources using `synset_strategy="first"` for the legacy reproduction call
+- WordNet: use the verified legacy asymmetric strategy: first noun synset of the query vs all noun synsets of each token
 - zero-shot: measure with the actual classifier environment
 
 Do not fabricate numeric semantic scores.
@@ -508,6 +515,59 @@ The candidate package remains a separate completed checkpoint and should not be 
 
 
 
+## 12A. Confirmed extraction-layer decisions
+
+### POSID gender/race regex reconstruction
+
+Recovered legacy artifacts contain only partial fixed-property regex code. The surviving gender/race notebook is an intermediate, male-specific prototype and does not fully specify the broader gender/race behavior described/evaluated in the paper.
+
+Confirmed decision:
+
+- preserve directly verified legacy regex behavior where available
+- conservatively reconstruct missing **symmetric gender/race rules**
+- clearly distinguish reconstructed rules from directly recovered historical code
+- keep reconstruction narrow and faithful to the paper/task
+- do not expand the reconstruction into unrelated attributes or a newly designed rule system
+
+This decision applies to POSID fixed-property extraction, not to the separate 2026 direct Regex baseline.
+
+### Universal prediction representation
+
+All extractors should emit a canonical person-level prediction object rather than method-specific raw dictionaries or per-attribute records.
+
+Confirmed conceptual model in `schema/models.py`:
+
+```python
+@dataclass
+class PersonPrediction:
+    document_id: str
+    person_id: str | None
+    role: str | None
+    attributes: dict
+    metadata: dict | None = None
+```
+
+Canonical prediction contract:
+
+```python
+dict[str, list[PersonPrediction]]
+```
+
+This should be used by Regex, Dependency, POSID, and later LLM extractors.
+
+The gold and prediction sides should mirror one another conceptually:
+
+```text
+legacy annotation source -> legacy_adapter.py -> PersonAnnotation
+raw document             -> extractor          -> PersonPrediction
+```
+
+Do not use a flattened `AttributePrediction` object as the primary extractor interface.
+
+Per-attribute flattening should occur only in the evaluation layer, where it can support per-attribute metrics, source/domain splits, bootstrap confidence intervals, and error analysis.
+
+Core `PersonPrediction` does not require `sentence_id` or `evidence_text`. Optional method-specific provenance can be placed in `metadata`.
+
 ## 13. Benchmark plan
 
 The intended modern benchmark compares lightweight methods against LLMs while preserving the legacy POSID line.
@@ -589,8 +649,14 @@ For local Codex or any coding agent:
 
 ## 18. Immediate next step
 
-Candidate retrieval and the current data-ingestion/annotation-adaptation layer are both implemented checkpoints.
+Candidate retrieval and the current data-ingestion/annotation-adaptation layer are implemented checkpoints.
 
-The next implementation work should move to the extraction layer, beginning with POSID property extraction and later the stacked candidate composition needed for the legacy POSID variants.
+The next implementation pass should create the extraction layer and stacked candidate composition while preserving the confirmed decisions above:
 
-Do not reopen completed candidate or data-layer code unless a concrete bug or requirement is identified.
+- add the verified historical WordNet asymmetric candidate mode
+- implement stacked primary/fallback candidate selection composition
+- add `PersonPrediction` as the universal extractor output contract
+- implement POSID fixed-property and clothing extraction, using conservative documented reconstruction for missing symmetric gender/race regex behavior
+- implement the separate 2026 Regex and Dependency baselines without conflating them with legacy RE + POSID
+
+Do not reopen unrelated completed candidate or data-layer code unless a concrete bug or requirement is identified.

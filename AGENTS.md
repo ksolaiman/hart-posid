@@ -134,29 +134,45 @@ Use:
 - noun synsets
 - Wu-Palmer similarity
 
-Support a configurable `synset_strategy` with these options:
+Recovered legacy artifact confirms the historical candidate behavior:
 
-- `"first"`: compare only the first noun synset for each term
-- `"max_all"`: compare all valid noun-synset pairs and take the maximum Wu-Palmer score
-- `"average"`: average all valid Wu-Palmer scores
+1. obtain the **first noun synset of the query** (historically `clothes`)
+2. tokenize each sentence with NLTK
+3. for each token, obtain **all noun synsets of that token**
+4. compare the query synset against each token synset using Wu-Palmer similarity
+5. if any valid score is `>= threshold`, return that sentence immediately
+6. otherwise continue sentence-by-sentence
 
-For legacy reproduction calls/tests, use:
+Conceptually:
 
-`synset_strategy="first"`
+```python
+query_synset = wn.synsets(query, "n")[0]
 
-Important unresolved-status note:
+for sentence in sent_tokenize(text):
+    for token in word_tokenize(sentence):
+        for token_synset in wn.synsets(token, "n"):
+            score = query_synset.wup_similarity(token_synset)
+            if score is not None and score >= threshold:
+                return [sentence]
+```
 
-Historical WordNet candidate synset strategy remains unresolved; first/max-all/average are supported, with first used for legacy reproduction until original code confirms the behavior.
+This asymmetric historical behavior is now verified from the recovered 2021/2023 artifact and should be used for legacy reproduction.
 
-Do not present `"first"` as historically confirmed.
+The existing reusable selector may continue to support exploratory/configurable strategies such as:
 
-Known POSID extraction behavior includes:
+- `"first"`: first noun synset for both query and token
+- `"max_all"`: maximum valid score across all noun-synset pairs
+- `"average"`: average valid score across all noun-synset pairs
+
+However, none of those should be mislabeled as the verified legacy behavior. The implementation should add/preserve a clearly identified legacy mode matching the asymmetric behavior above.
+
+Known separate POSID extraction behavior includes:
 
 `wn.synsets("color", "n")[0]`
 
-but this belongs to later color/property extraction and should not be inserted into WordNet candidate selection as proof of the candidate-stage strategy.
+for later clothing/color interpretation.
 
-Historical experiment value `0.9` is configuration, not a reusable class default.
+Historical experiment values such as query `clothes` and threshold `0.9` remain configuration, not reusable class defaults.
 
 ## Zero-shot candidate selection
 
@@ -343,6 +359,54 @@ Single-person:   551
 Two-person:        1
 ```
 
+### Universal extractor prediction contract
+
+All extraction methods must emit the same canonical **person-level prediction** representation.
+
+The prediction-side model belongs in `src/hart/schema/models.py` and should mirror the person-level structure of canonical gold annotations.
+
+Confirmed conceptual model:
+
+```python
+@dataclass
+class PersonPrediction:
+    document_id: str
+    person_id: str | None
+    role: str | None
+    attributes: dict
+    metadata: dict | None = None
+```
+
+Canonical prediction rule:
+
+```python
+dict[str, list[PersonPrediction]]
+```
+
+This is the primary output contract for Regex, Dependency, POSID, and later LLM extractors.
+
+Do **not** make per-attribute records such as `AttributePrediction` the primary extractor interface. Person identity and structured attributes such as clothing item/color associations should remain intact until evaluation.
+
+Gold and prediction sides should therefore be conceptually parallel:
+
+```text
+legacy annotation source
+        ↓
+legacy_adapter.py
+        ↓
+PersonAnnotation
+
+raw document
+        ↓
+extractor
+        ↓
+PersonPrediction
+```
+
+Per-attribute flattening belongs later in the evaluation layer for metrics, stratification, bootstrap analysis, and error analysis.
+
+`sentence_id` and `evidence_text` are not required fields in the core prediction contract. Method-specific provenance may be stored optionally under `metadata` when useful.
+
 ### Runtime annotation source and canonical representation
 
 At runtime, `legacy_adapter.py` must consume:
@@ -408,6 +472,23 @@ Metadata/annotation IDs: exact match
 Do not modify the completed data layer unless a concrete bug or new requirement appears.
 
 
+## POSID fixed-property reconstruction rule
+
+Recovered legacy artifacts provide only partial historical regex logic for fixed properties, especially gender/race.
+
+The surviving gender/race notebook is an intermediate prototype and contains male-specific logic. It is not sufficient by itself to reproduce the broader gender/race behavior described and evaluated in the paper.
+
+Confirmed implementation decision:
+
+- preserve any directly verified legacy regex behavior where available
+- conservatively reconstruct the missing **symmetric gender/race rules** needed to match the paper/task
+- do not pretend reconstructed rules are directly recovered historical code
+- mark reconstructed behavior clearly in code comments/tests/documentation
+- keep the reconstruction narrow and task-driven rather than expanding into a new rule system
+- do not infer or add unrelated attributes merely because they exist in the annotation schema
+
+This reconstruction policy applies to `POSIDExtractor` fixed-property handling. It does not redefine the separate modern Regex baseline.
+
 ## Testing
 
 The current smoke-test text is:
@@ -434,7 +515,7 @@ Historical experiment settings may be used in the test setup:
 - Word2Vec threshold: `0.5`
 - WordNet query: `clothes`
 - WordNet threshold: `0.9`
-- WordNet strategy: `first`
+- WordNet strategy: verified legacy asymmetric behavior (first noun synset of query vs all noun synsets of each token)
 - zero-shot label/query: `clothes`
 - zero-shot threshold: `0.85`
 
