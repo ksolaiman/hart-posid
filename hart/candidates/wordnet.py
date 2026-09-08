@@ -15,8 +15,11 @@ class WordNetSelector(CandidateSelector):
         wordnet: Any = None,
         synset_strategy: str = "first",
     ):
-        if synset_strategy not in {"first", "max_all", "average"}:
-            raise ValueError("synset_strategy must be 'first', 'max_all', or 'average'")
+        if synset_strategy not in {"first", "max_all", "average", "legacy_asymmetric"}:
+            raise ValueError(
+                "synset_strategy must be 'first', 'max_all', 'average', or "
+                "'legacy_asymmetric'"
+            )
         if wordnet is None:
             from nltk.corpus import wordnet as wordnet_corpus
             wordnet = wordnet_corpus
@@ -31,9 +34,6 @@ class WordNetSelector(CandidateSelector):
         sentence_synsets = [self._synsets(token) for token in tokenize_words(sentence.lower())]
         query_synsets = [self._synsets(token) for token in tokenize_words(query.lower())]
 
-        # Historical WordNet candidate synset strategy remains unresolved;
-        # first/max-all/average are supported, with first used for legacy
-        # reproduction until original code confirms the behavior.
         if self.synset_strategy == "first":
             sentence_synsets = [synsets[:1] for synsets in sentence_synsets]
             query_synsets = [synsets[:1] for synsets in query_synsets]
@@ -53,10 +53,32 @@ class WordNetSelector(CandidateSelector):
             return sum(similarities) / len(similarities)
         return max(similarities)
 
+    def _legacy_match(self, sentence: str, query: str) -> float | None:
+        """Return the first qualifying historical asymmetric comparison."""
+        query_synsets = self._synsets(query.lower())
+        if not query_synsets:
+            return None
+
+        query_synset = query_synsets[0]
+        for token in tokenize_words(sentence):
+            for token_synset in self._synsets(token):
+                score = query_synset.wup_similarity(token_synset)
+                if score is not None and (
+                    self.threshold is None or score >= self.threshold
+                ):
+                    return float(score)
+        return None
+
     def select(self, text: str, queries: Iterable[str]) -> list[CandidateSentence]:
         queries = list(queries)
         results = []
         for sentence_id, sentence in enumerate(split_sentences(text)):
+            if self.synset_strategy == "legacy_asymmetric":
+                for query in queries:
+                    score = self._legacy_match(sentence, query)
+                    if score is not None:
+                        return [CandidateSentence(sentence_id, sentence, score, query, context_text=sentence)]
+                continue
             matches = [
                 (score, query)
                 for query in queries
@@ -66,5 +88,5 @@ class WordNetSelector(CandidateSelector):
                 continue
             score, query = max(matches)
             if self.threshold is None or score >= self.threshold:
-                results.append(CandidateSentence(sentence_id, sentence, score, query))
+                results.append(CandidateSentence(sentence_id, sentence, score, query, context_text=sentence))
         return results
