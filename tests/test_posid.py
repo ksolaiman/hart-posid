@@ -40,7 +40,7 @@ class Synset:
 
 
 class WordNet:
-    colors = {"blue", "green", "purple", "red"}
+    colors = {"blue", "green", "grey", "purple", "red"}
 
     def synsets(self, token, *, pos):
         if token == "color":
@@ -104,6 +104,48 @@ def test_posid_reconstructed_symmetric_rules_and_legacy_height_forms():
         "The suspect was 6 feet 2 inches tall wearing a red hat.", "height-doc"
     )["height-doc"][0].attributes["height"]
     assert heights == "6 feet 2 inches tall"
+
+
+def test_posid_discovers_open_vocabulary_clothing_nouns():
+    text = "The suspect was wearing a blue hoodie and red boots."
+    people = extractor(CandidateSelector([0])).extract(text, "open")['open']
+
+    assert people[0].attributes["wearing"] == [
+        {"item": "hoodie", "descriptors": ["blue"]},
+        {"item": "boots", "descriptors": ["red"]},
+    ]
+
+
+def test_posid_constructs_multiword_clothing_names_from_noun_runs():
+    text = "The suspect was wearing a black tank top and grey dress pants."
+    people = extractor(CandidateSelector([0])).extract(text, "multiword")['multiword']
+
+    assert people[0].attributes["wearing"] == [
+        {"item": "tank top", "descriptors": ["black"]},
+        {"item": "dress pants", "descriptors": ["grey"]},
+    ]
+
+
+def test_posid_uses_candidate_scoped_fallback_without_wear_span():
+    text = (
+        "John is a 6-foot male wearing a red coat. "
+        "The suspect was a short Asian male, blue hoodie and red boots."
+    )
+    people = extractor(CandidateSelector([1])).extract(text, "fallback")['fallback']
+
+    assert len(people) == 1
+    assert people[0].role == "suspect"
+    assert people[0].attributes["gender"] == "male"
+    assert people[0].attributes["race"] == "asian"
+    assert people[0].attributes["height"] == "short"
+    assert people[0].attributes["wearing"] == [
+        {"item": "hoodie", "descriptors": ["blue"]},
+        {"item": "boots", "descriptors": ["red"]},
+    ]
+    assert all(
+        item["item"] != "coat"
+        for item in people[0].attributes["wearing"]
+    )
 
 
 def test_posid_only_extracts_clothing_from_selected_candidates():
