@@ -23,7 +23,7 @@ _GENDERS = {
     "boy": "male",
     # These symmetric forms are conservative reconstructions; the surviving
     # historical notebook only demonstrates the male-specific rules.
-    # confirmed that the reconstruction below for female if fine. 
+    # confirmed that the reconstruction below for female is fine.
     "female": "female",
     "woman": "female",
     "girl": "female",
@@ -83,37 +83,37 @@ class POSIDExtractor(Extractor):
 
         sentences = split_sentences(text)
         mentions: list[AttributeMention] = []
+
         shared_context: dict[int, tuple[str, ...]] = {}
         recent_shared: tuple[str, ...] = ()
-        # Fixed REGEXPROPVAL properties remain document-level once retrieval
-        # succeeds; variable clothing extraction is candidate-scoped below.
+
+        # i.e., if a sentence contains multiple anchors and the word "and", then all anchors are considered shared for that sentence.
+        # John and Mike entered the store.
+        # recent_shared = ("John", "Mike")
         for sentence_id, sentence in enumerate(sentences):
-            sentence_anchors = find_person_anchors(sentence)
-            if len(sentence_anchors) > 1 and re.search(
-                r"\band\b", sentence, re.IGNORECASE
-            ):
-                recent_shared = tuple(anchor[0] for anchor in sentence_anchors)
+            anchors = find_person_anchors(sentence)
+
+            if len(anchors) > 1 and re.search(r"\band\b", sentence, re.IGNORECASE):
+                recent_shared = tuple(anchor[0] for anchor in anchors)
+            elif anchors:
+                recent_shared = ()
+
             shared_context[sentence_id] = recent_shared
+        
+        seen_candidates: set[tuple[int, str]] = set()
+        for candidate in candidates:
+            sentence_id, sentence = self._candidate_sentence(candidate)
+
+            key = (sentence_id, sentence)
+            if key in seen_candidates:
+                continue
+            seen_candidates.add(key)
+
             mentions.extend(
                 self._extract_sentence(
                     sentence,
                     sentence_id,
                     include_fixed=True,
-                    include_clothing=False,
-                )
-            )
-
-        seen_sentence_ids: set[int] = set()
-        for candidate in candidates:
-            sentence_id, sentence = self._candidate_sentence(candidate, sentences)
-            if sentence_id in seen_sentence_ids:
-                continue
-            seen_sentence_ids.add(sentence_id)
-            mentions.extend(
-                self._extract_sentence(
-                    sentence,
-                    sentence_id,
-                    include_fixed=False,
                     include_clothing=True,
                     shared_anchors=shared_context.get(sentence_id, ()),
                 )
@@ -121,14 +121,26 @@ class POSIDExtractor(Extractor):
         return resolve_mentions(document_id, mentions)
 
     @staticmethod
+    def _clothing_portion(sentence: str) -> tuple[str, int] | None:
+        match = re.search(
+            r"\b(?:wear|wears|wearing|wore)\b[^.]*",
+            sentence,
+            re.IGNORECASE,
+        )
+        if match is None:
+            return None
+
+        return match.group(0), match.start()
+
+    @staticmethod
     def _candidate_sentence(
         candidate: CandidateSentence,
-        sentences: list[str],
     ) -> tuple[int, str]:
-        if 0 <= candidate.sentence_id < len(sentences):
-            return candidate.sentence_id, sentences[candidate.sentence_id]
-        return candidate.sentence_id, candidate.text
-
+        return (
+            candidate.sentence_id,
+            candidate.context_text or candidate.text,
+        )
+    
     def _extract_sentence(
         self,
         sentence: str,
@@ -184,31 +196,40 @@ class POSIDExtractor(Extractor):
                     height_spans.append(match.span())
 
         if include_clothing:
-            tokens = tokenize_words(sentence)
-            tagged = list(self.tagger(tokens))
-            token_positions = self._token_positions(sentence, tokens)
-            for start, _, item in self._clothing_spans(tokens):
-                position = token_positions[start]
-                pronoun_match = re.search(
-                    r"\b(?:he|she|they)\b",
-                    sentence[:position],
-                    re.IGNORECASE,
-                )
-                mentions.append(
-                    self._anchored_mention(
-                        "wearing",
-                        {"item": item, "descriptors": self._descriptors(tagged, start)},
-                        sentence_id,
-                        position,
-                        anchors,
-                        pronoun=pronoun_match.group(0).lower() if pronoun_match else None,
-                        shared_anchors=(
-                            shared_anchors
-                            if re.search(r"\bboth\b", sentence, re.IGNORECASE)
-                            else ()
-                        ),
+            portion = self._clothing_portion(sentence)
+
+            if portion is not None:
+                clothing_text, clothing_offset = portion
+
+                tokens = tokenize_words(clothing_text)
+                tagged = list(self.tagger(tokens))
+
+                token_positions = [
+                    clothing_offset + position
+                    for position in self._token_positions(clothing_text, tokens)
+                ]
+                for start, _, item in self._clothing_spans(tokens):
+                    position = token_positions[start]
+                    pronoun_match = re.search(
+                        r"\b(?:he|she|they)\b",
+                        sentence[:position],
+                        re.IGNORECASE,
                     )
-                )
+                    mentions.append(
+                        self._anchored_mention(
+                            "wearing",
+                            {"item": item, "descriptors": self._descriptors(tagged, start)},
+                            sentence_id,
+                            position,
+                            anchors,
+                            pronoun=pronoun_match.group(0).lower() if pronoun_match else None,
+                            shared_anchors=(
+                                shared_anchors
+                                if re.search(r"\bboth\b", sentence, re.IGNORECASE)
+                                else ()
+                            ),
+                        )
+                    )
         return mentions
 
     @staticmethod
@@ -296,3 +317,5 @@ class POSIDExtractor(Extractor):
             if score is not None and score > self.color_threshold:
                 return True
         return False
+
+    
