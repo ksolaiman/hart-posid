@@ -85,13 +85,16 @@ class POSIDExtractor(Extractor):
         mentions: list[AttributeMention] = []
 
         shared_context: dict[int, tuple[str, ...]] = {}
+        prior_context: dict[int, list[tuple[str, int, str | None]]] = {}
         recent_shared: tuple[str, ...] = ()
+        seen_anchors: list[tuple[str, int, str | None]] = []
 
         # i.e., if a sentence contains multiple anchors and the word "and", then all anchors are considered shared for that sentence.
         # John and Mike entered the store.
         # recent_shared = ("John", "Mike")
         for sentence_id, sentence in enumerate(sentences):
             anchors = find_person_anchors(sentence)
+            prior_context[sentence_id] = list(seen_anchors)
 
             if len(anchors) > 1 and re.search(r"\band\b", sentence, re.IGNORECASE):
                 recent_shared = tuple(anchor[0] for anchor in anchors)
@@ -99,6 +102,7 @@ class POSIDExtractor(Extractor):
                 recent_shared = ()
 
             shared_context[sentence_id] = recent_shared
+            seen_anchors.extend(anchors)
         
         seen_candidates: set[tuple[int, str]] = set()
         for candidate in candidates:
@@ -116,6 +120,7 @@ class POSIDExtractor(Extractor):
                     include_fixed=True,
                     include_clothing=True,
                     shared_anchors=shared_context.get(sentence_id, ()),
+                    prior_anchors=prior_context.get(sentence_id, []),
                 )
             )
         return resolve_mentions(document_id, mentions)
@@ -149,6 +154,7 @@ class POSIDExtractor(Extractor):
         include_fixed: bool,
         include_clothing: bool,
         shared_anchors: tuple[str, ...] = (),
+        prior_anchors: list[tuple[str, int, str | None]] | None = None,
     ) -> list[AttributeMention]:
         mentions: list[AttributeMention] = []
         anchors = find_person_anchors(sentence)
@@ -168,8 +174,11 @@ class POSIDExtractor(Extractor):
 
             # This small symmetric race lexicon is reconstructed from task labels;
             # it extracts explicit text only and never infers race from a name.
+            clothing_start = self._clothing_portion(sentence)
             for race in _RACES:
                 for match in re.finditer(rf"\b{race}\b", sentence, re.IGNORECASE):
+                    if clothing_start is not None and match.start() >= clothing_start[1]:
+                        continue
                     mentions.append(
                         self._anchored_mention(
                             "race", race, sentence_id, match.start(), anchors
@@ -215,13 +224,23 @@ class POSIDExtractor(Extractor):
                         sentence[:position],
                         re.IGNORECASE,
                     )
+                    if pronoun_match and not anchors and prior_anchors:
+                        mentions.extend(
+                            AttributeMention(
+                                "__anchor__", None, sentence_id, anchor_position, anchor, role
+                            )
+                            for anchor, anchor_position, role in prior_anchors
+                        )
+                    mention_anchors = anchors
+                    if pronoun_match and not mention_anchors and prior_anchors:
+                        mention_anchors = prior_anchors
                     mentions.append(
                         self._anchored_mention(
                             "wearing",
                             {"item": item, "descriptors": self._descriptors(tagged, start)},
                             sentence_id,
                             position,
-                            anchors,
+                            mention_anchors,
                             pronoun=pronoun_match.group(0).lower() if pronoun_match else None,
                             shared_anchors=(
                                 shared_anchors
@@ -270,6 +289,12 @@ class POSIDExtractor(Extractor):
     @staticmethod
     def _clothing_spans(tokens: list[str]) -> list[tuple[int, int, str]]:
         lowered = [token.lower() for token in tokens]
+        lowered = [
+            token[:-1]
+            if token.endswith("s") and token not in {"pants", "jeans", "shoes", "shorts"}
+            else token
+            for token in lowered
+        ]
         spans: list[tuple[int, int, str]] = []
         index = 0
         while index < len(tokens):
@@ -309,6 +334,8 @@ class POSIDExtractor(Extractor):
         return [token for token in descriptors if self._is_color(token)]
 
     def _is_color(self, token: str) -> bool:
+        if token.lower() == "black":
+            return True
         color_synsets = self.wordnet.synsets("color", pos="n")
         if not color_synsets:
             return False
