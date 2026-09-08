@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Iterable
+from typing import Any, Iterable, NamedTuple
 
 from hart.schema import PersonAnnotation, PersonPrediction
 
@@ -14,6 +14,13 @@ class MetricResult:
     true_positive: int
     false_positive: int
     false_negative: int
+
+
+class MatchResult(NamedTuple):
+    pairs: list[tuple[PersonAnnotation, PersonPrediction]]
+    ambiguous: int
+    unmatched_gold: list[PersonAnnotation]
+    unmatched_predictions: list[PersonPrediction]
 
 
 def _prf(true_positive: int, false_positive: int, false_negative: int) -> MetricResult:
@@ -51,12 +58,13 @@ def _descriptors(item: dict[str, Any]) -> frozenset[str]:
 def match_people(
     gold: Iterable[PersonAnnotation],
     predictions: Iterable[PersonPrediction],
-) -> tuple[list[tuple[PersonAnnotation, PersonPrediction]], int]:
+) -> MatchResult:
     """Pair people deterministically and return the number of ambiguous matches."""
     gold_people = list(gold)
     predicted_people = list(predictions)
     remaining = list(range(len(predicted_people)))
     pairs: list[tuple[PersonAnnotation, PersonPrediction]] = []
+    unmatched_gold: list[PersonAnnotation] = []
     ambiguous = 0
 
     for gold_person in gold_people:
@@ -86,13 +94,19 @@ def match_people(
                 ]
                 scores.sort(reverse=True)
                 if not scores:
+                    unmatched_gold.append(gold_person)
                     continue
                 index = scores[0][1]
                 if len(scores) > 1 and scores[0][0] == scores[1][0]:
                     ambiguous += 1
         remaining.remove(index)
         pairs.append((gold_person, predicted_people[index]))
-    return pairs, ambiguous
+    return MatchResult(
+        pairs,
+        ambiguous,
+        unmatched_gold,
+        [predicted_people[index] for index in remaining],
+    )
 
 
 def _overlap_score(gold: dict[str, Any], predicted: dict[str, Any]) -> int:
@@ -109,11 +123,11 @@ def clothing_metrics(
     gold_people: Iterable[PersonAnnotation],
     predicted_people: Iterable[PersonPrediction],
 ) -> dict[str, MetricResult]:
-    pairs, _ = match_people(gold_people, predicted_people)
+    matches = match_people(gold_people, predicted_people)
     attr_only_tp = attr_only_fp = attr_only_fn = 0
     attr_value_tp = attr_value_fp = attr_value_fn = 0
 
-    for gold_person, predicted_person in pairs:
+    for gold_person, predicted_person in matches.pairs:
         gold_items = _clothing(gold_person.attributes)
         predicted_items = _clothing(predicted_person.attributes)
         remaining_gold = list(gold_items)
@@ -137,6 +151,16 @@ def clothing_metrics(
         attr_only_fn += len(remaining_gold)
         attr_value_fn += len(remaining_gold)
 
+    for gold_person in matches.unmatched_gold:
+        gold_count = len(_clothing(gold_person.attributes))
+        attr_only_fn += gold_count
+        attr_value_fn += gold_count
+
+    for predicted_person in matches.unmatched_predictions:
+        predicted_count = len(_clothing(predicted_person.attributes))
+        attr_only_fp += predicted_count
+        attr_value_fp += predicted_count
+
     return {
         "attr_only": _prf(attr_only_tp, attr_only_fp, attr_only_fn),
         "attr_value": _prf(attr_value_tp, attr_value_fp, attr_value_fn),
@@ -148,9 +172,9 @@ def compare_attribute(
     predicted_people: Iterable[PersonPrediction],
     attribute: str,
 ) -> MetricResult:
-    pairs, _ = match_people(gold_people, predicted_people)
+    matches = match_people(gold_people, predicted_people)
     true_positive = false_positive = false_negative = 0
-    for gold_person, predicted_person in pairs:
+    for gold_person, predicted_person in matches.pairs:
         gold_value = _text(gold_person.attributes.get(attribute))
         predicted_value = _text(predicted_person.attributes.get(attribute))
         if gold_value is not None and predicted_value is not None:
@@ -162,5 +186,13 @@ def compare_attribute(
         elif gold_value is not None:
             false_negative += 1
         elif predicted_value is not None:
+            false_positive += 1
+
+    for gold_person in matches.unmatched_gold:
+        if _text(gold_person.attributes.get(attribute)) is not None:
+            false_negative += 1
+
+    for predicted_person in matches.unmatched_predictions:
+        if _text(predicted_person.attributes.get(attribute)) is not None:
             false_positive += 1
     return _prf(true_positive, false_positive, false_negative)
