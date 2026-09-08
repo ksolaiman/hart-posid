@@ -745,16 +745,44 @@ For local Codex or any coding agent:
 - do not implement future modules early
 - do not infer missing historical details without approval
 
-## 18. Immediate next step
+## 18. Current reproduction checkpoint
 
-Current checkpoint status:
+The Full-558 legacy reproduction harness is operational.
 
-- candidate retrieval layer: implemented
-- data-ingestion/annotation-adaptation layer: implemented
-- extraction layer (Stacked, POSID, Regex baseline, Dependency baseline, shared person resolution, `PersonPrediction`): implemented and currently in regression-stabilization
+Verified corpus:
+- 558 indexed documents
+- 553 gold person annotations
+- 6 zero-person documents
+- 551 single-person documents
+- 1 multi-person document
 
-The immediate task is to resolve concrete extraction regressions exposed by the approved deterministic tests without broadly redesigning the methods.
+The temporary whitelist-based POSID clothing implementation has been
+replaced with a closer Algorithm-1 reconstruction using POS-tagged,
+open-vocabulary noun/property construction and candidate-scoped fallback
+when no explicit wear/wearing/wore span exists.
 
-Do not reopen completed candidate/data architecture unless a concrete regression requires a narrow approved fix.
+The legacy evaluator has also been corrected:
+- unmatched gold people now contribute false negatives
+- unmatched predicted people now contribute false positives
+- the Full-558 clothing gold denominator is fixed at 1503 items for all methods
 
-After the extraction regression suite is stable, the next major milestone is the **legacy reproduction/evaluation harness** for running the historical POSID variants and comparing empirical precision/recall/F1 against the published paper tables.
+Current corrected untuned results:
+- RE + POSID: AO F1 0.247, AV F1 0.217
+- WordNet + POSID: AO F1 0.093, AV F1 0.080
+- RE + WordNet + POSID: AO F1 0.249, AV F1 0.217
+
+Important current observation:
+RE + POSID produced 1265 predicted people, of which 721 were unmatched,
+despite the corpus containing only 553 gold people and being almost
+entirely single-person documents.
+
+This strongly suggests person-fragmentation may be a major source of
+the low person-level score.
+
+Next step:
+perform diagnostic-only comparison of person-level versus document-level
+clothing evaluation, plus distribution of predicted people per document,
+before modifying person resolution or POSID again.
+
+Do not tune thresholds, queries, candidate methods, evaluator semantics,
+or POSID extraction based on these scores until this diagnosis is complete.

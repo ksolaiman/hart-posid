@@ -12,23 +12,29 @@ When legacy behavior is uncertain, preserve the uncertainty in comments or docum
 
 ## Current development scope
 
-Candidate retrieval and the current data-ingestion/annotation-adaptation layer are completed checkpoints.
+Current stage: legacy POSID reproduction and evaluation stabilization.
 
-The extraction layer has now been implemented and is in **regression-stabilization**.
+Completed:
+- candidate selectors implemented and regression-tested
+- Full-558 InciText loading validated
+- POSID clothing extraction updated toward Algorithm 1 using open-vocabulary POS/noun construction
+- legacy evaluator corrected so unmatched gold people contribute false negatives and unmatched predicted people contribute false positives
 
-Current work should be limited to:
-- fixing concrete extraction regressions exposed by approved deterministic tests
-- preserving verified/reconstructed semantics already documented here
-- avoiding broad redesign of completed candidate/data/extraction architecture
+Verified Full-558 gold clothing denominator:
+- 1503 clothing items for every evaluated method
 
-Do not reopen or redesign the completed data layer.
+Current untuned corrected reproduction:
+- RE + POSID AO F1: 0.247
+- RE + POSID AV F1: 0.217
+- WordNet + POSID AO F1: 0.093
+- WordNet + POSID AV F1: 0.080
+- RE + WordNet + POSID AO F1: 0.249
+- RE + WordNet + POSID AV F1: 0.217
 
-Do not broadly redesign completed candidate modules. Candidate changes should be limited to concrete, approved fixes required by the current regression-stabilization work.
+Current diagnostic priority:
+determine whether low person-level scores are primarily caused by repeated mentions being fragmented into multiple PersonPrediction records.
 
-Do not implement evaluation, LLM adapters, benchmark runners, experiment configs, bootstrap analysis, cost analysis, or error analysis during this stabilization checkpoint unless explicitly instructed later.
-
-After extraction regressions are stable, the next major milestone is the legacy reproduction/evaluation harness.
-
+Do not tune POSID, candidate thresholds, queries, or evaluation semantics until that diagnosis is complete.
 
 ## Repository design rule
 
@@ -637,6 +643,11 @@ When asked to implement a file:
 5. Run only the relevant test(s).
 6. Report any ambiguity before resolving it by assumption.
 7. Preserve small, reviewable diffs.
+
+During the current diagnostic stage, do not modify legacy_metrics.py,
+POSID clothing extraction, candidate selectors, thresholds, or queries
+merely to improve agreement with published results. Diagnose
+person-fragmentation and legacy evaluation semantics first.
 
 ## Git discipline
 
