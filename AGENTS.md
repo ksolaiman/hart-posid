@@ -12,19 +12,23 @@ When legacy behavior is uncertain, preserve the uncertainty in comments or docum
 
 ## Current development scope
 
-At the current stage, implement only candidate sentence selection.
+Candidate retrieval and the current data-ingestion/annotation-adaptation layer are completed checkpoints.
 
-Current intended files:
+The extraction layer has now been implemented and is in **regression-stabilization**.
 
-- `src/hart/candidates/__init__.py`
-- `src/hart/candidates/base.py`
-- `src/hart/candidates/regex.py`
-- `src/hart/candidates/word2vec.py`
-- `src/hart/candidates/wordnet.py`
-- `src/hart/candidates/zero_shot.py`
-- `tests/test_candidates_sample.py`
+Current work should be limited to:
+- fixing concrete extraction regressions exposed by approved deterministic tests
+- preserving verified/reconstructed semantics already documented here
+- avoiding broad redesign of completed candidate/data/extraction architecture
 
-Do not implement POSID property extraction yet unless explicitly instructed.
+Do not reopen or redesign the completed data layer.
+
+Do not broadly redesign completed candidate modules. Candidate changes should be limited to concrete, approved fixes required by the current regression-stabilization work.
+
+Do not implement evaluation, LLM adapters, benchmark runners, experiment configs, bootstrap analysis, cost analysis, or error analysis during this stabilization checkpoint unless explicitly instructed later.
+
+After extraction regressions are stable, the next major milestone is the legacy reproduction/evaluation harness.
+
 
 ## Repository design rule
 
@@ -61,17 +65,41 @@ Thresholds should be explicit constructor/configuration parameters.
 
 ## Candidate interface
 
-Candidate methods should return a common structured result, such as:
+Candidate methods return a common structured result through `CandidateSentence`.
 
-- sentence id
-- sentence/span text
-- score
-- matched query
+Confirmed semantics:
 
-The current shared abstraction is expected to include:
+- `sentence_id`: deterministic candidate/context identifier
+- `text`: the candidate returned by the retrieval algorithm
+- `context_text`: optional surrounding candidate sentence/context used by downstream extraction
+- `score`: candidate score
+- `query`: matched/query phrase
+
+Important distinction:
+
+```text
+CandidateSentence.text
+    = retrieval output
+
+CandidateSentence.context_text
+    = surrounding candidate sentence/context for downstream extraction
+```
+
+For the historical Regex path, preserve the recovered span behavior:
+
+```text
+text = "wearing a red shirt and blue pants"
+```
+
+while `context_text` should retain the full descriptive candidate context needed by POSID.
+
+For Word2Vec, WordNet, and ZeroShot, which already return sentence-level candidates, `context_text` may equal `text` or be omitted when `text` itself is sufficient.
+
+The current shared abstraction includes:
 
 - `CandidateSentence`
 - `CandidateSelector`
+
 
 ## Regex candidate selection
 
@@ -96,6 +124,8 @@ Requirements:
 Example for query `wearing`:
 
 `wearing a red shirt and blue pants`
+
+Do not redefine the historical Regex retrieval output merely to satisfy downstream POSID. Preserve the matched span in `CandidateSentence.text`; use `CandidateSentence.context_text` for the surrounding candidate context.
 
 ## Word2Vec candidate selection
 
@@ -211,11 +241,28 @@ Historical experiment threshold `0.85` belongs in configuration/test setup.
 
 ## Stacked behavior
 
-The legacy system used fallback behavior where an exact/pattern method could run first and a semantic method was used only when the primary method returned no candidate.
+`StackedSelector` is implemented as fallback composition.
 
-Do not add a stacked module until explicitly instructed.
+Confirmed behavior:
 
-When added later, keep primary and fallback candidate selectors composable rather than duplicating algorithm logic.
+```text
+primary selector
+    -> if candidates are found, return them
+    -> otherwise run fallback selector
+```
+
+Requirements:
+
+- do not concatenate fallback results when the primary succeeds
+- keep primary and fallback selectors composable
+- do not duplicate candidate algorithm logic inside `StackedSelector`
+- support separately configurable query lists:
+  - `primary_queries`
+  - `fallback_queries`
+- do not hardcode historical query phrases in the reusable stacked implementation
+
+Separate query lists are required because historical stacked experiments can use different queries for Regex and semantic selectors.
+
 
 ## Data and annotation loading architecture
 
@@ -489,6 +536,51 @@ Confirmed implementation decision:
 
 This reconstruction policy applies to `POSIDExtractor` fixed-property handling. It does not redefine the separate modern Regex baseline.
 
+## POSID candidate scope and person resolution
+
+### Candidate-scoped POSID extraction
+
+Confirmed POSID control flow follows Algorithm 1 at the candidate-context level.
+
+For each selected candidate context `s`:
+
+```text
+candidate context s
+    -> extract GENDER / RACE / HEIGHT from s
+    -> derive the CLOTHES partial span from s
+    -> run clothing extraction on that partial span
+```
+
+Successful candidate retrieval is **not** permission to scan the entire document for fixed properties.
+
+If a retrieval method such as historical Regex returns only a span in `CandidateSentence.text`, POSID should use `CandidateSentence.context_text` as the full candidate context `s` when available.
+
+### Shared deterministic person resolution
+
+`src/hart/extractors/person_resolution.py` is the shared person-assignment policy for Regex, Dependency, and POSID.
+
+Confirmed rules:
+
+- clearly distinct person mentions produce separate `PersonPrediction` objects
+- explicit names or person roles create/select person anchors
+- same-sentence attributes attach to the nearest compatible local anchor
+- pronouns continue the most recent compatible person when locally unambiguous
+- for an unanchored pronoun/continuation candidate, locally preceding person-anchor context may be used for resolution without extracting fixed properties from that noncandidate sentence
+- when multiple people are plausible, prefer the nearest preceding compatible anchor
+- coordinated/shared descriptions may attach to multiple people
+- if no plausible anchor exists, create an anonymous person prediction
+- deterministic runtime IDs may use `<document_id>:0`, `<document_id>:1`, etc., in textual discovery order
+- do not introduce a heavy coreference/entity-resolution system unless explicitly requested
+
+### Temporary POSID clothing implementation status
+
+During the current regression-stabilization pass, preserve the existing simplified POSID clothing implementation except for narrow fixes required by already-approved regression behavior.
+
+This simplified clothing implementation is **temporary** and is **not** considered the final historical-reproduction implementation of Algorithm 1.
+
+Do not perform a full POSID clothing rewrite during the current regression-fix pass. Revisit the clothing procedure against Algorithm 1 and the recovered notebooks after extraction stabilization and before attempting legacy table reproduction.
+
+
 ## Testing
 
 The current smoke-test text is:
@@ -520,6 +612,19 @@ Historical experiment settings may be used in the test setup:
 - zero-shot threshold: `0.85`
 
 Do not claim expected numeric Word2Vec, WordNet, or zero-shot scores until they are actually run with the corresponding resources.
+
+### Unit/regression tests versus experimental accuracy
+
+Unit/regression tests validate explicitly chosen algorithm semantics on controlled cases and are expected to pass completely.
+
+They are **not** corpus-level retrieval or accuracy targets.
+
+Do not:
+- add assertions requiring perfect corpus recall/accuracy
+- modify an algorithm merely to increase benchmark recall
+- treat a green unit-test suite as evidence that a method reproduces published precision/recall/F1
+
+Historical-paper reproduction and the new benchmark will later measure empirical precision, recall, and F1 on the relevant corpus/evaluation setup.
 
 ## Change discipline
 

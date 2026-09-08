@@ -36,6 +36,19 @@ The original paper/system used:
 
 The current implementation should preserve those as modular candidate selectors.
 
+
+### Confirmed stacked-selector behavior
+
+`StackedSelector` is implemented as fallback composition:
+
+```text
+primary selector
+    -> return primary results when non-empty
+    -> otherwise invoke fallback selector
+```
+
+The primary and fallback selectors use separately configurable query lists (`primary_queries` and `fallback_queries`) so historical Regex and semantic stages can use different query phrases without hardcoding them in reusable classes.
+
 ## 4. Regex candidate method
 
 The legacy code included behavior conceptually equivalent to:
@@ -277,7 +290,9 @@ A stacked selector may be added later, but should not be introduced until explic
 
 ## 10. Shared candidate abstraction
 
-The intended base abstraction includes a structured candidate result, for example:
+The candidate abstraction now distinguishes retrieval output from downstream extraction context.
+
+Conceptual form:
 
 ```python
 @dataclass(frozen=True)
@@ -286,9 +301,31 @@ class CandidateSentence:
     text: str
     score: float
     query: str | None = None
+    context_text: str | None = None
 ```
 
-and an abstract selector interface:
+Confirmed semantics:
+
+```text
+text
+    = the candidate returned by the retrieval algorithm
+
+context_text
+    = optional surrounding candidate sentence/context used by downstream extraction
+```
+
+For the recovered historical Regex path:
+
+```text
+text = matched "wearing..." span
+context_text = full descriptive candidate context
+```
+
+This preserves the historical Regex output while giving POSID the candidate context required by Algorithm 1.
+
+For Word2Vec, WordNet, and ZeroShot, `text` is already sentence-level; `context_text` may equal `text` or remain unnecessary.
+
+The abstract selector interface remains minimal:
 
 ```python
 class CandidateSelector(ABC):
@@ -297,7 +334,6 @@ class CandidateSelector(ABC):
         ...
 ```
 
-Keep the implementation minimal.
 
 ## 11. Current smoke-test sample
 
@@ -531,6 +567,51 @@ Confirmed decision:
 
 This decision applies to POSID fixed-property extraction, not to the separate 2026 direct Regex baseline.
 
+
+### POSID candidate scope
+
+Confirmed interpretation of Algorithm 1 for the current implementation:
+
+For each selected candidate context `s`:
+
+1. extract fixed properties `GENDER`, `RACE`, and `HEIGHT` from `s`
+2. derive the `CLOTHES` partial span from `s`
+3. apply clothing extraction to that partial span
+
+Do not treat successful candidate retrieval as permission to scan the entire document for fixed properties.
+
+When a retrieval method returns a partial span (historical Regex), use `CandidateSentence.context_text` as the full candidate context when available while preserving the original retrieval span in `CandidateSentence.text`.
+
+### Shared person-resolution policy
+
+`extractors/person_resolution.py` is the shared deterministic assignment layer for Regex, Dependency, and POSID.
+
+Confirmed behavior:
+
+- distinct named/role person mentions remain separate predictions
+- explicit names and roles create/select anchors
+- same-sentence attributes attach to the nearest compatible local anchor
+- pronouns continue the most recent compatible person when locally unambiguous
+- locally preceding person-anchor context may be used to resolve an unanchored pronoun/continuation candidate without extracting that noncandidate sentence's fixed attributes
+- when multiple people are plausible, use the nearest preceding compatible anchor
+- coordinated/shared descriptions may attach to multiple people
+- descriptions with no plausible anchor produce an anonymous person
+- runtime prediction IDs may be generated deterministically as `<document_id>:0`, `<document_id>:1`, etc.
+- no heavy coreference/entity-resolution system is part of the current baseline architecture
+
+### Temporary POSID clothing implementation status
+
+The current `POSIDExtractor` uses a simplified clothing-extraction implementation as an interim checkpoint.
+
+This is **not** considered the final historical-reproduction implementation of Algorithm 1.
+
+During the current regression-stabilization pass:
+- preserve the existing simplified clothing approach
+- allow only narrow fixes required by already-approved regression behavior
+- do not perform a full historical clothing rewrite
+
+After extraction stabilization, revisit POSID clothing against Algorithm 1 and the recovered notebooks **before attempting legacy table reproduction**.
+
 ### Universal prediction representation
 
 All extractors should emit a canonical person-level prediction object rather than method-specific raw dictionaries or per-attribute records.
@@ -567,6 +648,23 @@ Do not use a flattened `AttributePrediction` object as the primary extractor int
 Per-attribute flattening should occur only in the evaluation layer, where it can support per-attribute metrics, source/domain splits, bootstrap confidence intervals, and error analysis.
 
 Core `PersonPrediction` does not require `sentence_id` or `evidence_text`. Optional method-specific provenance can be placed in `metadata`.
+
+## 12B. Regression tests versus empirical evaluation
+
+Deterministic unit/regression tests and corpus-level evaluation serve different purposes.
+
+Unit/regression tests:
+- verify explicitly chosen algorithm semantics on controlled examples
+- are expected to pass completely once implementation is stable
+- should not encode a requirement for perfect corpus retrieval
+
+Empirical evaluation:
+- measures actual precision, recall, and F1
+- is used for historical-paper reproduction and the new 2026 benchmark
+- may reveal genuine false positives/false negatives even when all unit tests pass
+
+Do not modify a method merely to force perfect corpus accuracy, and do not interpret a green unit-test suite as reproduction of the paper's reported tables.
+
 
 ## 13. Benchmark plan
 
@@ -649,14 +747,14 @@ For local Codex or any coding agent:
 
 ## 18. Immediate next step
 
-Candidate retrieval and the current data-ingestion/annotation-adaptation layer are implemented checkpoints.
+Current checkpoint status:
 
-The next implementation pass should create the extraction layer and stacked candidate composition while preserving the confirmed decisions above:
+- candidate retrieval layer: implemented
+- data-ingestion/annotation-adaptation layer: implemented
+- extraction layer (Stacked, POSID, Regex baseline, Dependency baseline, shared person resolution, `PersonPrediction`): implemented and currently in regression-stabilization
 
-- add the verified historical WordNet asymmetric candidate mode
-- implement stacked primary/fallback candidate selection composition
-- add `PersonPrediction` as the universal extractor output contract
-- implement POSID fixed-property and clothing extraction, using conservative documented reconstruction for missing symmetric gender/race regex behavior
-- implement the separate 2026 Regex and Dependency baselines without conflating them with legacy RE + POSID
+The immediate task is to resolve concrete extraction regressions exposed by the approved deterministic tests without broadly redesigning the methods.
 
-Do not reopen unrelated completed candidate or data-layer code unless a concrete bug or requirement is identified.
+Do not reopen completed candidate/data architecture unless a concrete regression requires a narrow approved fix.
+
+After the extraction regression suite is stable, the next major milestone is the **legacy reproduction/evaluation harness** for running the historical POSID variants and comparing empirical precision/recall/F1 against the published paper tables.
