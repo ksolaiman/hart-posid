@@ -42,8 +42,7 @@ def surface_mentions(text: str) -> list[AttributeMention]:
             mentions.append(AttributeMention("__anchor__", None, sentence_id, position, anchor, role))
 
         for word, value in GENDER_WORDS.items():
-            match = re.search(rf"\b{word}\b", sentence, re.IGNORECASE)
-            if match:
+            for match in re.finditer(rf"\b{word}\b", sentence, re.IGNORECASE):
                 local_anchor = nearest_preceding_anchor(anchors, match.start())
                 anchor = local_anchor[0] if local_anchor else None
                 role = local_anchor[2] if local_anchor else None
@@ -55,8 +54,7 @@ def surface_mentions(text: str) -> list[AttributeMention]:
             r"\b(?:short|tall)\b",
         )
         for pattern in height_patterns:
-            match = re.search(pattern, sentence, re.IGNORECASE)
-            if match:
+            for match in re.finditer(pattern, sentence, re.IGNORECASE):
                 local_anchor = nearest_preceding_anchor(anchors, match.start())
                 mentions.append(AttributeMention("height", match.group(0).strip(), sentence_id, match.start(), local_anchor[0] if local_anchor else None, local_anchor[2] if local_anchor else None))
 
