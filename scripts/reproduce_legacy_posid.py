@@ -20,6 +20,7 @@ from hart.data import LegacyAnnotationLoader, load_document_index, load_document
 from hart.evaluation.legacy_metrics import clothing_metrics, compare_attribute, match_people
 from hart.evaluation.extraction_metrics import (
     corpus_gold_attr_value_units,
+    corpus_gold_finite_values,
     evaluate_corpus,
 )
 from hart.extractors import POSIDExtractor
@@ -136,12 +137,18 @@ def run(args: argparse.Namespace) -> int:
     gold = LegacyAnnotationLoader().load(annotations_path)
     document_ids = [record.document_id for record in records]
     gold_attr_value_units = corpus_gold_attr_value_units(gold, document_ids)
+    gold_finite_values = {
+        attribute: corpus_gold_finite_values(gold, attribute, document_ids)
+        for attribute in ("gender", "race", "height")
+    }
     print("DATA CHECK — Full-558 InciText reproduction")
     print(f"  total indexed documents = {len(records)}")
     print(f"  gold person annotations = {sum(len(people) for people in gold.values())}")
     print(f"  zero-person documents = {sum(not people for people in gold.values())}")
     print(f"  single-person documents = {sum(len(people) == 1 for people in gold.values())}")
     print(f"  multi-person documents = {sum(len(people) > 1 for people in gold.values())}")
+    for attribute, count in gold_finite_values.items():
+        print(f"  gold {attribute} values = {count}")
     if len(records) != 558:
         raise RuntimeError(f"Expected 558 indexed documents, found {len(records)}")
 
@@ -168,6 +175,14 @@ def run(args: argparse.Namespace) -> int:
         ao = _sum_metrics(clothing, "attr_only")
         av = _sum_metrics(clothing, "attr_value")
         primary = evaluate_corpus(gold, predictions, document_ids)
+        for attribute, gold_count in gold_finite_values.items():
+            metric = primary[attribute]
+            if metric.true_positive + metric.false_negative != gold_count:
+                raise RuntimeError(
+                    f"{name} {attribute} denominator mismatch: "
+                    f"TP + FN = {metric.true_positive + metric.false_negative}, "
+                    f"gold = {gold_count}"
+                )
         attribute_metrics = {
             attribute: asdict(_sum_attribute_metrics(
                 [compare_attribute(gold.get(doc.document_id, []), predictions.get(doc.document_id, []), attribute) for doc in documents]
@@ -183,6 +198,9 @@ def run(args: argparse.Namespace) -> int:
             "attr_only": asdict(ao),
             "attr_value": asdict(av),
             "primary_extraction": {
+                "gender": asdict(primary["gender"]),
+                "race": asdict(primary["race"]),
+                "height": asdict(primary["height"]),
                 "attr_only": asdict(primary["attr_only"]),
                 "attr_value": asdict(primary["attr_value"]),
             },
@@ -204,6 +222,9 @@ def run(args: argparse.Namespace) -> int:
                     for person in people
                 ),
                 "gold_attr_value_units": gold_attr_value_units,
+                "gold_gender_values": gold_finite_values["gender"],
+                "gold_race_values": gold_finite_values["race"],
+                "gold_height_values": gold_finite_values["height"],
                 "exceptions": len(errors),
                 "ambiguous_multi_person_documents": ambiguous_documents,
             },
@@ -264,25 +285,26 @@ def _print_tables(results: dict[str, Any]) -> None:
         print(f"  PRIMARY P/R/F1 AO={primary['attr_only']['precision']:.2f}/{primary['attr_only']['recall']:.2f}/{primary['attr_only']['f1']:.2f} AV={primary['attr_value']['precision']:.2f}/{primary['attr_value']['recall']:.2f}/{primary['attr_value']['f1']:.2f}")
         print(f"  PERSON-AWARE P/R/F1 AO={diagnostic['attr_only']['precision']:.2f}/{diagnostic['attr_only']['recall']:.2f}/{diagnostic['attr_only']['f1']:.2f} AV={diagnostic['attr_value']['precision']:.2f}/{diagnostic['attr_value']['recall']:.2f}/{diagnostic['attr_value']['f1']:.2f}")
 
-    print("\nTABLE I COMPARISON — RE + SBERT / ZERO-SHOT + POSID — FULL 558")
-    print("Attribute | Published P/R/F1 | Reproduced P/R/F1 | Delta")
-    if "re_sbert_posid" not in results:
-        for attribute, published in PUBLISHED_TABLE_I.items():
-            print(f"{attribute} | {published[0]:.2f}/{published[1]:.2f}/{published[2]:.2f} | BLOCKED | BLOCKED")
-        return
-    best = results["re_sbert_posid"]
-    reproduced = {
-        "gender": best["attributes"]["gender"],
-        "race": best["attributes"]["race"],
-        "height": best["attributes"]["height"],
-        "clothes_attr_only": best["attr_only"],
-        "clothes_attr_value": best["attr_value"],
-    }
-    for attribute, published in PUBLISHED_TABLE_I.items():
-        metric = reproduced[attribute]
-        values = (metric["precision"], metric["recall"], metric["f1"])
-        delta = tuple(values[index] - published[index] for index in range(3))
-        print(f"{attribute} | {published[0]:.2f}/{published[1]:.2f}/{published[2]:.2f} | {values[0]:.2f}/{values[1]:.2f}/{values[2]:.2f} | {delta[0]:+.2f}/{delta[1]:+.2f}/{delta[2]:+.2f}")
+    print("\nPRIMARY EXTRACTION — FULL 558 DOCUMENTS")
+    print("Method | Gender P/R/F1 | Race P/R/F1 | Height P/R/F1 | Clothes AO P/R/F1 | Clothes AV P/R/F1")
+    for key, label in labels:
+        if key not in results:
+            continue
+        primary = results[key]["primary_extraction"]
+        formatted = [
+            f"{primary[metric]['precision']:.3f}/{primary[metric]['recall']:.3f}/{primary[metric]['f1']:.3f}"
+            for metric in ("gender", "race", "height", "attr_only", "attr_value")
+        ]
+        print(f"{label} | " + " | ".join(formatted))
+
+    print("\nPUBLISHED BEST LEGACY RE + SBERT/POSID — CONTEXT ONLY")
+    print("Attribute | Published P/R/F1")
+    for attribute in ("gender", "race", "height"):
+        published = PUBLISHED_TABLE_I[attribute]
+        print(
+            f"{attribute} | "
+            f"{published[0]:.2f}/{published[1]:.2f}/{published[2]:.2f}"
+        )
 
 
 if __name__ == "__main__":

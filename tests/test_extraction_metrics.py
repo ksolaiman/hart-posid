@@ -1,4 +1,9 @@
-from hart.evaluation.extraction_metrics import evaluate_document
+from hart.evaluation.extraction_metrics import (
+    corpus_gold_finite_values,
+    evaluate_corpus,
+    evaluate_document,
+    finite_attribute_metrics,
+)
 from hart.schema import PersonAnnotation, PersonPrediction
 
 
@@ -12,6 +17,14 @@ def prediction(items, person_id="doc:0"):
 
 def item(name, descriptors):
     return {"item": name, "descriptors": descriptors}
+
+
+def gold_attribute(attribute, value, person_id="doc:0"):
+    return [PersonAnnotation("doc", person_id, None, {attribute: value})]
+
+
+def predicted_attribute(attribute, value, person_id="doc:0"):
+    return [PersonPrediction("doc", person_id, None, {attribute: value})]
 
 
 def test_fragmented_predictions_are_pooled_for_primary_metrics():
@@ -105,3 +118,146 @@ def test_multiplicity_is_not_collapsed():
     assert result["attr_only"].false_negative == 1
     assert result["attr_value"].true_positive == 2
     assert result["attr_value"].false_negative == 2
+
+
+def test_finite_attribute_correct_value_is_true_positive():
+    result = finite_attribute_metrics(
+        gold_attribute("gender", "male"),
+        predicted_attribute("gender", "male"),
+        "gender",
+    )
+
+    assert (result.true_positive, result.false_positive, result.false_negative) == (
+        1,
+        0,
+        0,
+    )
+
+
+def test_finite_attribute_wrong_value_is_false_positive_and_false_negative():
+    result = finite_attribute_metrics(
+        gold_attribute("gender", "male"),
+        predicted_attribute("gender", "female"),
+        "gender",
+    )
+
+    assert (result.true_positive, result.false_positive, result.false_negative) == (
+        0,
+        1,
+        1,
+    )
+
+
+def test_fragmented_correct_finite_value_and_empty_prediction_are_pooled():
+    predictions = predicted_attribute("race", "asian") + predicted_attribute(
+        "race", None, "doc:1"
+    )
+    result = finite_attribute_metrics(
+        gold_attribute("race", "asian"), predictions, "race"
+    )
+
+    assert (result.true_positive, result.false_positive, result.false_negative) == (
+        1,
+        0,
+        0,
+    )
+
+
+def test_conflicting_extra_finite_value_is_preserved_as_false_positive():
+    predictions = predicted_attribute("race", "asian") + predicted_attribute(
+        "race", "white", "doc:1"
+    )
+    result = finite_attribute_metrics(
+        gold_attribute("race", "asian"), predictions, "race"
+    )
+
+    assert (result.true_positive, result.false_positive, result.false_negative) == (
+        1,
+        1,
+        0,
+    )
+
+
+def test_missing_finite_value_is_false_negative():
+    result = finite_attribute_metrics(
+        gold_attribute("height", "5 feet 9 inches"),
+        predicted_attribute("height", None),
+        "height",
+    )
+
+    assert (result.true_positive, result.false_positive, result.false_negative) == (
+        0,
+        0,
+        1,
+    )
+
+
+def test_finite_prediction_when_gold_is_null_is_false_positive():
+    result = finite_attribute_metrics(
+        gold_attribute("height", None),
+        predicted_attribute("height", "5 feet 9 inches"),
+        "height",
+    )
+
+    assert (result.true_positive, result.false_positive, result.false_negative) == (
+        0,
+        1,
+        0,
+    )
+
+
+def test_multi_person_finite_values_are_pooled():
+    gold_people = gold_attribute("gender", "male") + gold_attribute(
+        "gender", "female", "doc:1"
+    )
+    predictions = predicted_attribute("gender", "male") + predicted_attribute(
+        "gender", "female", "doc:1"
+    )
+    result = finite_attribute_metrics(gold_people, predictions, "gender")
+
+    assert (result.true_positive, result.false_positive, result.false_negative) == (
+        2,
+        0,
+        0,
+    )
+
+
+def test_multi_person_duplicate_finite_values_preserve_multiplicity():
+    gold_people = gold_attribute("gender", "male") + gold_attribute(
+        "gender", "male", "doc:1"
+    )
+    result = finite_attribute_metrics(
+        gold_people, predicted_attribute("gender", "male"), "gender"
+    )
+
+    assert (result.true_positive, result.false_positive, result.false_negative) == (
+        1,
+        0,
+        1,
+    )
+
+
+def test_height_does_not_use_approximate_matching():
+    result = finite_attribute_metrics(
+        gold_attribute("height", "5'11\""),
+        predicted_attribute("height", "6 feet"),
+        "height",
+    )
+
+    assert (result.true_positive, result.false_positive, result.false_negative) == (
+        0,
+        1,
+        1,
+    )
+
+
+def test_corpus_finite_metrics_use_constant_gold_denominator():
+    gold_index = {"doc": gold_attribute("gender", "male")}
+    prediction_index = {
+        "doc": predicted_attribute("gender", "male")
+        + predicted_attribute("gender", "female", "doc:1")
+    }
+    result = evaluate_corpus(gold_index, prediction_index)
+
+    assert result["gender"].true_positive + result["gender"].false_negative == 1
+    assert corpus_gold_finite_values(gold_index, "gender") == 1

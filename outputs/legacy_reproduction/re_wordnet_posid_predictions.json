@@ -3,6 +3,9 @@
   "0f7be28d-6254-4670-911c-b5dfe26798a8": [
     {
       "attributes": {
+        "gender": "male",
+        "height": "5\u20197\u201d",
+        "race": "white",
         "wearing": [
           {
             "descriptors": [
@@ -24,6 +27,8 @@
           "explicit",
           "explicit",
           "explicit",
+          "explicit",
+          "explicit",
           "explicit"
         ]
       },
@@ -34,6 +39,9 @@
   "15ddf338-814d-40f0-9c57-e328d4f093c6": [
     {
       "attributes": {
+        "gender": "male",
+        "height": "5\u201910\u201d",
+        "race": "white",
         "wearing": [
           {
             "descriptors": [
@@ -55,6 +63,8 @@
           "explicit",
           "explicit",
           "explicit",
+          "explicit",
+          "explicit",
           "explicit"
         ]
       },
@@ -66,6 +76,9 @@
   "3fcd11db-4875-4dcb-8ec6-93dd5a43804b": [
     {
       "attributes": {
+        "gender": "male",
+        "height": "5\u201911\u201d",
+        "race": "black",
         "wearing": [
           {
             "descriptors": [],
@@ -82,6 +95,8 @@
       "document_id": "3fcd11db-4875-4dcb-8ec6-93dd5a43804b",
       "metadata": {
         "resolution": [
+          "explicit",
+          "explicit",
           "explicit",
           "explicit",
           "explicit",
@@ -186,7 +201,7 @@
         "wearing": [
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -589,7 +604,7 @@
             "descriptors": [
               "black"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -705,7 +720,7 @@
             "descriptors": [
               "black"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -757,7 +772,7 @@
         "wearing": [
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -794,7 +809,7 @@
             "descriptors": [
               "black"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -1288,7 +1303,7 @@
             "descriptors": [
               "yellow"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -1445,7 +1460,7 @@
         "wearing": [
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -1556,7 +1571,7 @@
         "wearing": [
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -1605,7 +1620,7 @@
             "descriptors": [
               "white"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -1816,7 +1831,7 @@
         "wearing": [
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -1865,7 +1880,7 @@
             "descriptors": [
               "yellow"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -1974,7 +1989,7 @@
           },
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -2072,7 +2087,7 @@
             "descriptors": [
               "white"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -2225,7 +2240,7 @@
           },
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -2273,7 +2288,7 @@
           },
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -2523,7 +2538,7 @@
             "descriptors": [
               "green"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -2588,7 +2603,7 @@
             "descriptors": [
               "white"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -2673,7 +2688,7 @@
             "descriptors": [
               "white"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -2786,7 +2801,7 @@
             "descriptors": [
               "white"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -2887,7 +2902,7 @@
           },
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -2951,7 +2966,7 @@
             "descriptors": [
               "gray"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -3062,7 +3077,7 @@
           },
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -3126,7 +3141,7 @@
         "wearing": [
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -3236,7 +3251,7 @@
             "descriptors": [
               "white"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -3286,7 +3301,7 @@
             "descriptors": [
               "yellow"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -3434,7 +3449,7 @@
         "wearing": [
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -3857,7 +3872,7 @@
             "descriptors": [
               "yellow"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -3904,7 +3919,7 @@
           },
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -4398,7 +4413,7 @@
             "descriptors": [
               "green"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -4621,7 +4636,7 @@
           },
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -5081,7 +5096,7 @@
           },
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -5134,7 +5149,7 @@
             "descriptors": [
               "gray"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -5303,7 +5318,7 @@
         "wearing": [
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -5924,7 +5939,7 @@
             "descriptors": [
               "gray"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -6022,7 +6037,7 @@
         "wearing": [
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -6097,7 +6112,7 @@
         "wearing": [
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -6348,7 +6363,7 @@
           },
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -6527,7 +6542,7 @@
         "wearing": [
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -6726,7 +6741,7 @@
         "wearing": [
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -6773,7 +6788,7 @@
           },
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -6919,7 +6934,7 @@
             "descriptors": [
               "yellow"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -6962,7 +6977,7 @@
             "descriptors": [
               "black"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -7038,7 +7053,7 @@
         "wearing": [
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -7098,7 +7113,7 @@
           },
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -7205,7 +7220,7 @@
             "descriptors": [
               "green"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -7254,7 +7269,7 @@
             "descriptors": [
               "black"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -7501,7 +7516,7 @@
         "wearing": [
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -7616,7 +7631,7 @@
         "wearing": [
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -7678,7 +7693,7 @@
             "descriptors": [
               "gray"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -7821,7 +7836,7 @@
             "descriptors": [
               "white"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -7985,7 +8000,7 @@
           },
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -8032,7 +8047,7 @@
         "wearing": [
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -8080,7 +8095,7 @@
             "descriptors": [
               "green"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -8161,7 +8176,10 @@
             "item": "pants"
           },
           {
-            "descriptors": [],
+            "descriptors": [
+              "dark",
+              "parka-style"
+            ],
             "item": "coat"
           },
           {
@@ -8174,7 +8192,7 @@
           },
           {
             "descriptors": [],
-            "item": "red/white shoe"
+            "item": "red/white shoes"
           }
         ]
       },
@@ -8189,11 +8207,56 @@
           "explicit",
           "explicit",
           "explicit",
+          "explicit",
           "explicit"
         ]
       },
       "person_id": "807a3d8d-8072-47d3-b101-ad444f2d4710:0",
       "role": "suspect"
+    },
+    {
+      "attributes": {},
+      "document_id": "807a3d8d-8072-47d3-b101-ad444f2d4710",
+      "metadata": {
+        "resolution": [
+          "explicit"
+        ]
+      },
+      "person_id": "807a3d8d-8072-47d3-b101-ad444f2d4710:1",
+      "role": "victim"
+    },
+    {
+      "attributes": {},
+      "document_id": "807a3d8d-8072-47d3-b101-ad444f2d4710",
+      "metadata": {
+        "resolution": [
+          "explicit"
+        ]
+      },
+      "person_id": "807a3d8d-8072-47d3-b101-ad444f2d4710:2",
+      "role": null
+    },
+    {
+      "attributes": {},
+      "document_id": "807a3d8d-8072-47d3-b101-ad444f2d4710",
+      "metadata": {
+        "resolution": [
+          "explicit"
+        ]
+      },
+      "person_id": "807a3d8d-8072-47d3-b101-ad444f2d4710:3",
+      "role": null
+    },
+    {
+      "attributes": {},
+      "document_id": "807a3d8d-8072-47d3-b101-ad444f2d4710",
+      "metadata": {
+        "resolution": [
+          "explicit"
+        ]
+      },
+      "person_id": "807a3d8d-8072-47d3-b101-ad444f2d4710:4",
+      "role": null
     }
   ],
   "8089159e-74b6-11eb-84cb-c4b301ba0477": [
@@ -8228,7 +8291,7 @@
           },
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -8292,6 +8355,24 @@
   "80f208fd-d9b4-4eca-a15f-a35ec8045246": [
     {
       "attributes": {
+        "gender": "male",
+        "height": "5\u20198\u201d",
+        "race": "indian"
+      },
+      "document_id": "80f208fd-d9b4-4eca-a15f-a35ec8045246",
+      "metadata": {
+        "resolution": [
+          "explicit",
+          "explicit",
+          "explicit",
+          "explicit"
+        ]
+      },
+      "person_id": "80f208fd-d9b4-4eca-a15f-a35ec8045246:0",
+      "role": "suspect"
+    },
+    {
+      "attributes": {
         "wearing": [
           {
             "descriptors": [],
@@ -8306,7 +8387,7 @@
           "explicit"
         ]
       },
-      "person_id": "80f208fd-d9b4-4eca-a15f-a35ec8045246:0",
+      "person_id": "80f208fd-d9b4-4eca-a15f-a35ec8045246:1",
       "role": null
     }
   ],
@@ -8425,7 +8506,7 @@
         "wearing": [
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -8539,7 +8620,7 @@
         "wearing": [
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -8663,7 +8744,7 @@
             "descriptors": [
               "yellow"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -8772,7 +8853,7 @@
         "wearing": [
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -8835,7 +8916,7 @@
         "wearing": [
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -8947,7 +9028,7 @@
             "descriptors": [
               "yellow"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -9070,7 +9151,7 @@
             "descriptors": [
               "white"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -9176,7 +9257,7 @@
           },
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -9208,7 +9289,7 @@
             "descriptors": [
               "white"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -9386,7 +9467,7 @@
           },
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -9892,7 +9973,7 @@
         "wearing": [
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -10094,7 +10175,7 @@
         "wearing": [
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -10535,7 +10616,7 @@
             "descriptors": [
               "yellow"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -10723,7 +10804,7 @@
             "descriptors": [
               "gray"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -10850,7 +10931,7 @@
         "wearing": [
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -10934,7 +11015,7 @@
             "descriptors": [
               "black"
             ],
-            "item": "legging"
+            "item": "leggings"
           },
           {
             "descriptors": [
@@ -10982,7 +11063,7 @@
           },
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -11090,7 +11171,7 @@
             "descriptors": [
               "yellow"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -11267,7 +11348,7 @@
             "descriptors": [
               "yellow"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -11718,7 +11799,7 @@
           },
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -11812,7 +11893,7 @@
             "descriptors": [
               "gray"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -12024,7 +12105,7 @@
             "descriptors": [
               "yellow"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -12110,7 +12191,7 @@
             "descriptors": [
               "gray"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -12226,7 +12307,7 @@
         "wearing": [
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -12554,7 +12635,7 @@
         "wearing": [
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -12778,7 +12859,7 @@
           },
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -12916,7 +12997,7 @@
         "wearing": [
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -13419,7 +13500,7 @@
             "descriptors": [
               "yellow"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -13531,7 +13612,7 @@
             "descriptors": [
               "white"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -13919,7 +14000,7 @@
             "descriptors": [
               "gray"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -13949,7 +14030,7 @@
             "descriptors": [
               "blue"
             ],
-            "item": "jean"
+            "item": "jeans"
           },
           {
             "descriptors": [
@@ -14033,7 +14114,7 @@
             "descriptors": [
               "yellow"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -14132,7 +14213,7 @@
             "descriptors": [
               "black"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -14513,7 +14594,7 @@
             "descriptors": [
               "green"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -14560,7 +14641,7 @@
             "descriptors": [
               "black"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -14994,7 +15075,7 @@
         "wearing": [
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -15106,7 +15187,7 @@
           },
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -15306,7 +15387,7 @@
             "descriptors": [
               "white"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -15420,7 +15501,7 @@
           },
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -15450,7 +15531,7 @@
           },
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -15494,7 +15575,7 @@
           },
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -15561,7 +15642,7 @@
             "descriptors": [
               "yellow"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -15610,7 +15691,7 @@
             "descriptors": [
               "white"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -16179,7 +16260,7 @@
         "wearing": [
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -16351,7 +16432,7 @@
         "wearing": [
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -16426,7 +16507,7 @@
         "wearing": [
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -16469,7 +16550,7 @@
             "descriptors": [
               "gray"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -16572,7 +16653,7 @@
             "descriptors": [
               "gray"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -16823,7 +16904,7 @@
         "wearing": [
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -16852,7 +16933,7 @@
           },
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -17036,7 +17117,7 @@
             "descriptors": [
               "black"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -17356,7 +17437,7 @@
         "wearing": [
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -17418,7 +17499,7 @@
             "descriptors": [
               "white"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -17631,7 +17712,7 @@
         "wearing": [
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -17778,7 +17859,7 @@
         "wearing": [
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -17925,7 +18006,7 @@
           },
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -17981,7 +18062,7 @@
             "descriptors": [
               "black"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -18394,7 +18475,7 @@
           },
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -18639,7 +18720,7 @@
           },
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -18686,7 +18767,7 @@
         "wearing": [
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -18732,7 +18813,7 @@
         "wearing": [
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -18888,7 +18969,7 @@
         "wearing": [
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -19129,7 +19210,7 @@
             "descriptors": [
               "yellow"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -19323,6 +19404,7 @@
           "explicit",
           "explicit",
           "explicit",
+          "explicit",
           "explicit"
         ]
       },
@@ -19350,7 +19432,7 @@
           },
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -19392,6 +19474,7 @@
       "document_id": "bc6dda18-c3f3-11ea-9390-c4b301ba0477",
       "metadata": {
         "resolution": [
+          "explicit",
           "explicit",
           "explicit",
           "explicit",
@@ -19530,6 +19613,7 @@
           "explicit",
           "explicit",
           "explicit",
+          "explicit",
           "explicit"
         ]
       },
@@ -19538,6 +19622,17 @@
     }
   ],
   "bccb26b4-c3f3-11ea-9c26-c4b301ba0477": [
+    {
+      "attributes": {},
+      "document_id": "bccb26b4-c3f3-11ea-9c26-c4b301ba0477",
+      "metadata": {
+        "resolution": [
+          "explicit"
+        ]
+      },
+      "person_id": "bccb26b4-c3f3-11ea-9c26-c4b301ba0477:0",
+      "role": "victim"
+    },
     {
       "attributes": {
         "gender": "male",
@@ -19559,7 +19654,7 @@
             "descriptors": [
               "green"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -19574,7 +19669,7 @@
           "explicit"
         ]
       },
-      "person_id": "bccb26b4-c3f3-11ea-9c26-c4b301ba0477:0",
+      "person_id": "bccb26b4-c3f3-11ea-9c26-c4b301ba0477:1",
       "role": "suspect"
     }
   ],
@@ -19675,6 +19770,8 @@
           "explicit",
           "explicit",
           "explicit",
+          "explicit",
+          "explicit",
           "explicit"
         ]
       },
@@ -19705,6 +19802,7 @@
       "document_id": "bd556638-c3f3-11ea-96eb-c4b301ba0477",
       "metadata": {
         "resolution": [
+          "explicit",
           "explicit",
           "explicit",
           "explicit",
@@ -19799,13 +19897,15 @@
             "descriptors": [
               "yellow"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
       "document_id": "bda3b5fe-c3f3-11ea-b8de-c4b301ba0477",
       "metadata": {
         "resolution": [
+          "explicit",
+          "explicit",
           "explicit",
           "explicit",
           "explicit",
@@ -19850,7 +19950,7 @@
           },
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -19944,7 +20044,7 @@
             "descriptors": [
               "yellow"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -19981,7 +20081,7 @@
             "descriptors": [
               "blue"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -20043,7 +20143,7 @@
             "descriptors": [
               "yellow"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -20152,6 +20252,8 @@
       "document_id": "be8de7d2-c3f3-11ea-815b-c4b301ba0477",
       "metadata": {
         "resolution": [
+          "explicit",
+          "explicit",
           "explicit",
           "explicit",
           "explicit",
@@ -20304,7 +20406,7 @@
           },
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -20337,6 +20439,7 @@
       "document_id": "bf2c2906-c3f3-11ea-a832-c4b301ba0477",
       "metadata": {
         "resolution": [
+          "explicit",
           "explicit",
           "explicit",
           "explicit",
@@ -20420,13 +20523,14 @@
             "descriptors": [
               "red"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
       "document_id": "bf78af4c-c3f3-11ea-b100-c4b301ba0477",
       "metadata": {
         "resolution": [
+          "explicit",
           "explicit",
           "explicit",
           "explicit",
@@ -20461,7 +20565,7 @@
             "descriptors": [
               "white"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -20509,6 +20613,7 @@
       "document_id": "bfb6bd64-c3f3-11ea-aa45-c4b301ba0477",
       "metadata": {
         "resolution": [
+          "explicit",
           "explicit",
           "explicit",
           "explicit",
@@ -20597,6 +20702,7 @@
       "document_id": "c004cbf8-c3f3-11ea-a7b1-c4b301ba0477",
       "metadata": {
         "resolution": [
+          "explicit",
           "explicit",
           "explicit",
           "explicit",
@@ -20802,6 +20908,7 @@
           "explicit",
           "explicit",
           "explicit",
+          "explicit",
           "explicit"
         ]
       },
@@ -20961,6 +21068,17 @@
   ],
   "c17e2114-c3f3-11ea-81dc-c4b301ba0477": [
     {
+      "attributes": {},
+      "document_id": "c17e2114-c3f3-11ea-81dc-c4b301ba0477",
+      "metadata": {
+        "resolution": [
+          "explicit"
+        ]
+      },
+      "person_id": "c17e2114-c3f3-11ea-81dc-c4b301ba0477:0",
+      "role": null
+    },
+    {
       "attributes": {
         "gender": "male",
         "race": "white",
@@ -20986,10 +21104,11 @@
           "explicit",
           "explicit",
           "explicit",
+          "explicit",
           "explicit"
         ]
       },
-      "person_id": "c17e2114-c3f3-11ea-81dc-c4b301ba0477:0",
+      "person_id": "c17e2114-c3f3-11ea-81dc-c4b301ba0477:1",
       "role": "suspect"
     }
   ],
@@ -21131,6 +21250,7 @@
           "explicit",
           "explicit",
           "explicit",
+          "explicit",
           "explicit"
         ]
       },
@@ -21172,7 +21292,7 @@
             "descriptors": [
               "black"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -21225,6 +21345,17 @@
   ],
   "c264f1ac-c3f3-11ea-8f85-c4b301ba0477": [
     {
+      "attributes": {},
+      "document_id": "c264f1ac-c3f3-11ea-8f85-c4b301ba0477",
+      "metadata": {
+        "resolution": [
+          "explicit"
+        ]
+      },
+      "person_id": "c264f1ac-c3f3-11ea-8f85-c4b301ba0477:0",
+      "role": null
+    },
+    {
       "attributes": {
         "gender": "male",
         "race": "black",
@@ -21250,10 +21381,11 @@
           "explicit",
           "explicit",
           "explicit",
+          "explicit",
           "explicit"
         ]
       },
-      "person_id": "c264f1ac-c3f3-11ea-8f85-c4b301ba0477:0",
+      "person_id": "c264f1ac-c3f3-11ea-8f85-c4b301ba0477:1",
       "role": "suspect"
     }
   ],
@@ -21429,6 +21561,7 @@
           "explicit",
           "explicit",
           "explicit",
+          "explicit",
           "explicit"
         ]
       },
@@ -21483,7 +21616,7 @@
             "descriptors": [
               "black"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -21567,6 +21700,7 @@
           "explicit",
           "explicit",
           "explicit",
+          "explicit",
           "explicit"
         ]
       },
@@ -21622,6 +21756,17 @@
   ],
   "c39f4646-c3f3-11ea-b50f-c4b301ba0477": [
     {
+      "attributes": {},
+      "document_id": "c39f4646-c3f3-11ea-b50f-c4b301ba0477",
+      "metadata": {
+        "resolution": [
+          "explicit"
+        ]
+      },
+      "person_id": "c39f4646-c3f3-11ea-b50f-c4b301ba0477:0",
+      "role": null
+    },
+    {
       "attributes": {
         "gender": "female",
         "race": "asian",
@@ -21654,10 +21799,11 @@
           "explicit",
           "explicit",
           "explicit",
+          "explicit",
           "explicit"
         ]
       },
-      "person_id": "c39f4646-c3f3-11ea-b50f-c4b301ba0477:0",
+      "person_id": "c39f4646-c3f3-11ea-b50f-c4b301ba0477:1",
       "role": "suspect"
     }
   ],
@@ -21812,7 +21958,7 @@
             "descriptors": [
               "black"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -21846,7 +21992,7 @@
             "descriptors": [
               "green"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -21995,11 +22141,23 @@
           "explicit",
           "explicit",
           "explicit",
+          "explicit",
           "explicit"
         ]
       },
       "person_id": "c4c719b6-c3f3-11ea-a1e5-c4b301ba0477:0",
       "role": "suspect"
+    },
+    {
+      "attributes": {},
+      "document_id": "c4c719b6-c3f3-11ea-a1e5-c4b301ba0477",
+      "metadata": {
+        "resolution": [
+          "explicit"
+        ]
+      },
+      "person_id": "c4c719b6-c3f3-11ea-a1e5-c4b301ba0477:1",
+      "role": null
     }
   ],
   "c4db27ac-74b6-11eb-8156-c4b301ba0477": [
@@ -22181,7 +22339,7 @@
             "descriptors": [
               "green"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -22349,6 +22507,7 @@
         "wearing": [
           {
             "descriptors": [
+              "blue",
               "white"
             ],
             "item": "windbreaker"
@@ -22500,7 +22659,7 @@
           },
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -22697,7 +22856,7 @@
             "descriptors": [
               "green"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -22997,7 +23156,7 @@
             "descriptors": [
               "black"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -23076,7 +23235,7 @@
             "descriptors": [
               "green"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -23111,7 +23270,7 @@
           },
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -23286,7 +23445,7 @@
           },
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -23503,7 +23662,7 @@
             "descriptors": [
               "green"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -23642,7 +23801,7 @@
             "descriptors": [
               "gray"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -23921,7 +24080,7 @@
         "wearing": [
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -24186,7 +24345,7 @@
         "wearing": [
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -24472,7 +24631,7 @@
         "wearing": [
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -24749,7 +24908,7 @@
         "wearing": [
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -24948,7 +25107,7 @@
             "descriptors": [
               "gray"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -25259,7 +25418,7 @@
         "wearing": [
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -25439,7 +25598,7 @@
         "wearing": [
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -25701,7 +25860,7 @@
             "descriptors": [
               "white"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -25862,7 +26021,7 @@
             "descriptors": [
               "black"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -26033,7 +26192,7 @@
             "descriptors": [
               "gray"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -26068,7 +26227,9 @@
       "attributes": {
         "wearing": [
           {
-            "descriptors": [],
+            "descriptors": [
+              "fake"
+            ],
             "item": "beard"
           },
           {
@@ -26107,7 +26268,7 @@
             "descriptors": [
               "light"
             ],
-            "item": "colored jean"
+            "item": "colored jeans"
           }
         ]
       },
@@ -26510,7 +26671,7 @@
         "wearing": [
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -26556,7 +26717,7 @@
         "wearing": [
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -26601,7 +26762,7 @@
           },
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -26778,7 +26939,7 @@
             "descriptors": [
               "yellow"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -27049,7 +27210,7 @@
           },
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -27101,7 +27262,7 @@
             "descriptors": [
               "yellow"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -27258,7 +27419,7 @@
             "descriptors": [
               "white"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -27461,7 +27622,7 @@
             "descriptors": [
               "blue"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -27585,7 +27746,7 @@
             "descriptors": [
               "black"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -27643,7 +27804,7 @@
         "wearing": [
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -27844,7 +28005,7 @@
         "wearing": [
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -27906,7 +28067,7 @@
             "descriptors": [
               "white"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -28098,7 +28259,7 @@
         "wearing": [
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -28159,7 +28320,7 @@
         "wearing": [
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -28196,7 +28357,7 @@
             "descriptors": [
               "gray"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -28453,7 +28614,7 @@
             "descriptors": [
               "white"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -28505,7 +28666,7 @@
         "wearing": [
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -28625,7 +28786,7 @@
           },
           {
             "descriptors": [],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -29155,7 +29316,7 @@
             "descriptors": [
               "gray"
             ],
-            "item": "jean"
+            "item": "jeans"
           }
         ]
       },
@@ -29183,7 +29344,9 @@
             "item": "tank top"
           },
           {
-            "descriptors": [],
+            "descriptors": [
+              "jean"
+            ],
             "item": "shorts"
           }
         ]
@@ -29206,11 +29369,14 @@
     {
       "attributes": {
         "gender": "male",
-        "height": "tall",
+        "height": "6\u20191\u201d",
         "race": "white",
         "wearing": [
           {
-            "descriptors": [],
+            "descriptors": [
+              "light-colored",
+              "long-sleeved"
+            ],
             "item": "shirt"
           },
           {
@@ -29221,7 +29387,7 @@
           },
           {
             "descriptors": [],
-            "item": "sunglass"
+            "item": "sunglasses"
           },
           {
             "descriptors": [],
@@ -29237,7 +29403,6 @@
       "metadata": {
         "resolution": [
           "anonymous",
-          "same_sentence",
           "same_sentence",
           "same_sentence",
           "same_sentence",

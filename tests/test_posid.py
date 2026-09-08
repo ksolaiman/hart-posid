@@ -40,7 +40,7 @@ class Synset:
 
 
 class WordNet:
-    colors = {"blue", "green", "grey", "purple", "red"}
+    colors = {"black", "blue", "green", "grey", "purple", "red"}
 
     def synsets(self, token, *, pos):
         if token == "color":
@@ -58,6 +58,27 @@ def tagger(tokens):
     ]
 
 
+def structured_tagger(tokens):
+    tags = {
+        "and": "CC",
+        "a": "DT",
+        "in": "IN",
+        "red": "JJ",
+        "blue": "JJ",
+        "light-colored": "JJ",
+        "jean": "JJ",
+        "black": "JJ",
+        "grey": "JJ",
+        "shirt": "NN",
+        "shorts": "NNS",
+        "jeans": "NNS",
+        "pants": "NNS",
+        "boots": "NNS",
+        "hoodie": "NN",
+    }
+    return [(token, tags.get(token.lower(), "NN")) for token in tokens]
+
+
 def extractor(selector, queries=("wearing",), threshold=0.7):
     return POSIDExtractor(
         selector,
@@ -65,6 +86,16 @@ def extractor(selector, queries=("wearing",), threshold=0.7):
         wordnet=WordNet(),
         color_threshold=threshold,
         tagger=tagger,
+    )
+
+
+def structured_extractor(selector, queries=("wearing",), threshold=0.7):
+    return POSIDExtractor(
+        selector,
+        queries,
+        wordnet=WordNet(),
+        color_threshold=threshold,
+        tagger=structured_tagger,
     )
 
 
@@ -104,6 +135,112 @@ def test_posid_reconstructed_symmetric_rules_and_legacy_height_forms():
         "The suspect was 6 feet 2 inches tall wearing a red hat.", "height-doc"
     )["height-doc"][0].attributes["height"]
     assert heights == "6 feet 2 inches tall"
+
+
+def test_posid_recovers_fixed_properties_from_adjacent_descriptive_sentence():
+    text = (
+        "The suspect was described as a short Asian male, about 145 lbs. "
+        "wearing a green jacket and blue pants."
+    )
+    people = extractor(CandidateSelector([1])).extract(text, "adjacent")["adjacent"]
+
+    assert people[0].attributes["gender"] == "male"
+    assert people[0].attributes["race"] == "asian"
+    assert people[0].attributes["height"] == "short"
+    assert {item["item"] for item in people[0].attributes["wearing"]} == {"jacket", "pants"}
+
+
+def test_posid_recovers_numeric_height_from_adjacent_descriptive_sentence():
+    text = "The suspect was 6 feet 2 inches tall. wearing a blue hoodie."
+    people = extractor(CandidateSelector([1])).extract(text, "numeric-adjacent")["numeric-adjacent"]
+
+    assert people[0].attributes["height"] == "6 feet 2 inches tall"
+    assert people[0].attributes["wearing"] == [
+        {"item": "hoodie", "descriptors": ["blue"]}
+    ]
+
+
+def test_posid_preserves_qualitative_tall_height():
+    people = extractor(CandidateSelector([0])).extract(
+        "The suspect was tall and wearing a blue hoodie.", "tall"
+    )["tall"]
+
+    assert people[0].attributes["height"] == "tall"
+
+
+def test_posid_does_not_leak_unrelated_named_person_height():
+    text = "John was 6 feet tall. The suspect was wearing blue pants."
+    people = extractor(CandidateSelector([1])).extract(text, "no-leak")["no-leak"]
+
+    assert "height" not in people[0].attributes
+    assert people[0].attributes["wearing"][0]["item"] == "pants"
+
+
+def test_posid_preserves_non_color_jj_descriptors():
+    people = structured_extractor(CandidateSelector([0])).extract(
+        "The suspect was wearing a light-colored shirt.", "jj"
+    )["jj"]
+
+    assert people[0].attributes["wearing"] == [
+        {"item": "shirt", "descriptors": ["light-colored"]}
+    ]
+
+
+def test_posid_preserves_jj_descriptors_across_connectors():
+    people = structured_extractor(CandidateSelector([0])).extract(
+        "The suspect was wearing a red and blue shirt.", "connectors"
+    )["connectors"]
+
+    assert people[0].attributes["wearing"] == [
+        {"item": "shirt", "descriptors": ["red", "blue"]}
+    ]
+
+
+def test_posid_preserves_descriptors_through_determiners():
+    people = structured_extractor(CandidateSelector([0])).extract(
+        "The suspect was wearing a red and blue shirt.", "determiner"
+    )["determiner"]
+
+    assert people[0].attributes["wearing"] == [
+        {"item": "shirt", "descriptors": ["red", "blue"]}
+    ]
+
+
+def test_posid_noun_color_uses_strict_wordnet_threshold():
+    def noun_color_tagger(tokens):
+        return [(token, "NN" if token.lower() == "red" else "NN") for token in tokens]
+
+    result = POSIDExtractor(
+        CandidateSelector([0]),
+        ["wearing"],
+        wordnet=WordNet(),
+        color_threshold=0.7,
+        tagger=noun_color_tagger,
+    ).extract("The suspect was wearing red shirt.", "noun-color")["noun-color"][0]
+
+    assert result.attributes["wearing"] == [
+        {"item": "shirt", "descriptors": ["red"]}
+    ]
+
+
+def test_posid_preserves_plural_clothing_surface_forms():
+    text = "The suspect was wearing blue jeans, black pants, red boots and jean shorts."
+    people = structured_extractor(CandidateSelector([0])).extract(text, "surface")["surface"]
+    assert people[0].attributes["wearing"] == [
+        {"item": "jeans", "descriptors": ["blue"]},
+        {"item": "pants", "descriptors": ["black"]},
+        {"item": "boots", "descriptors": ["red"]},
+        {"item": "shorts", "descriptors": ["jean"]},
+    ]
+
+
+def test_posid_extracts_indian_as_explicit_race():
+    people = extractor(CandidateSelector([0])).extract(
+        "The suspect was described as an Indian male wearing a red shirt.",
+        "indian",
+    )["indian"]
+    assert people[0].attributes["gender"] == "male"
+    assert people[0].attributes["race"] == "indian"
 
 
 def test_posid_discovers_open_vocabulary_clothing_nouns():
@@ -199,7 +336,7 @@ def test_posid_wordnet_color_threshold_is_strict():
         "The suspect was wearing a green jacket.", "doc"
     )["doc"][0]
 
-    assert result.attributes["wearing"][0]["descriptors"] == []
+    assert result.attributes["wearing"][0]["descriptors"] == ["green"]
 
 
 def test_posid_passes_coordination_cues_to_person_resolution():
@@ -210,7 +347,7 @@ def test_posid_passes_coordination_cues_to_person_resolution():
     assert len(coordinated) == 2
     assert all(
         person.attributes.get("wearing")
-        == [{"item": "jacket", "descriptors": ["black"]}]
+        == [{"item": "jackets", "descriptors": ["black"]}]
         for person in coordinated
     )
     assert all(person.attributes.get("race") != "black" for person in coordinated)

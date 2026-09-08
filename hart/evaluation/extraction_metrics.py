@@ -38,6 +38,31 @@ def _normalize(value: Any) -> str | None:
     return " ".join(str(value).strip().casefold().split())
 
 
+def _finite_values(
+    people: Iterable[PersonAnnotation | PersonPrediction],
+    attribute_name: str,
+) -> list[str]:
+    return [
+        normalized
+        for person in people
+        if (normalized := _normalize(person.attributes.get(attribute_name))) is not None
+    ]
+
+
+def finite_attribute_metrics(
+    gold_people: Iterable[PersonAnnotation],
+    predicted_people: Iterable[PersonPrediction],
+    attribute_name: str,
+) -> ExtractionMetricResult:
+    """Evaluate pooled finite values with exact one-to-one multiset matching."""
+    gold_values = Counter(_finite_values(gold_people, attribute_name))
+    predicted_values = Counter(_finite_values(predicted_people, attribute_name))
+    true_positive = sum((gold_values & predicted_values).values())
+    false_positive = sum((predicted_values - gold_values).values())
+    false_negative = sum((gold_values - predicted_values).values())
+    return _prf(true_positive, false_positive, false_negative)
+
+
 def clothing_instances(
     people: Iterable[PersonAnnotation | PersonPrediction],
 ) -> list[dict[str, Any]]:
@@ -175,18 +200,33 @@ def evaluate_corpus(
     document_ids: Iterable[str] | None = None,
 ) -> dict[str, ExtractionMetricResult]:
     ids = list(document_ids) if document_ids is not None else sorted(gold)
-    per_document = [
+    clothing_per_document = [
         evaluate_document(gold.get(document_id, []), predictions.get(document_id, []))
         for document_id in ids
     ]
-    return {
+    results = {
         metric: _prf(
-            sum(result[metric].true_positive for result in per_document),
-            sum(result[metric].false_positive for result in per_document),
-            sum(result[metric].false_negative for result in per_document),
+            sum(result[metric].true_positive for result in clothing_per_document),
+            sum(result[metric].false_positive for result in clothing_per_document),
+            sum(result[metric].false_negative for result in clothing_per_document),
         )
         for metric in ("attr_only", "attr_value")
     }
+    for attribute_name in ("gender", "race", "height"):
+        per_document = [
+            finite_attribute_metrics(
+                gold.get(document_id, []),
+                predictions.get(document_id, []),
+                attribute_name,
+            )
+            for document_id in ids
+        ]
+        results[attribute_name] = _prf(
+            sum(result.true_positive for result in per_document),
+            sum(result.false_positive for result in per_document),
+            sum(result.false_negative for result in per_document),
+        )
+    return results
 
 
 def gold_attr_value_units(people: Iterable[PersonAnnotation]) -> int:
@@ -199,3 +239,15 @@ def corpus_gold_attr_value_units(
 ) -> int:
     ids = list(document_ids) if document_ids is not None else sorted(gold)
     return sum(gold_attr_value_units(gold.get(document_id, [])) for document_id in ids)
+
+
+def corpus_gold_finite_values(
+    gold: dict[str, list[PersonAnnotation]],
+    attribute_name: str,
+    document_ids: Iterable[str] | None = None,
+) -> int:
+    ids = list(document_ids) if document_ids is not None else sorted(gold)
+    return sum(
+        len(_finite_values(gold.get(document_id, []), attribute_name))
+        for document_id in ids
+    )

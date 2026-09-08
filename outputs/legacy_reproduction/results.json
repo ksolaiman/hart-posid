@@ -1,43 +1,43 @@
 {
   "re_posid": {
     "attr_only": {
-      "f1": 0.24742268041237114,
-      "false_negative": 1131,
-      "false_positive": 1132,
-      "precision": 0.2473404255319149,
-      "recall": 0.24750499001996007,
-      "true_positive": 372
+      "f1": 0.2567342866644496,
+      "false_negative": 1117,
+      "false_positive": 1118,
+      "precision": 0.2566489361702128,
+      "recall": 0.25681969394544246,
+      "true_positive": 386
     },
     "attr_value": {
-      "f1": 0.2168274027269704,
-      "false_negative": 1177,
-      "false_positive": 1178,
-      "precision": 0.21675531914893617,
-      "recall": 0.21689953426480374,
-      "true_positive": 326
+      "f1": 0.22214832058530098,
+      "false_negative": 1169,
+      "false_positive": 1170,
+      "precision": 0.2220744680851064,
+      "recall": 0.2222222222222222,
+      "true_positive": 334
     },
     "attributes": {
       "gender": {
-        "f1": 0.9834558823529411,
+        "f1": 0.9798534798534799,
         "false_negative": 18,
-        "false_positive": 0,
-        "precision": 1.0,
+        "false_positive": 4,
+        "precision": 0.9925788497217068,
         "recall": 0.9674502712477396,
         "true_positive": 535
       },
       "height": {
-        "f1": 0.23529411764705882,
+        "f1": 0.1904761904761905,
         "false_negative": 11,
-        "false_positive": 2,
-        "precision": 0.5,
+        "false_positive": 6,
+        "precision": 0.25,
         "recall": 0.15384615384615385,
         "true_positive": 2
       },
       "race": {
-        "f1": 0.9843606255749769,
+        "f1": 0.9807516040329973,
         "false_negative": 17,
-        "false_positive": 0,
-        "precision": 1.0,
+        "false_positive": 4,
+        "precision": 0.9925788497217068,
         "recall": 0.9692028985507246,
         "true_positive": 535
       }
@@ -51,85 +51,112 @@
       "exceptions": 0,
       "gold_attr_value_units": 3011,
       "gold_clothing_items": 1503,
-      "predicted_people": 1265
+      "gold_gender_values": 553,
+      "gold_height_values": 13,
+      "gold_race_values": 552,
+      "predicted_people": 1275
     },
     "errors": [],
     "person_aware_diagnostic": {
       "attr_only": {
-        "f1": 0.24742268041237114,
-        "false_negative": 1131,
-        "false_positive": 1132,
-        "precision": 0.2473404255319149,
-        "recall": 0.24750499001996007,
-        "true_positive": 372
+        "f1": 0.2567342866644496,
+        "false_negative": 1117,
+        "false_positive": 1118,
+        "precision": 0.2566489361702128,
+        "recall": 0.25681969394544246,
+        "true_positive": 386
       },
       "attr_value": {
-        "f1": 0.2168274027269704,
-        "false_negative": 1177,
-        "false_positive": 1178,
-        "precision": 0.21675531914893617,
-        "recall": 0.21689953426480374,
-        "true_positive": 326
+        "f1": 0.22214832058530098,
+        "false_negative": 1169,
+        "false_positive": 1170,
+        "precision": 0.2220744680851064,
+        "recall": 0.2222222222222222,
+        "true_positive": 334
       }
     },
     "primary_extraction": {
       "attr_only": {
-        "f1": 0.8779514466245426,
-        "false_negative": 183,
-        "false_positive": 184,
-        "precision": 0.8776595744680851,
-        "recall": 0.8782435129740519,
-        "true_positive": 1320
+        "f1": 0.9910209511140672,
+        "false_negative": 13,
+        "false_positive": 14,
+        "precision": 0.9906914893617021,
+        "recall": 0.9913506320691949,
+        "true_positive": 1490
       },
       "attr_value": {
-        "f1": 0.7322256568778981,
-        "false_negative": 1116,
-        "false_positive": 270,
-        "precision": 0.8752886836027713,
-        "recall": 0.6293590169378944,
-        "true_positive": 1895
+        "f1": 0.8317252026244694,
+        "false_negative": 856,
+        "false_positive": 16,
+        "precision": 0.9926301243666513,
+        "recall": 0.7157090667552308,
+        "true_positive": 2155
+      },
+      "gender": {
+        "f1": 0.9871794871794872,
+        "false_negative": 14,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.9746835443037974,
+        "true_positive": 539
+      },
+      "height": {
+        "f1": 0.761904761904762,
+        "false_negative": 5,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6153846153846154,
+        "true_positive": 8
+      },
+      "race": {
+        "f1": 0.9880843263061412,
+        "false_negative": 13,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.9764492753623188,
+        "true_positive": 539
       }
     }
   },
   "re_wordnet_posid": {
     "attr_only": {
-      "f1": 0.2485875706214689,
-      "false_negative": 1129,
-      "false_positive": 1132,
-      "precision": 0.24833997343957503,
-      "recall": 0.2488356620093147,
-      "true_positive": 374
+      "f1": 0.25789298770355606,
+      "false_negative": 1115,
+      "false_positive": 1118,
+      "precision": 0.25763612217795484,
+      "recall": 0.25815036593479707,
+      "true_positive": 388
     },
     "attr_value": {
-      "f1": 0.2166832834828847,
-      "false_negative": 1177,
-      "false_positive": 1180,
-      "precision": 0.21646746347941567,
-      "recall": 0.21689953426480374,
-      "true_positive": 326
+      "f1": 0.22266533732136923,
+      "false_negative": 1168,
+      "false_positive": 1171,
+      "precision": 0.22244355909694555,
+      "recall": 0.22288755821689954,
+      "true_positive": 335
     },
     "attributes": {
       "gender": {
-        "f1": 0.9834558823529411,
+        "f1": 0.9798534798534799,
         "false_negative": 18,
-        "false_positive": 0,
-        "precision": 1.0,
+        "false_positive": 4,
+        "precision": 0.9925788497217068,
         "recall": 0.9674502712477396,
         "true_positive": 535
       },
       "height": {
-        "f1": 0.23529411764705882,
+        "f1": 0.1904761904761905,
         "false_negative": 11,
-        "false_positive": 2,
-        "precision": 0.5,
+        "false_positive": 6,
+        "precision": 0.25,
         "recall": 0.15384615384615385,
         "true_positive": 2
       },
       "race": {
-        "f1": 0.9834558823529411,
+        "f1": 0.9798534798534798,
         "false_negative": 17,
-        "false_positive": 1,
-        "precision": 0.9981343283582089,
+        "false_positive": 5,
+        "precision": 0.9907407407407407,
         "recall": 0.9692028985507246,
         "true_positive": 535
       }
@@ -143,62 +170,89 @@
       "exceptions": 0,
       "gold_attr_value_units": 3011,
       "gold_clothing_items": 1503,
-      "predicted_people": 1266
+      "gold_gender_values": 553,
+      "gold_height_values": 13,
+      "gold_race_values": 552,
+      "predicted_people": 1276
     },
     "errors": [],
     "person_aware_diagnostic": {
       "attr_only": {
-        "f1": 0.2485875706214689,
-        "false_negative": 1129,
-        "false_positive": 1132,
-        "precision": 0.24833997343957503,
-        "recall": 0.2488356620093147,
-        "true_positive": 374
+        "f1": 0.25789298770355606,
+        "false_negative": 1115,
+        "false_positive": 1118,
+        "precision": 0.25763612217795484,
+        "recall": 0.25815036593479707,
+        "true_positive": 388
       },
       "attr_value": {
-        "f1": 0.2166832834828847,
-        "false_negative": 1177,
-        "false_positive": 1180,
-        "precision": 0.21646746347941567,
-        "recall": 0.21689953426480374,
-        "true_positive": 326
+        "f1": 0.22266533732136923,
+        "false_negative": 1168,
+        "false_positive": 1171,
+        "precision": 0.22244355909694555,
+        "recall": 0.22288755821689954,
+        "true_positive": 335
       }
     },
     "primary_extraction": {
       "attr_only": {
-        "f1": 0.8786972416085078,
-        "false_negative": 181,
-        "false_positive": 184,
-        "precision": 0.8778220451527224,
-        "recall": 0.8795741849634066,
-        "true_positive": 1322
+        "f1": 0.9916915918909938,
+        "false_negative": 11,
+        "false_positive": 14,
+        "precision": 0.9907038512616202,
+        "recall": 0.9926813040585496,
+        "true_positive": 1492
       },
       "attr_value": {
-        "f1": 0.7327153341058323,
-        "false_negative": 1114,
-        "false_positive": 270,
-        "precision": 0.8754037840332256,
-        "recall": 0.6300232480903354,
-        "true_positive": 1897
+        "f1": 0.8324011571841851,
+        "false_negative": 853,
+        "false_positive": 16,
+        "precision": 0.9926402943882244,
+        "recall": 0.7167054134838924,
+        "true_positive": 2158
+      },
+      "gender": {
+        "f1": 0.9871794871794872,
+        "false_negative": 14,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.9746835443037974,
+        "true_positive": 539
+      },
+      "height": {
+        "f1": 0.761904761904762,
+        "false_negative": 5,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6153846153846154,
+        "true_positive": 8
+      },
+      "race": {
+        "f1": 0.9871794871794872,
+        "false_negative": 13,
+        "false_positive": 1,
+        "precision": 0.9981481481481481,
+        "recall": 0.9764492753623188,
+        "true_positive": 539
       }
     }
   },
   "wordnet_posid": {
     "attr_only": {
-      "f1": 0.09264853977844914,
-      "false_negative": 1411,
-      "false_positive": 391,
-      "precision": 0.19047619047619047,
-      "recall": 0.06121091151031271,
-      "true_positive": 92
+      "f1": 0.11581067472306145,
+      "false_negative": 1388,
+      "false_positive": 368,
+      "precision": 0.23809523809523808,
+      "recall": 0.07651363938789088,
+      "true_positive": 115
     },
     "attr_value": {
-      "f1": 0.07955689828801613,
-      "false_negative": 1424,
-      "false_positive": 404,
-      "precision": 0.16356107660455488,
-      "recall": 0.05256154357950765,
-      "true_positive": 79
+      "f1": 0.09466263846928498,
+      "false_negative": 1409,
+      "false_positive": 389,
+      "precision": 0.19461697722567287,
+      "recall": 0.06254158349966733,
+      "true_positive": 94
     },
     "attributes": {
       "gender": {
@@ -235,43 +289,70 @@
       "exceptions": 0,
       "gold_attr_value_units": 3011,
       "gold_clothing_items": 1503,
+      "gold_gender_values": 553,
+      "gold_height_values": 13,
+      "gold_race_values": 552,
       "predicted_people": 416
     },
     "errors": [],
     "person_aware_diagnostic": {
       "attr_only": {
-        "f1": 0.09264853977844914,
-        "false_negative": 1411,
-        "false_positive": 391,
-        "precision": 0.19047619047619047,
-        "recall": 0.06121091151031271,
-        "true_positive": 92
+        "f1": 0.11581067472306145,
+        "false_negative": 1388,
+        "false_positive": 368,
+        "precision": 0.23809523809523808,
+        "recall": 0.07651363938789088,
+        "true_positive": 115
       },
       "attr_value": {
-        "f1": 0.07955689828801613,
-        "false_negative": 1424,
-        "false_positive": 404,
-        "precision": 0.16356107660455488,
-        "recall": 0.05256154357950765,
-        "true_positive": 79
+        "f1": 0.09466263846928498,
+        "false_negative": 1409,
+        "false_positive": 389,
+        "precision": 0.19461697722567287,
+        "recall": 0.06254158349966733,
+        "true_positive": 94
       }
     },
     "primary_extraction": {
       "attr_only": {
-        "f1": 0.31117824773413894,
-        "false_negative": 1194,
-        "false_positive": 174,
-        "precision": 0.639751552795031,
-        "recall": 0.2055888223552894,
-        "true_positive": 309
+        "f1": 0.4803625377643505,
+        "false_negative": 1026,
+        "false_positive": 6,
+        "precision": 0.9875776397515528,
+        "recall": 0.31736526946107785,
+        "true_positive": 477
       },
       "attr_value": {
-        "f1": 0.23099810657289696,
-        "false_negative": 2584,
-        "false_positive": 259,
-        "precision": 0.6224489795918368,
-        "recall": 0.14181335104616408,
-        "true_positive": 427
+        "f1": 0.36766693701000275,
+        "false_negative": 2331,
+        "false_positive": 8,
+        "precision": 0.9883720930232558,
+        "recall": 0.22583859182995683,
+        "true_positive": 680
+      },
+      "gender": {
+        "f1": 0.4617524339360222,
+        "false_negative": 387,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.30018083182640143,
+        "true_positive": 166
+      },
+      "height": {
+        "f1": 0.0,
+        "false_negative": 13,
+        "false_positive": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "true_positive": 0
+      },
+      "race": {
+        "f1": 0.4617524339360223,
+        "false_negative": 386,
+        "false_positive": 1,
+        "precision": 0.9940119760479041,
+        "recall": 0.3007246376811594,
+        "true_positive": 166
       }
     }
   }

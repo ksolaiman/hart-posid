@@ -28,7 +28,7 @@ _GENDERS = {
     "woman": "female",
     "girl": "female",
 }
-_RACES = ("asian", "black", "white", "hispanic", "latino", "latina")
+_RACES = ("asian", "black", "white", "hispanic", "latino", "latina", "indian")
 _HEIGHT_PATTERNS = (
     r"\b\d+(?:\.\d+)?\s*(?:-?(?:feet?|foot)|ft\.?)\s*(?:\d+\s*(?:inches?|in\.?)?)?\s*(?:tall)?",
     r"\b\d{1,2}\s*['’]\s*\d{1,2}\s*[\"”]",
@@ -77,7 +77,7 @@ class POSIDExtractor(Extractor):
         # John and Mike entered the store.
         # recent_shared = ("John", "Mike")
         for sentence_id, sentence in enumerate(sentences):
-            anchors = find_person_anchors(sentence)
+            anchors = self._person_anchors(sentence)
             prior_context[sentence_id] = list(seen_anchors)
 
             if len(anchors) > 1 and re.search(r"\band\b", sentence, re.IGNORECASE):
@@ -90,7 +90,7 @@ class POSIDExtractor(Extractor):
         
         seen_candidates: set[tuple[int, str]] = set()
         for candidate in candidates:
-            sentence_id, sentence = self._candidate_sentence(candidate)
+            sentence_id, sentence = self._candidate_sentence(candidate, sentences)
 
             key = (sentence_id, sentence)
             if key in seen_candidates:
@@ -124,11 +124,23 @@ class POSIDExtractor(Extractor):
     @staticmethod
     def _candidate_sentence(
         candidate: CandidateSentence,
+        sentences: list[str],
     ) -> tuple[int, str]:
-        return (
-            candidate.sentence_id,
-            candidate.context_text or candidate.text,
-        )
+        sentence = candidate.context_text or candidate.text
+        if (
+            candidate.sentence_id > 0
+            and re.match(r"\s*(?:wear|wears|wearing|wore)\b", candidate.text, re.IGNORECASE)
+            and candidate.sentence_id < len(sentences)
+            and sentences[candidate.sentence_id - 1] not in sentence
+            and any(
+                anchor_role is not None
+                for _, _, anchor_role in find_person_anchors(
+                    sentences[candidate.sentence_id - 1]
+                )
+            )
+        ):
+            sentence = f"{sentences[candidate.sentence_id - 1]} {sentence}"
+        return candidate.sentence_id, sentence
     
     def _extract_sentence(
         self,
@@ -141,7 +153,7 @@ class POSIDExtractor(Extractor):
         prior_anchors: list[tuple[str, int, str | None]] | None = None,
     ) -> list[AttributeMention]:
         mentions: list[AttributeMention] = []
-        anchors = find_person_anchors(sentence)
+        anchors = self._person_anchors(sentence)
         if include_fixed:
             for anchor, position, role in anchors:
                 mentions.append(
@@ -314,12 +326,11 @@ class POSIDExtractor(Extractor):
             is_noun = tag.startswith("NN")
             is_adjective = tag.startswith("JJ")
             if lowered in _BOUNDARIES or lowered in {"both", "but"}:
-                flush_nouns()
+                if noun_start is not None:
+                    flush_nouns()
                 continue
             if is_adjective:
-                flush_nouns()
-                if self._is_color(lowered):
-                    descriptors.append(lowered)
+                descriptors.append(lowered)
                 continue
             if is_noun:
                 if lowered in excluded_words or lowered in _IGNORED_CLOTHING_WORDS:
@@ -331,7 +342,11 @@ class POSIDExtractor(Extractor):
                     continue
                 if noun_start is None:
                     noun_start = index
-                noun_tokens.append(self._singular_noun(lowered))
+                noun_tokens.append(lowered)
+                continue
+            if tag in {"CC", "DT", "IN", ":", "-", "(`", "`)"}:
+                if noun_start is not None:
+                    flush_nouns()
                 continue
             flush_nouns()
 
@@ -339,14 +354,12 @@ class POSIDExtractor(Extractor):
         return spans
 
     @staticmethod
-    def _singular_noun(token: str) -> str:
-        if token.endswith("ses"):
-            return token[:-2]
-        if token.endswith(("ets", "rts")) and token != "shorts":
-            return token[:-1]
-        if token.endswith(("ss", "ts")) or not token.endswith("s"):
-            return token
-        return token[:-1]
+    def _person_anchors(sentence: str) -> list[tuple[str, int, str | None]]:
+        return [
+            anchor
+            for anchor in find_person_anchors(sentence)
+            if anchor[0].casefold() not in _RACES
+        ]
 
     @staticmethod
     def _fixed_property_spans(sentence: str) -> list[tuple[int, int]]:
@@ -383,8 +396,6 @@ class POSIDExtractor(Extractor):
         return "".join(characters)
 
     def _is_color(self, token: str) -> bool:
-        if token.lower() == "black":
-            return True
         color_synsets = self.wordnet.synsets("color", pos="n")
         if not color_synsets:
             return False
