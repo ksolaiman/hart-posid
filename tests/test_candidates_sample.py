@@ -54,7 +54,7 @@ def test_candidate_selectors_with_legacy_experiment_settings():
     wordnet_results = WordNetSelector(
         threshold=0.9,
         wordnet=SampleWordNet(),
-        synset_strategy="first",
+        synset_strategy="legacy_asymmetric",
     ).select(SAMPLE_TEXT, ["clothes"])
     zero_shot_results = ZeroShotSelector(
         sample_classifier,
@@ -64,6 +64,7 @@ def test_candidate_selectors_with_legacy_experiment_settings():
     assert [candidate.text for candidate in regex_results] == [
         "wearing a green jacket and blue pants"
     ]
+    assert [candidate.context_text for candidate in regex_results] == [SAMPLE_TEXT]
     assert [candidate.text for candidate in word2vec_results] == [EXPECTED_CLOTHING_SENTENCE]
     assert [candidate.text for candidate in wordnet_results] == [EXPECTED_CLOTHING_SENTENCE]
     assert [candidate.text for candidate in zero_shot_results] == [EXPECTED_CLOTHING_SENTENCE]
