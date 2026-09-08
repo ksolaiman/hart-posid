@@ -111,7 +111,10 @@ def _build_methods(status: dict[str, str]) -> tuple[dict[str, Any], dict[str, st
 
     if status["zero-shot/NLI"] == "AVAILABLE":
         pipeline = importlib.import_module("transformers").pipeline
-        classifier = pipeline("zero-shot-classification", local_files_only=True)
+        classifier = pipeline(
+            "zero-shot-classification", 
+            model="facebook/bart-large-mnli",
+            local_files_only=True)
         zero_shot = ZeroShotSelector(classifier, threshold=0.85)
         methods["sbert_posid"] = POSIDExtractor(zero_shot, ["clothes"])
         methods["re_sbert_posid"] = POSIDExtractor(
