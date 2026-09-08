@@ -55,13 +55,24 @@ class RegexSelector(CandidateSelector):
                 match = pattern.search(sentence)
 
                 if match:
+                    context_text = sentence
+                    if (
+                        sentence_id > 0
+                        and re.match(r"\s*wear(?:ing|s)?\b", sentence, re.IGNORECASE)
+                        and re.search(
+                            r"\b(?:suspect|victim|juvenile)\b",
+                            sentences[sentence_id - 1],
+                            re.IGNORECASE,
+                        )
+                    ):
+                        context_text = f"{sentences[sentence_id - 1]} {sentence}"
                     results.append(
                         CandidateSentence(
                             sentence_id=sentence_id,
                             text=match.group(0).strip(),
                             score=1.0,
                             query=query,
-                            context_text=sentence,
+                            context_text=context_text,
                         )
                     )
 
