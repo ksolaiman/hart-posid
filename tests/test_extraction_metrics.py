@@ -5,6 +5,7 @@ from hart.evaluation.extraction_metrics import (
     finite_attribute_metrics,
 )
 from hart.schema import PersonAnnotation, PersonPrediction
+from hart.schema.normalize import normalize_height_surface
 
 
 def gold(items, person_id="doc:0"):
@@ -241,6 +242,49 @@ def test_height_does_not_use_approximate_matching():
     result = finite_attribute_metrics(
         gold_attribute("height", "5'11\""),
         predicted_attribute("height", "6 feet"),
+        "height",
+    )
+
+    assert (result.true_positive, result.false_positive, result.false_negative) == (
+        0,
+        1,
+        1,
+    )
+
+
+def test_height_curly_quotes_match_straight_quotes():
+    result = finite_attribute_metrics(
+        gold_attribute("height", "5'11\""),
+        predicted_attribute("height", "5’11”"),
+        "height",
+    )
+
+    assert (result.true_positive, result.false_positive, result.false_negative) == (
+        1,
+        0,
+        0,
+    )
+
+
+def test_numeric_height_terminal_tall_and_whitespace_are_canonicalized():
+    result = finite_attribute_metrics(
+        gold_attribute("height", "6 feet"),
+        predicted_attribute("height", "  6  feet tall  "),
+        "height",
+    )
+
+    assert normalize_height_surface("  6  feet tall  ") == "6 feet"
+    assert (result.true_positive, result.false_positive, result.false_negative) == (
+        1,
+        0,
+        0,
+    )
+
+
+def test_height_does_not_use_numeric_tolerance():
+    result = finite_attribute_metrics(
+        gold_attribute("height", "5'10\""),
+        predicted_attribute("height", "5'11\""),
         "height",
     )
 
