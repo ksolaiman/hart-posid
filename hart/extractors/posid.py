@@ -34,25 +34,9 @@ _HEIGHT_PATTERNS = (
     r"\b\d{1,2}\s*['’]\s*\d{1,2}\s*[\"”]",
     r"\b(?:short|tall)\b",
 )
-_CLOTHING_NAMES = (
-    ("baseball", "cap"),
-    ("tee", "shirt"),
-    ("t", "shirt"),
-    ("jacket",),
-    ("coat",),
-    ("shirt",),
-    ("pants",),
-    ("jeans",),
-    ("shoes",),
-    ("dress",),
-    ("hat",),
-    ("cap",),
-    ("sweater",),
-    ("shorts",),
-    ("skirt",),
-)
 _BOUNDARIES = {"and", "or", ",", ";", "."}
 _IGNORED_DESCRIPTORS = {"a", "an", "the", "wear", "wears", "wearing", "wore"}
+_IGNORED_CLOTHING_WORDS = _IGNORED_DESCRIPTORS | {"was", "were", "is", "are", "described", "about"}
 
 
 class POSIDExtractor(Extractor):
@@ -206,49 +190,59 @@ class POSIDExtractor(Extractor):
 
         if include_clothing:
             portion = self._clothing_portion(sentence)
-
-            if portion is not None:
+            if portion is None:
+                fixed_spans = self._fixed_property_spans(sentence)
+                clothing_text = self._without_spans(sentence, fixed_spans)
+                clothing_offset = 0
+            else:
                 clothing_text, clothing_offset = portion
 
-                tokens = tokenize_words(clothing_text)
-                tagged = list(self.tagger(tokens))
-
-                token_positions = [
-                    clothing_offset + position
-                    for position in self._token_positions(clothing_text, tokens)
-                ]
-                for start, _, item in self._clothing_spans(tokens):
-                    position = token_positions[start]
-                    pronoun_match = re.search(
-                        r"\b(?:he|she|they)\b",
-                        sentence[:position],
-                        re.IGNORECASE,
-                    )
-                    if pronoun_match and not anchors and prior_anchors:
-                        mentions.extend(
-                            AttributeMention(
-                                "__anchor__", None, sentence_id, anchor_position, anchor, role
-                            )
-                            for anchor, anchor_position, role in prior_anchors
+            tokens = tokenize_words(clothing_text)
+            tagged = list(self.tagger(tokens))
+            token_positions = [
+                clothing_offset + position
+                for position in self._token_positions(clothing_text, tokens)
+            ]
+            excluded_words = {
+                anchor[0].casefold()
+                for anchor in anchors
+            }
+            for start, _, item, descriptors in self._clothing_spans(
+                tokens,
+                tagged,
+                excluded_words=excluded_words,
+            ):
+                position = token_positions[start]
+                pronoun_match = re.search(
+                    r"\b(?:he|she|they)\b",
+                    sentence[:position],
+                    re.IGNORECASE,
+                )
+                if pronoun_match and not anchors and prior_anchors:
+                    mentions.extend(
+                        AttributeMention(
+                            "__anchor__", None, sentence_id, anchor_position, anchor, role
                         )
-                    mention_anchors = anchors
-                    if pronoun_match and not mention_anchors and prior_anchors:
-                        mention_anchors = prior_anchors
-                    mentions.append(
-                        self._anchored_mention(
-                            "wearing",
-                            {"item": item, "descriptors": self._descriptors(tagged, start)},
-                            sentence_id,
-                            position,
-                            mention_anchors,
-                            pronoun=pronoun_match.group(0).lower() if pronoun_match else None,
-                            shared_anchors=(
-                                shared_anchors
-                                if re.search(r"\bboth\b", sentence, re.IGNORECASE)
-                                else ()
-                            ),
-                        )
+                        for anchor, anchor_position, role in prior_anchors
                     )
+                mention_anchors = anchors
+                if pronoun_match and not mention_anchors and prior_anchors:
+                    mention_anchors = prior_anchors
+                mentions.append(
+                    self._anchored_mention(
+                        "wearing",
+                        {"item": item, "descriptors": descriptors},
+                        sentence_id,
+                        position,
+                        mention_anchors,
+                        pronoun=pronoun_match.group(0).lower() if pronoun_match else None,
+                        shared_anchors=(
+                            shared_anchors
+                            if re.search(r"\bboth\b", sentence, re.IGNORECASE)
+                            else ()
+                        ),
+                    )
+                )
         return mentions
 
     @staticmethod
@@ -286,52 +280,107 @@ class POSIDExtractor(Extractor):
             cursor = position + len(token)
         return positions
 
-    @staticmethod
-    def _clothing_spans(tokens: list[str]) -> list[tuple[int, int, str]]:
-        lowered = [token.lower() for token in tokens]
-        lowered = [
-            token[:-1]
-            if token.endswith("s") and token not in {"pants", "jeans", "shoes", "shorts"}
-            else token
-            for token in lowered
-        ]
-        spans: list[tuple[int, int, str]] = []
-        index = 0
-        while index < len(tokens):
-            matched = next(
-                (
-                    name
-                    for name in _CLOTHING_NAMES
-                    if tuple(lowered[index : index + len(name)]) == name
-                ),
-                None,
-            )
-            if matched is None:
-                index += 1
+    def _clothing_spans(
+        self,
+        tokens: list[str],
+        tagged: list[tuple[str, str]],
+        *,
+        excluded_words: set[str] | None = None,
+    ) -> list[tuple[int, int, str, list[str]]]:
+        """Build open-vocabulary property names from noun runs."""
+        excluded_words = excluded_words or set()
+        spans: list[tuple[int, int, str, list[str]]] = []
+        descriptors: list[str] = []
+        noun_start: int | None = None
+        noun_tokens: list[str] = []
+
+        def flush_nouns() -> None:
+            nonlocal noun_start, noun_tokens, descriptors
+            if noun_start is not None and noun_tokens:
+                spans.append(
+                    (
+                        noun_start,
+                        noun_start + len(noun_tokens),
+                        " ".join(noun_tokens),
+                        list(descriptors),
+                    )
+                )
+            noun_start = None
+            noun_tokens = []
+            descriptors = []
+
+        for index, (token, tag) in enumerate(tagged):
+            lowered = token.casefold()
+            is_noun = tag.startswith("NN")
+            is_adjective = tag.startswith("JJ")
+            if lowered in _BOUNDARIES or lowered in {"both", "but"}:
+                flush_nouns()
                 continue
-            spans.append((index, index + len(matched), " ".join(matched)))
-            index += len(matched)
+            if is_adjective:
+                flush_nouns()
+                if self._is_color(lowered):
+                    descriptors.append(lowered)
+                continue
+            if is_noun:
+                if lowered in excluded_words or lowered in _IGNORED_CLOTHING_WORDS:
+                    flush_nouns()
+                    continue
+                if self._is_color(lowered):
+                    flush_nouns()
+                    descriptors.append(lowered)
+                    continue
+                if noun_start is None:
+                    noun_start = index
+                noun_tokens.append(self._singular_noun(lowered))
+                continue
+            flush_nouns()
+
+        flush_nouns()
         return spans
 
-    def _descriptors(
-        self,
-        tagged: list[tuple[str, str]],
-        item_start: int,
-    ) -> list[str]:
-        descriptors: list[str] = []
-        index = item_start - 1
-        while index >= 0:
-            token, tag = tagged[index]
-            lowered = token.lower()
-            if lowered in _BOUNDARIES:
-                break
-            if lowered not in _IGNORED_DESCRIPTORS and (
-                tag.startswith("JJ") or tag.startswith("NN")
-            ):
-                descriptors.append(lowered)
-            index -= 1
-        descriptors.reverse()
-        return [token for token in descriptors if self._is_color(token)]
+    @staticmethod
+    def _singular_noun(token: str) -> str:
+        if token.endswith("ses"):
+            return token[:-2]
+        if token.endswith(("ets", "rts")) and token != "shorts":
+            return token[:-1]
+        if token.endswith(("ss", "ts")) or not token.endswith("s"):
+            return token
+        return token[:-1]
+
+    @staticmethod
+    def _fixed_property_spans(sentence: str) -> list[tuple[int, int]]:
+        spans: list[tuple[int, int]] = []
+        for word in _GENDERS:
+            spans.extend(
+                match.span()
+                for match in re.finditer(rf"\b{word}\b", sentence, re.IGNORECASE)
+            )
+        clothing_start = POSIDExtractor._clothing_portion(sentence)
+        for race in _RACES:
+            spans.extend(
+                match.span()
+                for match in re.finditer(rf"\b{race}\b", sentence, re.IGNORECASE)
+                if clothing_start is None or match.start() < clothing_start[1]
+            )
+        height_spans: list[tuple[int, int]] = []
+        for pattern_index, pattern in enumerate(_HEIGHT_PATTERNS):
+            for match in re.finditer(pattern, sentence, re.IGNORECASE):
+                if pattern_index > 0 and any(
+                    match.start() >= start and match.end() <= end
+                    for start, end in height_spans
+                ):
+                    continue
+                spans.append(match.span())
+                height_spans.append(match.span())
+        return spans
+
+    @staticmethod
+    def _without_spans(sentence: str, spans: list[tuple[int, int]]) -> str:
+        characters = list(sentence)
+        for start, end in spans:
+            characters[start:end] = [" "] * (end - start)
+        return "".join(characters)
 
     def _is_color(self, token: str) -> bool:
         if token.lower() == "black":

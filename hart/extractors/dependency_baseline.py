@@ -96,7 +96,13 @@ class DependencyExtractor(Extractor):
                         for item in tokens
                         if getattr(item, "idx", 0) >= getattr(token, "idx", 0)
                     )
-                    height_match = re.match(r"\d+(?:\.\d+)?(?:\s*-?\s*(?:feet?|ft|inches?|in|['’]\s*\d+[\"”]?))?", following, re.IGNORECASE)
+                    height_match = re.match(
+                        r"\d+(?:\.\d+)?\s*(?:-?(?:feet?|ft))"
+                        r"(?:\s+\d+(?:\.\d+)?\s*(?:inches?|in))?"
+                        r"(?:\s+tall)?",
+                        following,
+                        re.IGNORECASE,
+                    )
                     if height_match and re.search(r"(?:feet?|ft|['’]|inches?|in|tall)", height_match.group(0), re.IGNORECASE):
                         mentions.append(
                             AttributeMention(
