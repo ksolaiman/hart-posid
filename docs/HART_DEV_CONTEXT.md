@@ -553,46 +553,60 @@ The candidate package remains a separate completed checkpoint and should not be 
 
 ## 12A. Confirmed extraction-layer decisions
 
-### POSID gender/race regex reconstruction
+### POSID fixed-property reconstruction
 
-Recovered legacy artifacts contain only partial fixed-property regex code. The surviving gender/race notebook is an intermediate, male-specific prototype and does not fully specify the broader gender/race behavior described/evaluated in the paper.
+The surviving fixed-property code is incomplete for some categories, so the current implementation preserves verified behavior and uses narrow explicit reconstructions where necessary.
 
-Confirmed decision:
+Current rules:
+- retain the approved symmetric explicit gender terms
+- explicit race extraction includes `asian`, `black`, `white`, `hispanic`, `latino`, `latina`, and `indian`
+- never infer race/gender from names
+- candidate retrieval still gates POSID
+- when a selected candidate begins with a clothing relation, fixed attributes may also be recovered from the **immediately preceding role-based descriptive sentence**
+- unrelated document sentences must not be scanned/attached merely because retrieval succeeded
+- explicit numeric Height takes precedence over a co-occurring relative `tall` in the same local description
+- standalone `short` and `tall` remain supported; `average` is not currently implemented
 
-- preserve directly verified legacy regex behavior where available
-- conservatively reconstruct missing **symmetric gender/race rules**
-- clearly distinguish reconstructed rules from directly recovered historical code
-- keep reconstruction narrow and faithful to the paper/task
-- do not expand the reconstruction into unrelated attributes or a newly designed rule system
+### Height extraction and conservative normalization
 
-This decision applies to POSID fixed-property extraction, not to the separate 2026 direct Regex baseline.
+A verified Height failure mode was duplicate emission from strings such as `5'10" tall`: the numeric Height and `tall` were both emitted, then scalar last-write-wins behavior retained `tall`. The extraction fix makes the numeric pattern consume adjacent terminal `tall`, so only the explicit numeric Height is emitted.
 
+Height matching now uses only conservative surface normalization:
+- curly quotation marks are normalized to straight quote equivalents
+- whitespace is normalized
+- a terminal `tall` is removed only when it follows an otherwise identical explicit numeric/feet Height expression
 
-### POSID candidate scope
+Explicitly forbidden equivalences include:
+- `5'11" == 6 feet`
+- approximate/tolerance matching between nearby numeric heights
+- `tall` or `short` == numeric Height
 
-Confirmed interpretation of Algorithm 1 for the current implementation:
+### POSID local candidate scope
 
-For each selected candidate context `s`:
+POSID remains candidate-gated. Clothing remains extracted from the selected clothing candidate/context, while fixed properties may use the selected context plus a narrowly adjacent role-based descriptive sentence when the candidate begins with a clothing relation.
 
-1. extract fixed properties `GENDER`, `RACE`, and `HEIGHT` from `s`
-2. derive the `CLOTHES` partial span from `s`
-3. apply clothing extraction to that partial span
+Conceptually:
 
-Do not treat successful candidate retrieval as permission to scan the entire document for fixed properties.
+```text
+selected candidate/context
+    -> fixed properties from local context
+       + immediately preceding role-based description when needed
+    -> clothing extraction from the clothing candidate context
+```
 
-When a retrieval method returns a partial span (historical Regex), use `CandidateSentence.context_text` as the full candidate context when available while preserving the original retrieval span in `CandidateSentence.text`.
+This specifically supports local sentence-boundary constructions without turning successful retrieval into permission for document-wide fixed-property scanning.
 
 ### Shared person-resolution policy
 
-`extractors/person_resolution.py` is the shared deterministic assignment layer for Regex, Dependency, and POSID.
+`extractors/person_resolution.py` remains the shared deterministic assignment layer for Regex, Dependency, and POSID and was not changed by the final Height correction.
 
 Confirmed behavior:
-
 - distinct named/role person mentions remain separate predictions
 - explicit names and roles create/select anchors
 - same-sentence attributes attach to the nearest compatible local anchor
 - pronouns continue the most recent compatible person when locally unambiguous
-- locally preceding person-anchor context may be used to resolve an unanchored pronoun/continuation candidate without extracting that noncandidate sentence's fixed attributes
+- narrow immediately preceding role-based context may supply fixed properties/anchors for a clothing-relation candidate
+- unrelated named-person attributes elsewhere in a document must not leak to the selected target
 - when multiple people are plausible, use the nearest preceding compatible anchor
 - coordinated/shared descriptions may attach to multiple people
 - descriptions with no plausible anchor produce an anonymous person
@@ -601,13 +615,18 @@ Confirmed behavior:
 
 ### Current POSID clothing implementation status
 
-The earlier temporary whitelist-based clothing implementation has been replaced with a closer Algorithm-1 reconstruction using POS-tagged, open-vocabulary noun/property construction. Clothing extraction remains candidate-scoped, and previously approved local continuation/context behavior is preserved.
+The earlier temporary whitelist-based clothing implementation has been replaced with a stable open-vocabulary POS/noun reconstruction.
 
-Current status:
-- do not characterize the implementation as a temporary fixed clothing-name whitelist
-- do not reintroduce a closed vocabulary to improve benchmark numbers
-- keep the current clothing implementation stable while evaluation/error diagnostics are performed
-- revisit algorithm details only if a recovered historical artifact, a deterministic regression, or a clearly isolated extraction error justifies a narrow change
+Current confirmed behavior:
+- preserve noun surface forms such as `jeans`, `pants`, `boots`, and `shorts`; do not singularize inside POSID
+- appropriate `JJ` tokens are retained as clothing descriptors regardless of whether they are colors
+- noun-tagged color interpretation uses `wn.synsets("color", "n")[0]` and strict Wu-Palmer similarity `> 0.7`
+- descriptor state may continue across structural connector tokens when they remain part of the same clothing phrase
+- multiword clothing items remain supported
+- do not reintroduce a closed clothing vocabulary
+- VBD/RP/RB phrase behavior such as `buttoned up shirt` remains deliberately untouched and is not a blocker for the current reproduction checkpoint
+
+The current clothing implementation should now be treated as frozen for the legacy arXiv revision unless a separate reproducible bug is identified.
 
 ### Universal prediction representation
 
@@ -730,7 +749,7 @@ For each attribute:
 
 The current evaluator does not introduce fuzzy semantic matching.
 
-For Height specifically, do not invent aggressive equivalence rules. Surface forms that current normalization does not already equate remain different for this checkpoint. Cases such as `6 feet` vs `6 feet tall` should be diagnosed before any normalization expansion; near values such as `5'11"` and `6 feet` must not be treated as equivalent merely because they are close.
+For Height, the final frozen normalization is intentionally conservative: curly/straight quote variants are canonicalized, whitespace is normalized, and terminal `tall` is ignored only when it follows an otherwise identical explicit numeric/feet measurement. Thus `6 feet` and `6 feet tall` may match, while values such as `5'11"` and `6 feet` remain distinct. No numeric tolerance, rounding, or categorical-to-numeric equivalence is allowed.
 
 ### Person-aware diagnostic / attribution view
 
@@ -826,7 +845,7 @@ For local Codex or any coding agent:
 
 ## 18. Current reproduction checkpoint
 
-The Full-558 legacy reproduction harness and the reconciled primary evaluator are operational.
+The Full-558 legacy reproduction harness and reconciled primary evaluator are operational, and the legacy reconstruction is now a **frozen arXiv-revision checkpoint**.
 
 Verified corpus:
 - 558 indexed documents
@@ -842,68 +861,88 @@ Verified primary gold denominators:
 - Clothing Attr-Only item units: 1503
 - Clothing Attr-Value decomposable units: 3011
 
-For every available method, `TP + FN` equals the corresponding fixed gold denominator.
+These denominators remained unchanged through the final extraction/Height correction passes.
 
-### Available-method primary results
+### Final available-method primary F1 results
 
-| Method | Gender P/R/F1 | Race P/R/F1 | Height P/R/F1 | Clothes AO P/R/F1 | Clothes AV P/R/F1 |
+| Method | Gender F1 | Race F1 | Height F1 | Clothes AO F1 | Clothes AV F1 |
 |---|---:|---:|---:|---:|---:|
-| RE + POSID | 1.000 / 0.967 / 0.983 | 1.000 / 0.969 / 0.984 | 0.500 / 0.154 / 0.235 | 0.878 / 0.878 / 0.878 | 0.875 / 0.629 / 0.732 |
-| WordNet + POSID | 1.000 / 0.300 / 0.462 | 0.994 / 0.301 / 0.462 | 0.000 / 0.000 / 0.000 | 0.640 / 0.206 / 0.311 | 0.622 / 0.142 / 0.231 |
-| RE + WordNet + POSID | 1.000 / 0.967 / 0.983 | 0.998 / 0.969 / 0.983 | 0.500 / 0.154 / 0.235 | 0.878 / 0.880 / 0.879 | 0.875 / 0.630 / 0.733 |
+| RE + POSID | 0.987 | 0.988 | 0.762 | 0.991 | 0.832 |
+| WordNet + POSID | 0.462 | 0.462 | 0.000 | 0.480 | 0.368 |
+| RE + WordNet + POSID | 0.987 | 0.987 | 0.762 | 0.992 | 0.832 |
 
-Exact finite-attribute counts:
+### Final RE + POSID exact counts
 
-| Method | Gender TP/FP/FN | Race TP/FP/FN | Height TP/FP/FN |
-|---|---:|---:|---:|
-| RE + POSID | 535 / 0 / 18 | 535 / 0 / 17 | 2 / 2 / 11 |
-| WordNet + POSID | 166 / 0 / 387 | 166 / 1 / 386 | 0 / 0 / 13 |
-| RE + WordNet + POSID | 535 / 0 / 18 | 535 / 1 / 17 | 2 / 2 / 11 |
+| Attribute/view | TP | FP | FN | Precision | Recall | F1 |
+|---|---:|---:|---:|---:|---:|---:|
+| Gender | 539 | 0 | 14 | 1.000 | 0.975 | 0.987 |
+| Race | 539 | 0 | 13 | 1.000 | 0.976 | 0.988 |
+| Height | 8 | 0 | 5 | 1.000 | 0.615 | 0.762 |
+| Clothes Attr-Only | 1490 | 14 | 13 | 0.991 | 0.991 | 0.991 |
+| Clothes Attr-Value | 2155 | 16 | 856 | 0.993 | 0.716 | 0.832 |
 
-Exact primary clothing counts:
+### What changed during the final reconstruction pass
 
-| Method | AO TP/FP/FN | AV TP/FP/FN |
-|---|---:|---:|
-| RE + POSID | 1320 / 184 / 183 | 1895 / 270 / 1116 |
-| WordNet + POSID | 309 / 174 / 1194 | 427 / 259 / 2584 |
-| RE + WordNet + POSID | 1322 / 184 / 181 | 1897 / 270 / 1114 |
+The final improvements were narrow and independently motivated:
+- fixed attributes can use the immediately preceding role-based descriptive sentence when a selected candidate begins with a clothing relation
+- `indian` was added as an explicit race value
+- appropriate `JJ` tokens are retained as clothing descriptors rather than requiring color classification
+- descriptor state can survive structural connector tokens inside a clothing phrase
+- clothing noun surface forms such as `jeans`, `pants`, `boots`, and `shorts` are preserved rather than singularized
+- explicit numeric Height takes precedence over co-occurring relative `tall`
+- Height evaluation canonicalizes curly quote variants, whitespace, and terminal `tall` on otherwise identical explicit measurements
 
-### Person-aware diagnostic checkpoint
+These changes moved RE + POSID from the earlier checkpoint of AO 0.878 / AV 0.732 / Height 0.235 to the final AO 0.991 / AV 0.832 / Height 0.762.
 
-The corrected person-aware diagnostic remains much lower:
+### Final Height diagnostic
 
-| Method | Person-aware AO F1 | Person-aware AV F1 |
-|---|---:|---:|
-| RE + POSID | 0.247 | 0.217 |
-| WordNet + POSID | 0.093 | 0.080 |
-| RE + WordNet + POSID | 0.249 | 0.217 |
+RE + POSID now matches 8 of the 13 gold Height values with no false positives:
 
-An earlier diagnostic-only document pooling pass showed, for RE + POSID:
-- Attr-Only F1: 0.247 -> 0.878
-- strict person-aware-style Attr-Value F1: 0.217 -> 0.382
+| Gold Height | Final outcome |
+|---|---|
+| `short` | matched |
+| `5'11"` | matched after quote normalization |
+| `tall` | missed |
+| `5'10"` | matched; numeric Height no longer overwritten by `tall` |
+| `5'7"` | matched; numeric Height no longer overwritten by `tall` |
+| `average` | missed; not currently supported |
+| `5'8"` | matched; numeric Height no longer overwritten by `tall` |
+| `6'1"` | missed in one document |
+| `6 feet` | matched against `6 feet tall` by conservative terminal-`tall` normalization |
+| `6'1"` | matched in one document |
+| `6 feet tall` | matched |
+| `5'6"` | missed |
+| `tall` | missed |
 
-Interpretation:
-- person fragmentation explains most of the Attr-Only discrepancy
-- person fragmentation does not explain most of the descriptor/value discrepancy
-- do not modify person resolution merely to improve the primary extraction score
+Remaining Height misses are accepted for the frozen legacy checkpoint; do not add broader equivalence or corpus-specific retrieval rules to remove them.
 
-The later primary decomposable Attr-Value evaluator gives RE + POSID F1 0.732 because it awards item/descriptor partial credit rather than requiring exact descriptor-set equality.
+### Source-backed Synthetic_2 annotation correction
 
-### Height diagnostic checkpoint
+The malformed legacy Height value for:
 
-RE + POSID has 11 Height false negatives and 2 false positives under the current conservative normalization. Representative mismatch types include:
-- gold `6 feet` vs prediction `6 feet tall` (surface-form mismatch under current rules)
-- gold numeric height vs prediction `tall`
-- several gold numeric heights with no prediction
-- the legacy gold contains `5'15"`, which should be reviewed as annotation quality rather than silently normalized
+```text
+document_id: 3fcd11db-4875-4dcb-8ec6-93dd5a43804b
+title: Synthetic_2
+source: Synthetic/DescriptionsforPU2.txt
+```
 
-No aggressive Height equivalence has been introduced. Keep this frozen until the mismatch audit is reviewed.
+was corrected from `5'15"` to the source-supported `5'11"`. This was handled as a data correction rather than a generic normalization rule; no rule such as “inches > 11” was introduced. The Height denominator remained 13.
+
+### Person-aware diagnostic interpretation
+
+An earlier pre-final-extraction diagnostic showed very low person-aware clothing scores and demonstrated that prediction fragmentation could dominate Attr-Only errors. That conceptual conclusion remains useful, but its old numeric F1 values are **not final-current metrics** because POSID clothing predictions changed materially afterward.
+
+Primary extraction remains document-pooled and multiplicity-preserving. Person-aware attribution remains a separate extension/diagnostic and should be rerun only if current attribution numbers are needed for the paper.
+
+### Remaining known clothing limitation
+
+Clothing Attr-Only is effectively saturated for RE + POSID on Full-558 (F1 0.991). Attr-Value remains lower (F1 0.832) because descriptor/value recall is still incomplete. VBD/RP/RB phrase handling such as `buttoned up shirt` remains intentionally untouched. Do not continue rewriting the legacy parser solely to close the residual gap.
 
 ### Published-result comparison caution
 
-Published Table I Gender/Race/Height values (`.94/.73/.82`, `.94/.73/.82`, `.72/.57/.63`) belong to the historical best RE + SBERT/zero-shot + POSID configuration. They are context, not a direct RE + POSID reproduction target.
+Published Table I Gender/Race/Height values (`.94/.73/.82`, `.94/.73/.82`, `.72/.57/.63`) belong to the historical best RE + SBERT/zero-shot + POSID configuration. They are context, not a direct RE + POSID target.
 
-Published clothing F1 values for the historical method table remain separate comparison targets. Do not tune algorithms or metric semantics to force agreement.
+The revised Full-558 numbers use the reconciled current evaluator and broader Full-558 corpus. Do not force them to equal the old paper table.
 
 ### Resource status
 
@@ -915,19 +954,28 @@ Currently blocked without substitution:
 - Word2Vec + POSID: historical Word2Vec resource and/or `gensim` unavailable in the current environment
 - SBERT/zero-shot + POSID and RE + SBERT/zero-shot + POSID: required dependencies/local model unavailable
 
-No substitute models should be inserted into the legacy reproduction run.
+No substitute models should be inserted into the legacy reproduction run merely to complete the old table.
 
 ### Validation state
 
-Latest complete suite after finite-attribute evaluation extension:
+Latest complete suite:
 
 ```text
-61 passed, 0 failed
+75 passed, 0 failed
 ```
 
-Current next priorities:
-1. audit Height false negatives and surface-form mismatches without broadening equivalence rules
-2. decompose clothing Attr-Value false negatives into descriptor/value categories, separating item-miss errors from descriptor-miss errors
-3. only after those diagnostics, decide whether any extraction or normalization change is justified
+Focused final Height validation included:
+- POSID Height tests: 5 passed, 18 deselected
+- Height evaluation tests: 4 passed, 17 deselected
+- `tests/test_posid.py`: 23 passed
+- `tests/test_extraction_metrics.py`: 21 passed
+- `tests/test_legacy_metrics.py`: 7 passed
 
-Do not change candidate queries, thresholds, person resolution, primary evaluation semantics, or POSID extraction merely to reduce the gap to published numbers.
+### Next steps
+
+1. Freeze the legacy implementation/evaluator at this checkpoint.
+2. Update the arXiv paper with the verified Full-558 dataset description, corrected method details, current results, limitations, and reproducibility/code-release information.
+3. Do not spend additional time tuning the legacy system solely to reproduce the old table.
+4. Treat the modern Regex + Dependency + POSID + LLM comparison on contemporary/real data as a separate conference-paper extension.
+
+Any future change to the legacy extraction/evaluation path should require a separately identified reproducible bug and explicit approval, not score chasing.
