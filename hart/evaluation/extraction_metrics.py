@@ -6,6 +6,7 @@ from functools import lru_cache
 from typing import Any, Iterable, Sequence
 
 from hart.schema import PersonAnnotation, PersonPrediction
+from hart.schema.normalize import normalize_height_surface
 
 
 @dataclass(frozen=True)
@@ -42,11 +43,17 @@ def _finite_values(
     people: Iterable[PersonAnnotation | PersonPrediction],
     attribute_name: str,
 ) -> list[str]:
-    return [
-        normalized
-        for person in people
-        if (normalized := _normalize(person.attributes.get(attribute_name))) is not None
-    ]
+    values: list[str] = []
+    for person in people:
+        value = person.attributes.get(attribute_name)
+        if value is None:
+            continue
+        if attribute_name == "height":
+            value = normalize_height_surface(str(value))
+        normalized = _normalize(value)
+        if normalized is not None:
+            values.append(normalized)
+    return values
 
 
 def finite_attribute_metrics(

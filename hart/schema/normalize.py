@@ -1,7 +1,24 @@
 from __future__ import annotations
 
+import re
 from collections.abc import Mapping
 from typing import Any
+
+
+_HEIGHT_QUOTE_TRANSLATION = str.maketrans({
+    "\u2018": "'",
+    "\u2019": "'",
+    "\u201c": '"',
+    "\u201d": '"',
+})
+
+
+def normalize_height_surface(value: str) -> str:
+    """Canonicalize only equivalent punctuation/spacing in height surfaces."""
+    normalized = " ".join(value.translate(_HEIGHT_QUOTE_TRANSLATION).strip().split())
+    if re.search(r"\d", normalized):
+        normalized = re.sub(r"\s+tall$", "", normalized, flags=re.IGNORECASE)
+    return normalized
 
 
 def normalize_legacy_value(value: Any) -> Any:

@@ -168,6 +168,27 @@ def test_posid_preserves_qualitative_tall_height():
     assert people[0].attributes["height"] == "tall"
 
 
+def test_posid_numeric_height_mentions_take_precedence_over_relative_tall():
+    cases = ("5'10\"", "5'7\"", "5'8\"", "6'1\"")
+
+    for height in cases:
+        text = f'The suspect is a white male, approximately {height} tall.'
+        posid = extractor(CandidateSelector([0]))
+        mentions = posid._extract_sentence(
+            text,
+            0,
+            include_fixed=True,
+            include_clothing=False,
+        )
+        raw_height_mentions = [
+            mention.value for mention in mentions if mention.attribute == "height"
+        ]
+        people = posid.extract(text, f"numeric-{height}")[f"numeric-{height}"]
+
+        assert raw_height_mentions == [height]
+        assert people[0].attributes["height"] == height
+
+
 def test_posid_does_not_leak_unrelated_named_person_height():
     text = "John was 6 feet tall. The suspect was wearing blue pants."
     people = extractor(CandidateSelector([1])).extract(text, "no-leak")["no-leak"]

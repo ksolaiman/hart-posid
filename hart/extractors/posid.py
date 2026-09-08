@@ -31,7 +31,7 @@ _GENDERS = {
 _RACES = ("asian", "black", "white", "hispanic", "latino", "latina", "indian")
 _HEIGHT_PATTERNS = (
     r"\b\d+(?:\.\d+)?\s*(?:-?(?:feet?|foot)|ft\.?)\s*(?:\d+\s*(?:inches?|in\.?)?)?\s*(?:tall)?",
-    r"\b\d{1,2}\s*['’]\s*\d{1,2}\s*[\"”]",
+    r"\b\d{1,2}\s*['’]\s*\d{1,2}\s*[\"”](?:\s+tall\b)?",
     r"\b(?:short|tall)\b",
 )
 _BOUNDARIES = {"and", "or", ",", ";", "."}
@@ -189,10 +189,13 @@ class POSIDExtractor(Extractor):
                         for start, end in height_spans
                     ):
                         continue
+                    value = match.group(0).strip()
+                    if pattern_index == 1:
+                        value = re.sub(r"\s+tall$", "", value, flags=re.IGNORECASE)
                     mentions.append(
                         self._anchored_mention(
                             "height",
-                            match.group(0).strip(),
+                            value,
                             sentence_id,
                             match.start(),
                             anchors,
