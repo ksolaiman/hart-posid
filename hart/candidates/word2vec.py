@@ -34,6 +34,6 @@ class Word2VecSelector(CandidateSelector):
 
             score, query = best_match
             if self.threshold is None or score >= self.threshold:
-                return [CandidateSentence(sentence_id, sentence, score, query)]
+                return [CandidateSentence(sentence_id, sentence, score, query, context_text=sentence)]
 
         return []

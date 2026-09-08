@@ -61,6 +61,7 @@ class RegexSelector(CandidateSelector):
                             text=match.group(0).strip(),
                             score=1.0,
                             query=query,
+                            context_text=sentence,
                         )
                     )
 

@@ -28,5 +28,5 @@ class ZeroShotSelector(CandidateSelector):
             scores = dict(zip(output["labels"], output["scores"]))
             query, score = max(scores.items(), key=lambda item: item[1])
             if self.threshold is None or score > self.threshold:
-                return [CandidateSentence(sentence_id, sentence, score, query)]
+                return [CandidateSentence(sentence_id, sentence, score, query, context_text=sentence)]
         return []

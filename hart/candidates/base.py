@@ -17,9 +17,11 @@ class CandidateSentence:
     """
 
     sentence_id: int
-    text: str
+    text: str                           # method's actual returned candidate
     score: float
     query: str | None = None
+
+    context_text: str | None = None     # full containing sentence/context
 
 
 def split_sentences(text: str) -> list[str]:
