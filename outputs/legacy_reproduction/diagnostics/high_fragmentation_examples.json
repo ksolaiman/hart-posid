@@ -1,0 +1,3609 @@
+{
+  "re_posid": [
+    {
+      "document_id": "d9d6db38-8144-4fe0-bc91-0544ba3c6a73",
+      "document_level": {
+        "attr_only": {
+          "f1": 0.75,
+          "false_negative": 1,
+          "false_positive": 1,
+          "precision": 0.75,
+          "recall": 0.75,
+          "true_positive": 3
+        },
+        "attr_value": {
+          "f1": 0.5,
+          "false_negative": 2,
+          "false_positive": 2,
+          "precision": 0.5,
+          "recall": 0.5,
+          "true_positive": 2
+        }
+      },
+      "document_level_predicted_clothing": [
+        {
+          "descriptors": [],
+          "item": "beard"
+        },
+        {
+          "descriptors": [
+            "grey"
+          ],
+          "item": "sock hat"
+        },
+        {
+          "descriptors": [
+            "grey"
+          ],
+          "item": "sweatshirt"
+        },
+        {
+          "descriptors": [
+            "light"
+          ],
+          "item": "colored jean"
+        }
+      ],
+      "gold_clothing": [
+        {
+          "descriptors": [
+            "fake"
+          ],
+          "item": "beard"
+        },
+        {
+          "descriptors": [
+            "grey"
+          ],
+          "item": "sock hat"
+        },
+        {
+          "descriptors": [
+            "grey"
+          ],
+          "item": "sweatshirt"
+        },
+        {
+          "descriptors": [
+            "light colored"
+          ],
+          "item": "jeans"
+        }
+      ],
+      "gold_person_count": 1,
+      "person_level": {
+        "attr_only": {
+          "f1": 0.0,
+          "false_negative": 4,
+          "false_positive": 4,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 4,
+          "false_positive": 4,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "predicted_clothing_by_person": [
+        {
+          "clothing": [],
+          "person_id": "d9d6db38-8144-4fe0-bc91-0544ba3c6a73:0",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "beard"
+            },
+            {
+              "descriptors": [
+                "grey"
+              ],
+              "item": "sock hat"
+            },
+            {
+              "descriptors": [
+                "grey"
+              ],
+              "item": "sweatshirt"
+            }
+          ],
+          "person_id": "d9d6db38-8144-4fe0-bc91-0544ba3c6a73:1",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [
+                "light"
+              ],
+              "item": "colored jean"
+            }
+          ],
+          "person_id": "d9d6db38-8144-4fe0-bc91-0544ba3c6a73:2",
+          "role": "suspect"
+        },
+        {
+          "clothing": [],
+          "person_id": "d9d6db38-8144-4fe0-bc91-0544ba3c6a73:3",
+          "role": null
+        },
+        {
+          "clothing": [],
+          "person_id": "d9d6db38-8144-4fe0-bc91-0544ba3c6a73:4",
+          "role": null
+        },
+        {
+          "clothing": [],
+          "person_id": "d9d6db38-8144-4fe0-bc91-0544ba3c6a73:5",
+          "role": null
+        },
+        {
+          "clothing": [],
+          "person_id": "d9d6db38-8144-4fe0-bc91-0544ba3c6a73:6",
+          "role": null
+        },
+        {
+          "clothing": [],
+          "person_id": "d9d6db38-8144-4fe0-bc91-0544ba3c6a73:7",
+          "role": null
+        },
+        {
+          "clothing": [],
+          "person_id": "d9d6db38-8144-4fe0-bc91-0544ba3c6a73:8",
+          "role": null
+        },
+        {
+          "clothing": [],
+          "person_id": "d9d6db38-8144-4fe0-bc91-0544ba3c6a73:9",
+          "role": null
+        },
+        {
+          "clothing": [],
+          "person_id": "d9d6db38-8144-4fe0-bc91-0544ba3c6a73:10",
+          "role": null
+        },
+        {
+          "clothing": [],
+          "person_id": "d9d6db38-8144-4fe0-bc91-0544ba3c6a73:11",
+          "role": null
+        },
+        {
+          "clothing": [],
+          "person_id": "d9d6db38-8144-4fe0-bc91-0544ba3c6a73:12",
+          "role": null
+        },
+        {
+          "clothing": [],
+          "person_id": "d9d6db38-8144-4fe0-bc91-0544ba3c6a73:13",
+          "role": null
+        }
+      ],
+      "predicted_person_count": 14
+    },
+    {
+      "document_id": "5503260a-74b6-11eb-9a7e-c4b301ba0477",
+      "document_level": {
+        "attr_only": {
+          "f1": 1.0,
+          "false_negative": 0,
+          "false_positive": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "true_positive": 3
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "document_level_predicted_clothing": [
+        {
+          "descriptors": [],
+          "item": "hat"
+        },
+        {
+          "descriptors": [],
+          "item": "jacket"
+        },
+        {
+          "descriptors": [],
+          "item": "shorts"
+        }
+      ],
+      "gold_clothing": [
+        {
+          "descriptors": [
+            "Blue"
+          ],
+          "item": "hat"
+        },
+        {
+          "descriptors": [
+            "Yellow"
+          ],
+          "item": "jacket"
+        },
+        {
+          "descriptors": [
+            "Green"
+          ],
+          "item": "shorts"
+        }
+      ],
+      "gold_person_count": 1,
+      "person_level": {
+        "attr_only": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "predicted_clothing_by_person": [
+        {
+          "clothing": [],
+          "person_id": "5503260a-74b6-11eb-9a7e-c4b301ba0477:0",
+          "role": "suspect"
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "hat"
+            }
+          ],
+          "person_id": "5503260a-74b6-11eb-9a7e-c4b301ba0477:1",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "jacket"
+            }
+          ],
+          "person_id": "5503260a-74b6-11eb-9a7e-c4b301ba0477:2",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "shorts"
+            }
+          ],
+          "person_id": "5503260a-74b6-11eb-9a7e-c4b301ba0477:3",
+          "role": null
+        }
+      ],
+      "predicted_person_count": 4
+    },
+    {
+      "document_id": "58a43b1e-74b6-11eb-89cf-c4b301ba0477",
+      "document_level": {
+        "attr_only": {
+          "f1": 1.0,
+          "false_negative": 0,
+          "false_positive": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "true_positive": 3
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "document_level_predicted_clothing": [
+        {
+          "descriptors": [],
+          "item": "hat"
+        },
+        {
+          "descriptors": [],
+          "item": "tank top"
+        },
+        {
+          "descriptors": [],
+          "item": "shorts"
+        }
+      ],
+      "gold_clothing": [
+        {
+          "descriptors": [
+            "Yellow"
+          ],
+          "item": "hat"
+        },
+        {
+          "descriptors": [
+            "Green"
+          ],
+          "item": "tank top"
+        },
+        {
+          "descriptors": [
+            "Red"
+          ],
+          "item": "shorts"
+        }
+      ],
+      "gold_person_count": 1,
+      "person_level": {
+        "attr_only": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "predicted_clothing_by_person": [
+        {
+          "clothing": [],
+          "person_id": "58a43b1e-74b6-11eb-89cf-c4b301ba0477:0",
+          "role": "suspect"
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "hat"
+            }
+          ],
+          "person_id": "58a43b1e-74b6-11eb-89cf-c4b301ba0477:1",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "tank top"
+            }
+          ],
+          "person_id": "58a43b1e-74b6-11eb-89cf-c4b301ba0477:2",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "shorts"
+            }
+          ],
+          "person_id": "58a43b1e-74b6-11eb-89cf-c4b301ba0477:3",
+          "role": null
+        }
+      ],
+      "predicted_person_count": 4
+    },
+    {
+      "document_id": "597ed490-74b6-11eb-ac3c-c4b301ba0477",
+      "document_level": {
+        "attr_only": {
+          "f1": 1.0,
+          "false_negative": 0,
+          "false_positive": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "true_positive": 3
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "document_level_predicted_clothing": [
+        {
+          "descriptors": [],
+          "item": "baseball cap"
+        },
+        {
+          "descriptors": [],
+          "item": "sweater"
+        },
+        {
+          "descriptors": [],
+          "item": "shorts"
+        }
+      ],
+      "gold_clothing": [
+        {
+          "descriptors": [
+            "Yellow"
+          ],
+          "item": "baseball cap"
+        },
+        {
+          "descriptors": [
+            "Blue"
+          ],
+          "item": "sweater"
+        },
+        {
+          "descriptors": [
+            "Green"
+          ],
+          "item": "shorts"
+        }
+      ],
+      "gold_person_count": 1,
+      "person_level": {
+        "attr_only": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "predicted_clothing_by_person": [
+        {
+          "clothing": [],
+          "person_id": "597ed490-74b6-11eb-ac3c-c4b301ba0477:0",
+          "role": "suspect"
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "baseball cap"
+            }
+          ],
+          "person_id": "597ed490-74b6-11eb-ac3c-c4b301ba0477:1",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "sweater"
+            }
+          ],
+          "person_id": "597ed490-74b6-11eb-ac3c-c4b301ba0477:2",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "shorts"
+            }
+          ],
+          "person_id": "597ed490-74b6-11eb-ac3c-c4b301ba0477:3",
+          "role": null
+        }
+      ],
+      "predicted_person_count": 4
+    },
+    {
+      "document_id": "5b14ed6c-74b6-11eb-ad3c-c4b301ba0477",
+      "document_level": {
+        "attr_only": {
+          "f1": 0.6666666666666666,
+          "false_negative": 1,
+          "false_positive": 1,
+          "precision": 0.6666666666666666,
+          "recall": 0.6666666666666666,
+          "true_positive": 2
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "document_level_predicted_clothing": [
+        {
+          "descriptors": [],
+          "item": "baseball cap"
+        },
+        {
+          "descriptors": [],
+          "item": "tank top"
+        },
+        {
+          "descriptors": [],
+          "item": "jean"
+        }
+      ],
+      "gold_clothing": [
+        {
+          "descriptors": [
+            "Purple"
+          ],
+          "item": "baseball cap"
+        },
+        {
+          "descriptors": [
+            "Green"
+          ],
+          "item": "tank top"
+        },
+        {
+          "descriptors": [
+            "Blue"
+          ],
+          "item": "jeans"
+        }
+      ],
+      "gold_person_count": 1,
+      "person_level": {
+        "attr_only": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "predicted_clothing_by_person": [
+        {
+          "clothing": [],
+          "person_id": "5b14ed6c-74b6-11eb-ad3c-c4b301ba0477:0",
+          "role": "suspect"
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "baseball cap"
+            }
+          ],
+          "person_id": "5b14ed6c-74b6-11eb-ad3c-c4b301ba0477:1",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "tank top"
+            }
+          ],
+          "person_id": "5b14ed6c-74b6-11eb-ad3c-c4b301ba0477:2",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "jean"
+            }
+          ],
+          "person_id": "5b14ed6c-74b6-11eb-ad3c-c4b301ba0477:3",
+          "role": null
+        }
+      ],
+      "predicted_person_count": 4
+    },
+    {
+      "document_id": "69f719a4-74b6-11eb-b3d0-c4b301ba0477",
+      "document_level": {
+        "attr_only": {
+          "f1": 1.0,
+          "false_negative": 0,
+          "false_positive": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "true_positive": 3
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "document_level_predicted_clothing": [
+        {
+          "descriptors": [],
+          "item": "sock hat"
+        },
+        {
+          "descriptors": [],
+          "item": "sweater"
+        },
+        {
+          "descriptors": [],
+          "item": "shorts"
+        }
+      ],
+      "gold_clothing": [
+        {
+          "descriptors": [
+            "Blue"
+          ],
+          "item": "sock hat"
+        },
+        {
+          "descriptors": [
+            "Green"
+          ],
+          "item": "sweater"
+        },
+        {
+          "descriptors": [
+            "Yellow"
+          ],
+          "item": "shorts"
+        }
+      ],
+      "gold_person_count": 1,
+      "person_level": {
+        "attr_only": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "predicted_clothing_by_person": [
+        {
+          "clothing": [],
+          "person_id": "69f719a4-74b6-11eb-b3d0-c4b301ba0477:0",
+          "role": "suspect"
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "sock hat"
+            }
+          ],
+          "person_id": "69f719a4-74b6-11eb-b3d0-c4b301ba0477:1",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "sweater"
+            }
+          ],
+          "person_id": "69f719a4-74b6-11eb-b3d0-c4b301ba0477:2",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "shorts"
+            }
+          ],
+          "person_id": "69f719a4-74b6-11eb-b3d0-c4b301ba0477:3",
+          "role": null
+        }
+      ],
+      "predicted_person_count": 4
+    },
+    {
+      "document_id": "74f1749e-74b6-11eb-a8e6-c4b301ba0477",
+      "document_level": {
+        "attr_only": {
+          "f1": 0.6666666666666666,
+          "false_negative": 1,
+          "false_positive": 1,
+          "precision": 0.6666666666666666,
+          "recall": 0.6666666666666666,
+          "true_positive": 2
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "document_level_predicted_clothing": [
+        {
+          "descriptors": [],
+          "item": "baseball cap"
+        },
+        {
+          "descriptors": [],
+          "item": "coat"
+        },
+        {
+          "descriptors": [],
+          "item": "jean"
+        }
+      ],
+      "gold_clothing": [
+        {
+          "descriptors": [
+            "Orange"
+          ],
+          "item": "baseball cap"
+        },
+        {
+          "descriptors": [
+            "Green"
+          ],
+          "item": "coat"
+        },
+        {
+          "descriptors": [
+            "Red"
+          ],
+          "item": "jeans"
+        }
+      ],
+      "gold_person_count": 1,
+      "person_level": {
+        "attr_only": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "predicted_clothing_by_person": [
+        {
+          "clothing": [],
+          "person_id": "74f1749e-74b6-11eb-a8e6-c4b301ba0477:0",
+          "role": "suspect"
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "baseball cap"
+            }
+          ],
+          "person_id": "74f1749e-74b6-11eb-a8e6-c4b301ba0477:1",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "coat"
+            }
+          ],
+          "person_id": "74f1749e-74b6-11eb-a8e6-c4b301ba0477:2",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "jean"
+            }
+          ],
+          "person_id": "74f1749e-74b6-11eb-a8e6-c4b301ba0477:3",
+          "role": null
+        }
+      ],
+      "predicted_person_count": 4
+    },
+    {
+      "document_id": "791818ca-74b6-11eb-845d-c4b301ba0477",
+      "document_level": {
+        "attr_only": {
+          "f1": 1.0,
+          "false_negative": 0,
+          "false_positive": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "true_positive": 3
+        },
+        "attr_value": {
+          "f1": 0.3333333333333333,
+          "false_negative": 2,
+          "false_positive": 2,
+          "precision": 0.3333333333333333,
+          "recall": 0.3333333333333333,
+          "true_positive": 1
+        }
+      },
+      "document_level_predicted_clothing": [
+        {
+          "descriptors": [],
+          "item": "baseball cap"
+        },
+        {
+          "descriptors": [],
+          "item": "sweater"
+        },
+        {
+          "descriptors": [
+            "yellow"
+          ],
+          "item": "pants"
+        }
+      ],
+      "gold_clothing": [
+        {
+          "descriptors": [
+            "Orange"
+          ],
+          "item": "baseball cap"
+        },
+        {
+          "descriptors": [
+            "Blue"
+          ],
+          "item": "sweater"
+        },
+        {
+          "descriptors": [
+            "Yellow"
+          ],
+          "item": "pants"
+        }
+      ],
+      "gold_person_count": 1,
+      "person_level": {
+        "attr_only": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "predicted_clothing_by_person": [
+        {
+          "clothing": [],
+          "person_id": "791818ca-74b6-11eb-845d-c4b301ba0477:0",
+          "role": "suspect"
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "baseball cap"
+            }
+          ],
+          "person_id": "791818ca-74b6-11eb-845d-c4b301ba0477:1",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "sweater"
+            }
+          ],
+          "person_id": "791818ca-74b6-11eb-845d-c4b301ba0477:2",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [
+                "yellow"
+              ],
+              "item": "pants"
+            }
+          ],
+          "person_id": "791818ca-74b6-11eb-845d-c4b301ba0477:3",
+          "role": null
+        }
+      ],
+      "predicted_person_count": 4
+    },
+    {
+      "document_id": "7a11e71a-74b6-11eb-a13f-c4b301ba0477",
+      "document_level": {
+        "attr_only": {
+          "f1": 0.6666666666666666,
+          "false_negative": 1,
+          "false_positive": 1,
+          "precision": 0.6666666666666666,
+          "recall": 0.6666666666666666,
+          "true_positive": 2
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "document_level_predicted_clothing": [
+        {
+          "descriptors": [],
+          "item": "baseball cap"
+        },
+        {
+          "descriptors": [],
+          "item": "shirt"
+        },
+        {
+          "descriptors": [],
+          "item": "jean"
+        }
+      ],
+      "gold_clothing": [
+        {
+          "descriptors": [
+            "Orange"
+          ],
+          "item": "baseball cap"
+        },
+        {
+          "descriptors": [
+            "Green"
+          ],
+          "item": "shirt"
+        },
+        {
+          "descriptors": [
+            "Blue"
+          ],
+          "item": "jeans"
+        }
+      ],
+      "gold_person_count": 1,
+      "person_level": {
+        "attr_only": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "predicted_clothing_by_person": [
+        {
+          "clothing": [],
+          "person_id": "7a11e71a-74b6-11eb-a13f-c4b301ba0477:0",
+          "role": "suspect"
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "baseball cap"
+            }
+          ],
+          "person_id": "7a11e71a-74b6-11eb-a13f-c4b301ba0477:1",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "shirt"
+            }
+          ],
+          "person_id": "7a11e71a-74b6-11eb-a13f-c4b301ba0477:2",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "jean"
+            }
+          ],
+          "person_id": "7a11e71a-74b6-11eb-a13f-c4b301ba0477:3",
+          "role": null
+        }
+      ],
+      "predicted_person_count": 4
+    },
+    {
+      "document_id": "8184a6cc-74b6-11eb-a8d9-c4b301ba0477",
+      "document_level": {
+        "attr_only": {
+          "f1": 0.6666666666666666,
+          "false_negative": 1,
+          "false_positive": 1,
+          "precision": 0.6666666666666666,
+          "recall": 0.6666666666666666,
+          "true_positive": 2
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "document_level_predicted_clothing": [
+        {
+          "descriptors": [],
+          "item": "hat"
+        },
+        {
+          "descriptors": [],
+          "item": "sweater"
+        },
+        {
+          "descriptors": [],
+          "item": "jean"
+        }
+      ],
+      "gold_clothing": [
+        {
+          "descriptors": [
+            "Blue"
+          ],
+          "item": "hat"
+        },
+        {
+          "descriptors": [
+            "Green"
+          ],
+          "item": "sweater"
+        },
+        {
+          "descriptors": [
+            "Purple"
+          ],
+          "item": "jeans"
+        }
+      ],
+      "gold_person_count": 1,
+      "person_level": {
+        "attr_only": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "predicted_clothing_by_person": [
+        {
+          "clothing": [],
+          "person_id": "8184a6cc-74b6-11eb-a8d9-c4b301ba0477:0",
+          "role": "suspect"
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "hat"
+            }
+          ],
+          "person_id": "8184a6cc-74b6-11eb-a8d9-c4b301ba0477:1",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "sweater"
+            }
+          ],
+          "person_id": "8184a6cc-74b6-11eb-a8d9-c4b301ba0477:2",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "jean"
+            }
+          ],
+          "person_id": "8184a6cc-74b6-11eb-a8d9-c4b301ba0477:3",
+          "role": null
+        }
+      ],
+      "predicted_person_count": 4
+    }
+  ],
+  "re_wordnet_posid": [
+    {
+      "document_id": "d9d6db38-8144-4fe0-bc91-0544ba3c6a73",
+      "document_level": {
+        "attr_only": {
+          "f1": 0.75,
+          "false_negative": 1,
+          "false_positive": 1,
+          "precision": 0.75,
+          "recall": 0.75,
+          "true_positive": 3
+        },
+        "attr_value": {
+          "f1": 0.5,
+          "false_negative": 2,
+          "false_positive": 2,
+          "precision": 0.5,
+          "recall": 0.5,
+          "true_positive": 2
+        }
+      },
+      "document_level_predicted_clothing": [
+        {
+          "descriptors": [],
+          "item": "beard"
+        },
+        {
+          "descriptors": [
+            "grey"
+          ],
+          "item": "sock hat"
+        },
+        {
+          "descriptors": [
+            "grey"
+          ],
+          "item": "sweatshirt"
+        },
+        {
+          "descriptors": [
+            "light"
+          ],
+          "item": "colored jean"
+        }
+      ],
+      "gold_clothing": [
+        {
+          "descriptors": [
+            "fake"
+          ],
+          "item": "beard"
+        },
+        {
+          "descriptors": [
+            "grey"
+          ],
+          "item": "sock hat"
+        },
+        {
+          "descriptors": [
+            "grey"
+          ],
+          "item": "sweatshirt"
+        },
+        {
+          "descriptors": [
+            "light colored"
+          ],
+          "item": "jeans"
+        }
+      ],
+      "gold_person_count": 1,
+      "person_level": {
+        "attr_only": {
+          "f1": 0.0,
+          "false_negative": 4,
+          "false_positive": 4,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 4,
+          "false_positive": 4,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "predicted_clothing_by_person": [
+        {
+          "clothing": [],
+          "person_id": "d9d6db38-8144-4fe0-bc91-0544ba3c6a73:0",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "beard"
+            },
+            {
+              "descriptors": [
+                "grey"
+              ],
+              "item": "sock hat"
+            },
+            {
+              "descriptors": [
+                "grey"
+              ],
+              "item": "sweatshirt"
+            }
+          ],
+          "person_id": "d9d6db38-8144-4fe0-bc91-0544ba3c6a73:1",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [
+                "light"
+              ],
+              "item": "colored jean"
+            }
+          ],
+          "person_id": "d9d6db38-8144-4fe0-bc91-0544ba3c6a73:2",
+          "role": "suspect"
+        },
+        {
+          "clothing": [],
+          "person_id": "d9d6db38-8144-4fe0-bc91-0544ba3c6a73:3",
+          "role": null
+        },
+        {
+          "clothing": [],
+          "person_id": "d9d6db38-8144-4fe0-bc91-0544ba3c6a73:4",
+          "role": null
+        },
+        {
+          "clothing": [],
+          "person_id": "d9d6db38-8144-4fe0-bc91-0544ba3c6a73:5",
+          "role": null
+        },
+        {
+          "clothing": [],
+          "person_id": "d9d6db38-8144-4fe0-bc91-0544ba3c6a73:6",
+          "role": null
+        },
+        {
+          "clothing": [],
+          "person_id": "d9d6db38-8144-4fe0-bc91-0544ba3c6a73:7",
+          "role": null
+        },
+        {
+          "clothing": [],
+          "person_id": "d9d6db38-8144-4fe0-bc91-0544ba3c6a73:8",
+          "role": null
+        },
+        {
+          "clothing": [],
+          "person_id": "d9d6db38-8144-4fe0-bc91-0544ba3c6a73:9",
+          "role": null
+        },
+        {
+          "clothing": [],
+          "person_id": "d9d6db38-8144-4fe0-bc91-0544ba3c6a73:10",
+          "role": null
+        },
+        {
+          "clothing": [],
+          "person_id": "d9d6db38-8144-4fe0-bc91-0544ba3c6a73:11",
+          "role": null
+        },
+        {
+          "clothing": [],
+          "person_id": "d9d6db38-8144-4fe0-bc91-0544ba3c6a73:12",
+          "role": null
+        },
+        {
+          "clothing": [],
+          "person_id": "d9d6db38-8144-4fe0-bc91-0544ba3c6a73:13",
+          "role": null
+        }
+      ],
+      "predicted_person_count": 14
+    },
+    {
+      "document_id": "5503260a-74b6-11eb-9a7e-c4b301ba0477",
+      "document_level": {
+        "attr_only": {
+          "f1": 1.0,
+          "false_negative": 0,
+          "false_positive": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "true_positive": 3
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "document_level_predicted_clothing": [
+        {
+          "descriptors": [],
+          "item": "hat"
+        },
+        {
+          "descriptors": [],
+          "item": "jacket"
+        },
+        {
+          "descriptors": [],
+          "item": "shorts"
+        }
+      ],
+      "gold_clothing": [
+        {
+          "descriptors": [
+            "Blue"
+          ],
+          "item": "hat"
+        },
+        {
+          "descriptors": [
+            "Yellow"
+          ],
+          "item": "jacket"
+        },
+        {
+          "descriptors": [
+            "Green"
+          ],
+          "item": "shorts"
+        }
+      ],
+      "gold_person_count": 1,
+      "person_level": {
+        "attr_only": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "predicted_clothing_by_person": [
+        {
+          "clothing": [],
+          "person_id": "5503260a-74b6-11eb-9a7e-c4b301ba0477:0",
+          "role": "suspect"
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "hat"
+            }
+          ],
+          "person_id": "5503260a-74b6-11eb-9a7e-c4b301ba0477:1",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "jacket"
+            }
+          ],
+          "person_id": "5503260a-74b6-11eb-9a7e-c4b301ba0477:2",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "shorts"
+            }
+          ],
+          "person_id": "5503260a-74b6-11eb-9a7e-c4b301ba0477:3",
+          "role": null
+        }
+      ],
+      "predicted_person_count": 4
+    },
+    {
+      "document_id": "58a43b1e-74b6-11eb-89cf-c4b301ba0477",
+      "document_level": {
+        "attr_only": {
+          "f1": 1.0,
+          "false_negative": 0,
+          "false_positive": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "true_positive": 3
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "document_level_predicted_clothing": [
+        {
+          "descriptors": [],
+          "item": "hat"
+        },
+        {
+          "descriptors": [],
+          "item": "tank top"
+        },
+        {
+          "descriptors": [],
+          "item": "shorts"
+        }
+      ],
+      "gold_clothing": [
+        {
+          "descriptors": [
+            "Yellow"
+          ],
+          "item": "hat"
+        },
+        {
+          "descriptors": [
+            "Green"
+          ],
+          "item": "tank top"
+        },
+        {
+          "descriptors": [
+            "Red"
+          ],
+          "item": "shorts"
+        }
+      ],
+      "gold_person_count": 1,
+      "person_level": {
+        "attr_only": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "predicted_clothing_by_person": [
+        {
+          "clothing": [],
+          "person_id": "58a43b1e-74b6-11eb-89cf-c4b301ba0477:0",
+          "role": "suspect"
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "hat"
+            }
+          ],
+          "person_id": "58a43b1e-74b6-11eb-89cf-c4b301ba0477:1",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "tank top"
+            }
+          ],
+          "person_id": "58a43b1e-74b6-11eb-89cf-c4b301ba0477:2",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "shorts"
+            }
+          ],
+          "person_id": "58a43b1e-74b6-11eb-89cf-c4b301ba0477:3",
+          "role": null
+        }
+      ],
+      "predicted_person_count": 4
+    },
+    {
+      "document_id": "597ed490-74b6-11eb-ac3c-c4b301ba0477",
+      "document_level": {
+        "attr_only": {
+          "f1": 1.0,
+          "false_negative": 0,
+          "false_positive": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "true_positive": 3
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "document_level_predicted_clothing": [
+        {
+          "descriptors": [],
+          "item": "baseball cap"
+        },
+        {
+          "descriptors": [],
+          "item": "sweater"
+        },
+        {
+          "descriptors": [],
+          "item": "shorts"
+        }
+      ],
+      "gold_clothing": [
+        {
+          "descriptors": [
+            "Yellow"
+          ],
+          "item": "baseball cap"
+        },
+        {
+          "descriptors": [
+            "Blue"
+          ],
+          "item": "sweater"
+        },
+        {
+          "descriptors": [
+            "Green"
+          ],
+          "item": "shorts"
+        }
+      ],
+      "gold_person_count": 1,
+      "person_level": {
+        "attr_only": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "predicted_clothing_by_person": [
+        {
+          "clothing": [],
+          "person_id": "597ed490-74b6-11eb-ac3c-c4b301ba0477:0",
+          "role": "suspect"
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "baseball cap"
+            }
+          ],
+          "person_id": "597ed490-74b6-11eb-ac3c-c4b301ba0477:1",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "sweater"
+            }
+          ],
+          "person_id": "597ed490-74b6-11eb-ac3c-c4b301ba0477:2",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "shorts"
+            }
+          ],
+          "person_id": "597ed490-74b6-11eb-ac3c-c4b301ba0477:3",
+          "role": null
+        }
+      ],
+      "predicted_person_count": 4
+    },
+    {
+      "document_id": "5b14ed6c-74b6-11eb-ad3c-c4b301ba0477",
+      "document_level": {
+        "attr_only": {
+          "f1": 0.6666666666666666,
+          "false_negative": 1,
+          "false_positive": 1,
+          "precision": 0.6666666666666666,
+          "recall": 0.6666666666666666,
+          "true_positive": 2
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "document_level_predicted_clothing": [
+        {
+          "descriptors": [],
+          "item": "baseball cap"
+        },
+        {
+          "descriptors": [],
+          "item": "tank top"
+        },
+        {
+          "descriptors": [],
+          "item": "jean"
+        }
+      ],
+      "gold_clothing": [
+        {
+          "descriptors": [
+            "Purple"
+          ],
+          "item": "baseball cap"
+        },
+        {
+          "descriptors": [
+            "Green"
+          ],
+          "item": "tank top"
+        },
+        {
+          "descriptors": [
+            "Blue"
+          ],
+          "item": "jeans"
+        }
+      ],
+      "gold_person_count": 1,
+      "person_level": {
+        "attr_only": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "predicted_clothing_by_person": [
+        {
+          "clothing": [],
+          "person_id": "5b14ed6c-74b6-11eb-ad3c-c4b301ba0477:0",
+          "role": "suspect"
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "baseball cap"
+            }
+          ],
+          "person_id": "5b14ed6c-74b6-11eb-ad3c-c4b301ba0477:1",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "tank top"
+            }
+          ],
+          "person_id": "5b14ed6c-74b6-11eb-ad3c-c4b301ba0477:2",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "jean"
+            }
+          ],
+          "person_id": "5b14ed6c-74b6-11eb-ad3c-c4b301ba0477:3",
+          "role": null
+        }
+      ],
+      "predicted_person_count": 4
+    },
+    {
+      "document_id": "69f719a4-74b6-11eb-b3d0-c4b301ba0477",
+      "document_level": {
+        "attr_only": {
+          "f1": 1.0,
+          "false_negative": 0,
+          "false_positive": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "true_positive": 3
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "document_level_predicted_clothing": [
+        {
+          "descriptors": [],
+          "item": "sock hat"
+        },
+        {
+          "descriptors": [],
+          "item": "sweater"
+        },
+        {
+          "descriptors": [],
+          "item": "shorts"
+        }
+      ],
+      "gold_clothing": [
+        {
+          "descriptors": [
+            "Blue"
+          ],
+          "item": "sock hat"
+        },
+        {
+          "descriptors": [
+            "Green"
+          ],
+          "item": "sweater"
+        },
+        {
+          "descriptors": [
+            "Yellow"
+          ],
+          "item": "shorts"
+        }
+      ],
+      "gold_person_count": 1,
+      "person_level": {
+        "attr_only": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "predicted_clothing_by_person": [
+        {
+          "clothing": [],
+          "person_id": "69f719a4-74b6-11eb-b3d0-c4b301ba0477:0",
+          "role": "suspect"
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "sock hat"
+            }
+          ],
+          "person_id": "69f719a4-74b6-11eb-b3d0-c4b301ba0477:1",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "sweater"
+            }
+          ],
+          "person_id": "69f719a4-74b6-11eb-b3d0-c4b301ba0477:2",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "shorts"
+            }
+          ],
+          "person_id": "69f719a4-74b6-11eb-b3d0-c4b301ba0477:3",
+          "role": null
+        }
+      ],
+      "predicted_person_count": 4
+    },
+    {
+      "document_id": "74f1749e-74b6-11eb-a8e6-c4b301ba0477",
+      "document_level": {
+        "attr_only": {
+          "f1": 0.6666666666666666,
+          "false_negative": 1,
+          "false_positive": 1,
+          "precision": 0.6666666666666666,
+          "recall": 0.6666666666666666,
+          "true_positive": 2
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "document_level_predicted_clothing": [
+        {
+          "descriptors": [],
+          "item": "baseball cap"
+        },
+        {
+          "descriptors": [],
+          "item": "coat"
+        },
+        {
+          "descriptors": [],
+          "item": "jean"
+        }
+      ],
+      "gold_clothing": [
+        {
+          "descriptors": [
+            "Orange"
+          ],
+          "item": "baseball cap"
+        },
+        {
+          "descriptors": [
+            "Green"
+          ],
+          "item": "coat"
+        },
+        {
+          "descriptors": [
+            "Red"
+          ],
+          "item": "jeans"
+        }
+      ],
+      "gold_person_count": 1,
+      "person_level": {
+        "attr_only": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "predicted_clothing_by_person": [
+        {
+          "clothing": [],
+          "person_id": "74f1749e-74b6-11eb-a8e6-c4b301ba0477:0",
+          "role": "suspect"
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "baseball cap"
+            }
+          ],
+          "person_id": "74f1749e-74b6-11eb-a8e6-c4b301ba0477:1",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "coat"
+            }
+          ],
+          "person_id": "74f1749e-74b6-11eb-a8e6-c4b301ba0477:2",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "jean"
+            }
+          ],
+          "person_id": "74f1749e-74b6-11eb-a8e6-c4b301ba0477:3",
+          "role": null
+        }
+      ],
+      "predicted_person_count": 4
+    },
+    {
+      "document_id": "791818ca-74b6-11eb-845d-c4b301ba0477",
+      "document_level": {
+        "attr_only": {
+          "f1": 1.0,
+          "false_negative": 0,
+          "false_positive": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "true_positive": 3
+        },
+        "attr_value": {
+          "f1": 0.3333333333333333,
+          "false_negative": 2,
+          "false_positive": 2,
+          "precision": 0.3333333333333333,
+          "recall": 0.3333333333333333,
+          "true_positive": 1
+        }
+      },
+      "document_level_predicted_clothing": [
+        {
+          "descriptors": [],
+          "item": "baseball cap"
+        },
+        {
+          "descriptors": [],
+          "item": "sweater"
+        },
+        {
+          "descriptors": [
+            "yellow"
+          ],
+          "item": "pants"
+        }
+      ],
+      "gold_clothing": [
+        {
+          "descriptors": [
+            "Orange"
+          ],
+          "item": "baseball cap"
+        },
+        {
+          "descriptors": [
+            "Blue"
+          ],
+          "item": "sweater"
+        },
+        {
+          "descriptors": [
+            "Yellow"
+          ],
+          "item": "pants"
+        }
+      ],
+      "gold_person_count": 1,
+      "person_level": {
+        "attr_only": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "predicted_clothing_by_person": [
+        {
+          "clothing": [],
+          "person_id": "791818ca-74b6-11eb-845d-c4b301ba0477:0",
+          "role": "suspect"
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "baseball cap"
+            }
+          ],
+          "person_id": "791818ca-74b6-11eb-845d-c4b301ba0477:1",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "sweater"
+            }
+          ],
+          "person_id": "791818ca-74b6-11eb-845d-c4b301ba0477:2",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [
+                "yellow"
+              ],
+              "item": "pants"
+            }
+          ],
+          "person_id": "791818ca-74b6-11eb-845d-c4b301ba0477:3",
+          "role": null
+        }
+      ],
+      "predicted_person_count": 4
+    },
+    {
+      "document_id": "7a11e71a-74b6-11eb-a13f-c4b301ba0477",
+      "document_level": {
+        "attr_only": {
+          "f1": 0.6666666666666666,
+          "false_negative": 1,
+          "false_positive": 1,
+          "precision": 0.6666666666666666,
+          "recall": 0.6666666666666666,
+          "true_positive": 2
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "document_level_predicted_clothing": [
+        {
+          "descriptors": [],
+          "item": "baseball cap"
+        },
+        {
+          "descriptors": [],
+          "item": "shirt"
+        },
+        {
+          "descriptors": [],
+          "item": "jean"
+        }
+      ],
+      "gold_clothing": [
+        {
+          "descriptors": [
+            "Orange"
+          ],
+          "item": "baseball cap"
+        },
+        {
+          "descriptors": [
+            "Green"
+          ],
+          "item": "shirt"
+        },
+        {
+          "descriptors": [
+            "Blue"
+          ],
+          "item": "jeans"
+        }
+      ],
+      "gold_person_count": 1,
+      "person_level": {
+        "attr_only": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "predicted_clothing_by_person": [
+        {
+          "clothing": [],
+          "person_id": "7a11e71a-74b6-11eb-a13f-c4b301ba0477:0",
+          "role": "suspect"
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "baseball cap"
+            }
+          ],
+          "person_id": "7a11e71a-74b6-11eb-a13f-c4b301ba0477:1",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "shirt"
+            }
+          ],
+          "person_id": "7a11e71a-74b6-11eb-a13f-c4b301ba0477:2",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "jean"
+            }
+          ],
+          "person_id": "7a11e71a-74b6-11eb-a13f-c4b301ba0477:3",
+          "role": null
+        }
+      ],
+      "predicted_person_count": 4
+    },
+    {
+      "document_id": "8184a6cc-74b6-11eb-a8d9-c4b301ba0477",
+      "document_level": {
+        "attr_only": {
+          "f1": 0.6666666666666666,
+          "false_negative": 1,
+          "false_positive": 1,
+          "precision": 0.6666666666666666,
+          "recall": 0.6666666666666666,
+          "true_positive": 2
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "document_level_predicted_clothing": [
+        {
+          "descriptors": [],
+          "item": "hat"
+        },
+        {
+          "descriptors": [],
+          "item": "sweater"
+        },
+        {
+          "descriptors": [],
+          "item": "jean"
+        }
+      ],
+      "gold_clothing": [
+        {
+          "descriptors": [
+            "Blue"
+          ],
+          "item": "hat"
+        },
+        {
+          "descriptors": [
+            "Green"
+          ],
+          "item": "sweater"
+        },
+        {
+          "descriptors": [
+            "Purple"
+          ],
+          "item": "jeans"
+        }
+      ],
+      "gold_person_count": 1,
+      "person_level": {
+        "attr_only": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "predicted_clothing_by_person": [
+        {
+          "clothing": [],
+          "person_id": "8184a6cc-74b6-11eb-a8d9-c4b301ba0477:0",
+          "role": "suspect"
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "hat"
+            }
+          ],
+          "person_id": "8184a6cc-74b6-11eb-a8d9-c4b301ba0477:1",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "sweater"
+            }
+          ],
+          "person_id": "8184a6cc-74b6-11eb-a8d9-c4b301ba0477:2",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "jean"
+            }
+          ],
+          "person_id": "8184a6cc-74b6-11eb-a8d9-c4b301ba0477:3",
+          "role": null
+        }
+      ],
+      "predicted_person_count": 4
+    }
+  ],
+  "wordnet_posid": [
+    {
+      "document_id": "d9d6db38-8144-4fe0-bc91-0544ba3c6a73",
+      "document_level": {
+        "attr_only": {
+          "f1": 0.75,
+          "false_negative": 1,
+          "false_positive": 1,
+          "precision": 0.75,
+          "recall": 0.75,
+          "true_positive": 3
+        },
+        "attr_value": {
+          "f1": 0.5,
+          "false_negative": 2,
+          "false_positive": 2,
+          "precision": 0.5,
+          "recall": 0.5,
+          "true_positive": 2
+        }
+      },
+      "document_level_predicted_clothing": [
+        {
+          "descriptors": [],
+          "item": "beard"
+        },
+        {
+          "descriptors": [
+            "grey"
+          ],
+          "item": "sock hat"
+        },
+        {
+          "descriptors": [
+            "grey"
+          ],
+          "item": "sweatshirt"
+        },
+        {
+          "descriptors": [
+            "light"
+          ],
+          "item": "colored jean"
+        }
+      ],
+      "gold_clothing": [
+        {
+          "descriptors": [
+            "fake"
+          ],
+          "item": "beard"
+        },
+        {
+          "descriptors": [
+            "grey"
+          ],
+          "item": "sock hat"
+        },
+        {
+          "descriptors": [
+            "grey"
+          ],
+          "item": "sweatshirt"
+        },
+        {
+          "descriptors": [
+            "light colored"
+          ],
+          "item": "jeans"
+        }
+      ],
+      "gold_person_count": 1,
+      "person_level": {
+        "attr_only": {
+          "f1": 0.0,
+          "false_negative": 4,
+          "false_positive": 4,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 4,
+          "false_positive": 4,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "predicted_clothing_by_person": [
+        {
+          "clothing": [],
+          "person_id": "d9d6db38-8144-4fe0-bc91-0544ba3c6a73:0",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "beard"
+            },
+            {
+              "descriptors": [
+                "grey"
+              ],
+              "item": "sock hat"
+            },
+            {
+              "descriptors": [
+                "grey"
+              ],
+              "item": "sweatshirt"
+            }
+          ],
+          "person_id": "d9d6db38-8144-4fe0-bc91-0544ba3c6a73:1",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [
+                "light"
+              ],
+              "item": "colored jean"
+            }
+          ],
+          "person_id": "d9d6db38-8144-4fe0-bc91-0544ba3c6a73:2",
+          "role": "suspect"
+        },
+        {
+          "clothing": [],
+          "person_id": "d9d6db38-8144-4fe0-bc91-0544ba3c6a73:3",
+          "role": null
+        },
+        {
+          "clothing": [],
+          "person_id": "d9d6db38-8144-4fe0-bc91-0544ba3c6a73:4",
+          "role": null
+        },
+        {
+          "clothing": [],
+          "person_id": "d9d6db38-8144-4fe0-bc91-0544ba3c6a73:5",
+          "role": null
+        },
+        {
+          "clothing": [],
+          "person_id": "d9d6db38-8144-4fe0-bc91-0544ba3c6a73:6",
+          "role": null
+        },
+        {
+          "clothing": [],
+          "person_id": "d9d6db38-8144-4fe0-bc91-0544ba3c6a73:7",
+          "role": null
+        },
+        {
+          "clothing": [],
+          "person_id": "d9d6db38-8144-4fe0-bc91-0544ba3c6a73:8",
+          "role": null
+        },
+        {
+          "clothing": [],
+          "person_id": "d9d6db38-8144-4fe0-bc91-0544ba3c6a73:9",
+          "role": null
+        },
+        {
+          "clothing": [],
+          "person_id": "d9d6db38-8144-4fe0-bc91-0544ba3c6a73:10",
+          "role": null
+        },
+        {
+          "clothing": [],
+          "person_id": "d9d6db38-8144-4fe0-bc91-0544ba3c6a73:11",
+          "role": null
+        },
+        {
+          "clothing": [],
+          "person_id": "d9d6db38-8144-4fe0-bc91-0544ba3c6a73:12",
+          "role": null
+        },
+        {
+          "clothing": [],
+          "person_id": "d9d6db38-8144-4fe0-bc91-0544ba3c6a73:13",
+          "role": null
+        }
+      ],
+      "predicted_person_count": 14
+    },
+    {
+      "document_id": "5b14ed6c-74b6-11eb-ad3c-c4b301ba0477",
+      "document_level": {
+        "attr_only": {
+          "f1": 0.6666666666666666,
+          "false_negative": 1,
+          "false_positive": 1,
+          "precision": 0.6666666666666666,
+          "recall": 0.6666666666666666,
+          "true_positive": 2
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "document_level_predicted_clothing": [
+        {
+          "descriptors": [],
+          "item": "baseball cap"
+        },
+        {
+          "descriptors": [],
+          "item": "tank top"
+        },
+        {
+          "descriptors": [],
+          "item": "jean"
+        }
+      ],
+      "gold_clothing": [
+        {
+          "descriptors": [
+            "Purple"
+          ],
+          "item": "baseball cap"
+        },
+        {
+          "descriptors": [
+            "Green"
+          ],
+          "item": "tank top"
+        },
+        {
+          "descriptors": [
+            "Blue"
+          ],
+          "item": "jeans"
+        }
+      ],
+      "gold_person_count": 1,
+      "person_level": {
+        "attr_only": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "predicted_clothing_by_person": [
+        {
+          "clothing": [],
+          "person_id": "5b14ed6c-74b6-11eb-ad3c-c4b301ba0477:0",
+          "role": "suspect"
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "baseball cap"
+            }
+          ],
+          "person_id": "5b14ed6c-74b6-11eb-ad3c-c4b301ba0477:1",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "tank top"
+            }
+          ],
+          "person_id": "5b14ed6c-74b6-11eb-ad3c-c4b301ba0477:2",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "jean"
+            }
+          ],
+          "person_id": "5b14ed6c-74b6-11eb-ad3c-c4b301ba0477:3",
+          "role": null
+        }
+      ],
+      "predicted_person_count": 4
+    },
+    {
+      "document_id": "74f1749e-74b6-11eb-a8e6-c4b301ba0477",
+      "document_level": {
+        "attr_only": {
+          "f1": 0.6666666666666666,
+          "false_negative": 1,
+          "false_positive": 1,
+          "precision": 0.6666666666666666,
+          "recall": 0.6666666666666666,
+          "true_positive": 2
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "document_level_predicted_clothing": [
+        {
+          "descriptors": [],
+          "item": "baseball cap"
+        },
+        {
+          "descriptors": [],
+          "item": "coat"
+        },
+        {
+          "descriptors": [],
+          "item": "jean"
+        }
+      ],
+      "gold_clothing": [
+        {
+          "descriptors": [
+            "Orange"
+          ],
+          "item": "baseball cap"
+        },
+        {
+          "descriptors": [
+            "Green"
+          ],
+          "item": "coat"
+        },
+        {
+          "descriptors": [
+            "Red"
+          ],
+          "item": "jeans"
+        }
+      ],
+      "gold_person_count": 1,
+      "person_level": {
+        "attr_only": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "predicted_clothing_by_person": [
+        {
+          "clothing": [],
+          "person_id": "74f1749e-74b6-11eb-a8e6-c4b301ba0477:0",
+          "role": "suspect"
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "baseball cap"
+            }
+          ],
+          "person_id": "74f1749e-74b6-11eb-a8e6-c4b301ba0477:1",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "coat"
+            }
+          ],
+          "person_id": "74f1749e-74b6-11eb-a8e6-c4b301ba0477:2",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "jean"
+            }
+          ],
+          "person_id": "74f1749e-74b6-11eb-a8e6-c4b301ba0477:3",
+          "role": null
+        }
+      ],
+      "predicted_person_count": 4
+    },
+    {
+      "document_id": "7a11e71a-74b6-11eb-a13f-c4b301ba0477",
+      "document_level": {
+        "attr_only": {
+          "f1": 0.6666666666666666,
+          "false_negative": 1,
+          "false_positive": 1,
+          "precision": 0.6666666666666666,
+          "recall": 0.6666666666666666,
+          "true_positive": 2
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "document_level_predicted_clothing": [
+        {
+          "descriptors": [],
+          "item": "baseball cap"
+        },
+        {
+          "descriptors": [],
+          "item": "shirt"
+        },
+        {
+          "descriptors": [],
+          "item": "jean"
+        }
+      ],
+      "gold_clothing": [
+        {
+          "descriptors": [
+            "Orange"
+          ],
+          "item": "baseball cap"
+        },
+        {
+          "descriptors": [
+            "Green"
+          ],
+          "item": "shirt"
+        },
+        {
+          "descriptors": [
+            "Blue"
+          ],
+          "item": "jeans"
+        }
+      ],
+      "gold_person_count": 1,
+      "person_level": {
+        "attr_only": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "predicted_clothing_by_person": [
+        {
+          "clothing": [],
+          "person_id": "7a11e71a-74b6-11eb-a13f-c4b301ba0477:0",
+          "role": "suspect"
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "baseball cap"
+            }
+          ],
+          "person_id": "7a11e71a-74b6-11eb-a13f-c4b301ba0477:1",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "shirt"
+            }
+          ],
+          "person_id": "7a11e71a-74b6-11eb-a13f-c4b301ba0477:2",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "jean"
+            }
+          ],
+          "person_id": "7a11e71a-74b6-11eb-a13f-c4b301ba0477:3",
+          "role": null
+        }
+      ],
+      "predicted_person_count": 4
+    },
+    {
+      "document_id": "8184a6cc-74b6-11eb-a8d9-c4b301ba0477",
+      "document_level": {
+        "attr_only": {
+          "f1": 0.6666666666666666,
+          "false_negative": 1,
+          "false_positive": 1,
+          "precision": 0.6666666666666666,
+          "recall": 0.6666666666666666,
+          "true_positive": 2
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "document_level_predicted_clothing": [
+        {
+          "descriptors": [],
+          "item": "hat"
+        },
+        {
+          "descriptors": [],
+          "item": "sweater"
+        },
+        {
+          "descriptors": [],
+          "item": "jean"
+        }
+      ],
+      "gold_clothing": [
+        {
+          "descriptors": [
+            "Blue"
+          ],
+          "item": "hat"
+        },
+        {
+          "descriptors": [
+            "Green"
+          ],
+          "item": "sweater"
+        },
+        {
+          "descriptors": [
+            "Purple"
+          ],
+          "item": "jeans"
+        }
+      ],
+      "gold_person_count": 1,
+      "person_level": {
+        "attr_only": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "predicted_clothing_by_person": [
+        {
+          "clothing": [],
+          "person_id": "8184a6cc-74b6-11eb-a8d9-c4b301ba0477:0",
+          "role": "suspect"
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "hat"
+            }
+          ],
+          "person_id": "8184a6cc-74b6-11eb-a8d9-c4b301ba0477:1",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "sweater"
+            }
+          ],
+          "person_id": "8184a6cc-74b6-11eb-a8d9-c4b301ba0477:2",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "jean"
+            }
+          ],
+          "person_id": "8184a6cc-74b6-11eb-a8d9-c4b301ba0477:3",
+          "role": null
+        }
+      ],
+      "predicted_person_count": 4
+    },
+    {
+      "document_id": "8a6cb2b6-74b6-11eb-99da-c4b301ba0477",
+      "document_level": {
+        "attr_only": {
+          "f1": 0.6666666666666666,
+          "false_negative": 1,
+          "false_positive": 1,
+          "precision": 0.6666666666666666,
+          "recall": 0.6666666666666666,
+          "true_positive": 2
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "document_level_predicted_clothing": [
+        {
+          "descriptors": [],
+          "item": "hat"
+        },
+        {
+          "descriptors": [],
+          "item": "shirt"
+        },
+        {
+          "descriptors": [],
+          "item": "jean"
+        }
+      ],
+      "gold_clothing": [
+        {
+          "descriptors": [
+            "Red"
+          ],
+          "item": "hat"
+        },
+        {
+          "descriptors": [
+            "Blue"
+          ],
+          "item": "shirt"
+        },
+        {
+          "descriptors": [
+            "Brown"
+          ],
+          "item": "jeans"
+        }
+      ],
+      "gold_person_count": 1,
+      "person_level": {
+        "attr_only": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "predicted_clothing_by_person": [
+        {
+          "clothing": [],
+          "person_id": "8a6cb2b6-74b6-11eb-99da-c4b301ba0477:0",
+          "role": "suspect"
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "hat"
+            }
+          ],
+          "person_id": "8a6cb2b6-74b6-11eb-99da-c4b301ba0477:1",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "shirt"
+            }
+          ],
+          "person_id": "8a6cb2b6-74b6-11eb-99da-c4b301ba0477:2",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "jean"
+            }
+          ],
+          "person_id": "8a6cb2b6-74b6-11eb-99da-c4b301ba0477:3",
+          "role": null
+        }
+      ],
+      "predicted_person_count": 4
+    },
+    {
+      "document_id": "90655e8c-74b6-11eb-a959-c4b301ba0477",
+      "document_level": {
+        "attr_only": {
+          "f1": 0.6666666666666666,
+          "false_negative": 1,
+          "false_positive": 1,
+          "precision": 0.6666666666666666,
+          "recall": 0.6666666666666666,
+          "true_positive": 2
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "document_level_predicted_clothing": [
+        {
+          "descriptors": [],
+          "item": "hat"
+        },
+        {
+          "descriptors": [],
+          "item": "shirt"
+        },
+        {
+          "descriptors": [
+            "yellow"
+          ],
+          "item": "jean"
+        }
+      ],
+      "gold_clothing": [
+        {
+          "descriptors": [
+            "Red"
+          ],
+          "item": "hat"
+        },
+        {
+          "descriptors": [
+            "Purple"
+          ],
+          "item": "shirt"
+        },
+        {
+          "descriptors": [
+            "Yellow"
+          ],
+          "item": "jeans"
+        }
+      ],
+      "gold_person_count": 1,
+      "person_level": {
+        "attr_only": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "predicted_clothing_by_person": [
+        {
+          "clothing": [],
+          "person_id": "90655e8c-74b6-11eb-a959-c4b301ba0477:0",
+          "role": "suspect"
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "hat"
+            }
+          ],
+          "person_id": "90655e8c-74b6-11eb-a959-c4b301ba0477:1",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "shirt"
+            }
+          ],
+          "person_id": "90655e8c-74b6-11eb-a959-c4b301ba0477:2",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [
+                "yellow"
+              ],
+              "item": "jean"
+            }
+          ],
+          "person_id": "90655e8c-74b6-11eb-a959-c4b301ba0477:3",
+          "role": null
+        }
+      ],
+      "predicted_person_count": 4
+    },
+    {
+      "document_id": "944ea492-74b6-11eb-a2bb-c4b301ba0477",
+      "document_level": {
+        "attr_only": {
+          "f1": 0.6666666666666666,
+          "false_negative": 1,
+          "false_positive": 1,
+          "precision": 0.6666666666666666,
+          "recall": 0.6666666666666666,
+          "true_positive": 2
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "document_level_predicted_clothing": [
+        {
+          "descriptors": [],
+          "item": "hat"
+        },
+        {
+          "descriptors": [],
+          "item": "shirt"
+        },
+        {
+          "descriptors": [
+            "yellow"
+          ],
+          "item": "jean"
+        }
+      ],
+      "gold_clothing": [
+        {
+          "descriptors": [
+            "Brown"
+          ],
+          "item": "hat"
+        },
+        {
+          "descriptors": [
+            "Purple"
+          ],
+          "item": "shirt"
+        },
+        {
+          "descriptors": [
+            "Yellow"
+          ],
+          "item": "jeans"
+        }
+      ],
+      "gold_person_count": 1,
+      "person_level": {
+        "attr_only": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "predicted_clothing_by_person": [
+        {
+          "clothing": [],
+          "person_id": "944ea492-74b6-11eb-a2bb-c4b301ba0477:0",
+          "role": "suspect"
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "hat"
+            }
+          ],
+          "person_id": "944ea492-74b6-11eb-a2bb-c4b301ba0477:1",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "shirt"
+            }
+          ],
+          "person_id": "944ea492-74b6-11eb-a2bb-c4b301ba0477:2",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [
+                "yellow"
+              ],
+              "item": "jean"
+            }
+          ],
+          "person_id": "944ea492-74b6-11eb-a2bb-c4b301ba0477:3",
+          "role": null
+        }
+      ],
+      "predicted_person_count": 4
+    },
+    {
+      "document_id": "96fbc72e-74b6-11eb-88e4-c4b301ba0477",
+      "document_level": {
+        "attr_only": {
+          "f1": 0.6666666666666666,
+          "false_negative": 1,
+          "false_positive": 1,
+          "precision": 0.6666666666666666,
+          "recall": 0.6666666666666666,
+          "true_positive": 2
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "document_level_predicted_clothing": [
+        {
+          "descriptors": [],
+          "item": "sock hat"
+        },
+        {
+          "descriptors": [],
+          "item": "coat"
+        },
+        {
+          "descriptors": [],
+          "item": "jean"
+        }
+      ],
+      "gold_clothing": [
+        {
+          "descriptors": [
+            "Purple"
+          ],
+          "item": "sock hat"
+        },
+        {
+          "descriptors": [
+            "Yellow"
+          ],
+          "item": "coat"
+        },
+        {
+          "descriptors": [
+            "Brown"
+          ],
+          "item": "jeans"
+        }
+      ],
+      "gold_person_count": 1,
+      "person_level": {
+        "attr_only": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "predicted_clothing_by_person": [
+        {
+          "clothing": [],
+          "person_id": "96fbc72e-74b6-11eb-88e4-c4b301ba0477:0",
+          "role": "suspect"
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "sock hat"
+            }
+          ],
+          "person_id": "96fbc72e-74b6-11eb-88e4-c4b301ba0477:1",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "coat"
+            }
+          ],
+          "person_id": "96fbc72e-74b6-11eb-88e4-c4b301ba0477:2",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "jean"
+            }
+          ],
+          "person_id": "96fbc72e-74b6-11eb-88e4-c4b301ba0477:3",
+          "role": null
+        }
+      ],
+      "predicted_person_count": 4
+    },
+    {
+      "document_id": "98b1d434-74b6-11eb-8cf9-c4b301ba0477",
+      "document_level": {
+        "attr_only": {
+          "f1": 0.6666666666666666,
+          "false_negative": 1,
+          "false_positive": 1,
+          "precision": 0.6666666666666666,
+          "recall": 0.6666666666666666,
+          "true_positive": 2
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "document_level_predicted_clothing": [
+        {
+          "descriptors": [],
+          "item": "sock hat"
+        },
+        {
+          "descriptors": [],
+          "item": "sweater"
+        },
+        {
+          "descriptors": [],
+          "item": "jean"
+        }
+      ],
+      "gold_clothing": [
+        {
+          "descriptors": [
+            "Brown"
+          ],
+          "item": "sock hat"
+        },
+        {
+          "descriptors": [
+            "Green"
+          ],
+          "item": "sweater"
+        },
+        {
+          "descriptors": [
+            "Purple"
+          ],
+          "item": "jeans"
+        }
+      ],
+      "gold_person_count": 1,
+      "person_level": {
+        "attr_only": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        },
+        "attr_value": {
+          "f1": 0.0,
+          "false_negative": 3,
+          "false_positive": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "true_positive": 0
+        }
+      },
+      "predicted_clothing_by_person": [
+        {
+          "clothing": [],
+          "person_id": "98b1d434-74b6-11eb-8cf9-c4b301ba0477:0",
+          "role": "suspect"
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "sock hat"
+            }
+          ],
+          "person_id": "98b1d434-74b6-11eb-8cf9-c4b301ba0477:1",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "sweater"
+            }
+          ],
+          "person_id": "98b1d434-74b6-11eb-8cf9-c4b301ba0477:2",
+          "role": null
+        },
+        {
+          "clothing": [
+            {
+              "descriptors": [],
+              "item": "jean"
+            }
+          ],
+          "person_id": "98b1d434-74b6-11eb-8cf9-c4b301ba0477:3",
+          "role": null
+        }
+      ],
+      "predicted_person_count": 4
+    }
+  ]
+}
