@@ -18,6 +18,10 @@ if str(SRC_ROOT) not in sys.path:
 from hart.candidates import RegexSelector, StackedSelector, Word2VecSelector, WordNetSelector, ZeroShotSelector
 from hart.data import LegacyAnnotationLoader, load_document_index, load_document
 from hart.evaluation.legacy_metrics import clothing_metrics, compare_attribute, match_people
+from hart.evaluation.extraction_metrics import (
+    corpus_gold_attr_value_units,
+    evaluate_corpus,
+)
 from hart.extractors import POSIDExtractor
 
 
@@ -130,6 +134,8 @@ def run(args: argparse.Namespace) -> int:
     records = load_document_index(incitext_root)
     annotations_path = incitext_root / "Annotation" / "consolidated_annotation_file.json"
     gold = LegacyAnnotationLoader().load(annotations_path)
+    document_ids = [record.document_id for record in records]
+    gold_attr_value_units = corpus_gold_attr_value_units(gold, document_ids)
     print("DATA CHECK — Full-558 InciText reproduction")
     print(f"  total indexed documents = {len(records)}")
     print(f"  gold person annotations = {sum(len(people) for people in gold.values())}")
@@ -161,6 +167,7 @@ def run(args: argparse.Namespace) -> int:
         clothing = [clothing_metrics(gold.get(doc.document_id, []), predictions.get(doc.document_id, [])) for doc in documents]
         ao = _sum_metrics(clothing, "attr_only")
         av = _sum_metrics(clothing, "attr_value")
+        primary = evaluate_corpus(gold, predictions, document_ids)
         attribute_metrics = {
             attribute: asdict(_sum_attribute_metrics(
                 [compare_attribute(gold.get(doc.document_id, []), predictions.get(doc.document_id, []), attribute) for doc in documents]
@@ -172,8 +179,17 @@ def run(args: argparse.Namespace) -> int:
             for doc in documents
         )
         results[name] = {
+            # Backward-compatible person-aware fields retained for diagnostics.
             "attr_only": asdict(ao),
             "attr_value": asdict(av),
+            "primary_extraction": {
+                "attr_only": asdict(primary["attr_only"]),
+                "attr_value": asdict(primary["attr_value"]),
+            },
+            "person_aware_diagnostic": {
+                "attr_only": asdict(ao),
+                "attr_value": asdict(av),
+            },
             "attributes": attribute_metrics,
             "errors": errors,
             "counts": {
@@ -182,6 +198,12 @@ def run(args: argparse.Namespace) -> int:
                 "documents_with_predictions": sum(bool(predictions.get(doc.document_id)) for doc in documents),
                 "predicted_people": sum(len(predictions.get(doc.document_id, [])) for doc in documents),
                 "evaluation_clothing_items": sum(len(person.attributes.get("wearing", [])) for people in predictions.values() for person in people),
+                "gold_clothing_items": sum(
+                    len(person.attributes.get("wearing", []))
+                    for people in gold.values()
+                    for person in people
+                ),
+                "gold_attr_value_units": gold_attr_value_units,
                 "exceptions": len(errors),
                 "ambiguous_multi_person_documents": ambiguous_documents,
             },
@@ -232,9 +254,15 @@ def _print_tables(results: dict[str, Any]) -> None:
         if key not in results:
             print(f"{label} | {published[0]:.2f}/{published[1]:.2f} | BLOCKED | BLOCKED")
             continue
-        reproduced = (results[key]["attr_only"]["f1"], results[key]["attr_value"]["f1"])
+        reproduced = (
+            results[key]["primary_extraction"]["attr_only"]["f1"],
+            results[key]["primary_extraction"]["attr_value"]["f1"],
+        )
         print(f"{label} | {published[0]:.2f}/{published[1]:.2f} | {reproduced[0]:.2f}/{reproduced[1]:.2f} | {reproduced[0]-published[0]:+.2f}/{reproduced[1]-published[1]:+.2f}")
-        print(f"  P/R/F1 AO={results[key]['attr_only']['precision']:.2f}/{results[key]['attr_only']['recall']:.2f}/{results[key]['attr_only']['f1']:.2f} AV={results[key]['attr_value']['precision']:.2f}/{results[key]['attr_value']['recall']:.2f}/{results[key]['attr_value']['f1']:.2f}")
+        primary = results[key]["primary_extraction"]
+        diagnostic = results[key]["person_aware_diagnostic"]
+        print(f"  PRIMARY P/R/F1 AO={primary['attr_only']['precision']:.2f}/{primary['attr_only']['recall']:.2f}/{primary['attr_only']['f1']:.2f} AV={primary['attr_value']['precision']:.2f}/{primary['attr_value']['recall']:.2f}/{primary['attr_value']['f1']:.2f}")
+        print(f"  PERSON-AWARE P/R/F1 AO={diagnostic['attr_only']['precision']:.2f}/{diagnostic['attr_only']['recall']:.2f}/{diagnostic['attr_only']['f1']:.2f} AV={diagnostic['attr_value']['precision']:.2f}/{diagnostic['attr_value']['recall']:.2f}/{diagnostic['attr_value']['f1']:.2f}")
 
     print("\nTABLE I COMPARISON — RE + SBERT / ZERO-SHOT + POSID — FULL 558")
     print("Attribute | Published P/R/F1 | Reproduced P/R/F1 | Delta")
