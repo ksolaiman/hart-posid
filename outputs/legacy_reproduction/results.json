@@ -49,9 +49,47 @@
       "documents_with_predictions": 544,
       "evaluation_clothing_items": 1504,
       "exceptions": 0,
+      "gold_attr_value_units": 3011,
+      "gold_clothing_items": 1503,
       "predicted_people": 1265
     },
-    "errors": []
+    "errors": [],
+    "person_aware_diagnostic": {
+      "attr_only": {
+        "f1": 0.24742268041237114,
+        "false_negative": 1131,
+        "false_positive": 1132,
+        "precision": 0.2473404255319149,
+        "recall": 0.24750499001996007,
+        "true_positive": 372
+      },
+      "attr_value": {
+        "f1": 0.2168274027269704,
+        "false_negative": 1177,
+        "false_positive": 1178,
+        "precision": 0.21675531914893617,
+        "recall": 0.21689953426480374,
+        "true_positive": 326
+      }
+    },
+    "primary_extraction": {
+      "attr_only": {
+        "f1": 0.8779514466245426,
+        "false_negative": 183,
+        "false_positive": 184,
+        "precision": 0.8776595744680851,
+        "recall": 0.8782435129740519,
+        "true_positive": 1320
+      },
+      "attr_value": {
+        "f1": 0.7322256568778981,
+        "false_negative": 1116,
+        "false_positive": 270,
+        "precision": 0.8752886836027713,
+        "recall": 0.6293590169378944,
+        "true_positive": 1895
+      }
+    }
   },
   "re_wordnet_posid": {
     "attr_only": {
@@ -103,9 +141,47 @@
       "documents_with_predictions": 545,
       "evaluation_clothing_items": 1506,
       "exceptions": 0,
+      "gold_attr_value_units": 3011,
+      "gold_clothing_items": 1503,
       "predicted_people": 1266
     },
-    "errors": []
+    "errors": [],
+    "person_aware_diagnostic": {
+      "attr_only": {
+        "f1": 0.2485875706214689,
+        "false_negative": 1129,
+        "false_positive": 1132,
+        "precision": 0.24833997343957503,
+        "recall": 0.2488356620093147,
+        "true_positive": 374
+      },
+      "attr_value": {
+        "f1": 0.2166832834828847,
+        "false_negative": 1177,
+        "false_positive": 1180,
+        "precision": 0.21646746347941567,
+        "recall": 0.21689953426480374,
+        "true_positive": 326
+      }
+    },
+    "primary_extraction": {
+      "attr_only": {
+        "f1": 0.8786972416085078,
+        "false_negative": 181,
+        "false_positive": 184,
+        "precision": 0.8778220451527224,
+        "recall": 0.8795741849634066,
+        "true_positive": 1322
+      },
+      "attr_value": {
+        "f1": 0.7327153341058323,
+        "false_negative": 1114,
+        "false_positive": 270,
+        "precision": 0.8754037840332256,
+        "recall": 0.6300232480903354,
+        "true_positive": 1897
+      }
+    }
   },
   "wordnet_posid": {
     "attr_only": {
@@ -157,8 +233,46 @@
       "documents_with_predictions": 172,
       "evaluation_clothing_items": 483,
       "exceptions": 0,
+      "gold_attr_value_units": 3011,
+      "gold_clothing_items": 1503,
       "predicted_people": 416
     },
-    "errors": []
+    "errors": [],
+    "person_aware_diagnostic": {
+      "attr_only": {
+        "f1": 0.09264853977844914,
+        "false_negative": 1411,
+        "false_positive": 391,
+        "precision": 0.19047619047619047,
+        "recall": 0.06121091151031271,
+        "true_positive": 92
+      },
+      "attr_value": {
+        "f1": 0.07955689828801613,
+        "false_negative": 1424,
+        "false_positive": 404,
+        "precision": 0.16356107660455488,
+        "recall": 0.05256154357950765,
+        "true_positive": 79
+      }
+    },
+    "primary_extraction": {
+      "attr_only": {
+        "f1": 0.31117824773413894,
+        "false_negative": 1194,
+        "false_positive": 174,
+        "precision": 0.639751552795031,
+        "recall": 0.2055888223552894,
+        "true_positive": 309
+      },
+      "attr_value": {
+        "f1": 0.23099810657289696,
+        "false_negative": 2584,
+        "false_positive": 259,
+        "precision": 0.6224489795918368,
+        "recall": 0.14181335104616408,
+        "true_positive": 427
+      }
+    }
   }
 }
