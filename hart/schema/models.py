@@ -12,4 +12,13 @@ class PersonAnnotation:
     attributes: dict[str, Any]
 
 
+@dataclass(frozen=True)
+class PersonPrediction:
+    document_id: str
+    person_id: str | None
+    role: str | None
+    attributes: dict[str, Any]
+    metadata: dict[str, Any] | None = None
+
+
 AnnotationIndex = dict[str, list[PersonAnnotation]]
