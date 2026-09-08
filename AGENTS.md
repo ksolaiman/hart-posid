@@ -12,40 +12,48 @@ When legacy behavior is uncertain, preserve the uncertainty in comments or docum
 
 ## Current development scope
 
-Current stage: legacy POSID reproduction and evaluation-policy stabilization.
+Current stage: legacy POSID reproduction and evaluation stabilization after primary-metric reconciliation.
 
-Completed:
+Completed checkpoints:
 - candidate selectors implemented and regression-tested
 - Full-558 InciText loading validated
-- POSID clothing extraction reconstructed toward Algorithm 1 using open-vocabulary POS/noun construction
-- person-aware evaluator corrected so unmatched gold people contribute false negatives and unmatched predicted people contribute false positives
-- document-level fragmentation diagnostic completed
-- surviving historical clothing-evaluation semantics recovered from the legacy Wearing-Model notebook
+- POSID clothing extraction moved away from the temporary clothing-name whitelist toward a closer Algorithm-1-style POS-tagged/open-vocabulary noun construction
+- corrected person-aware evaluator retains unmatched gold/predicted people as FN/FP
+- primary document-level extraction evaluator added for clothing Attr-Only / Attr-Value
+- primary finite-attribute evaluation added for Gender, Race, and Height
+- current complete regression suite: 61 passed, 0 failed
 
-Verified Full-558 gold clothing denominator under the corrected person-aware evaluator:
-- 1503 clothing items for every evaluated method
+Primary evaluation policy is now stable for the current reproduction:
+- keep `PersonPrediction` as the extractor output contract
+- evaluate primary extraction at the document level by pooling facts across person predictions while preserving multiplicity
+- report person-aware/person-attribution evaluation separately rather than folding attribution errors into the primary extraction score
+- do not use `dict.update()`-style overwriting to flatten clothing
+- do not add approximate/fuzzy matching merely to improve agreement with the paper
 
-Current untuned corrected person-aware reproduction:
-- RE + POSID AO F1: 0.247
-- RE + POSID AV F1: 0.217
-- WordNet + POSID AO F1: 0.093
-- WordNet + POSID AV F1: 0.080
-- RE + WordNet + POSID AO F1: 0.249
-- RE + WordNet + POSID AV F1: 0.217
+Verified Full-558 gold denominators:
+- Gender values: 553
+- Race values: 552
+- Height values: 13
+- Clothing Attr-Only item units: 1503
+- Clothing Attr-Value decomposable units: 3011
 
-Document-level fragmentation diagnostic:
-- RE + POSID AO F1: 0.247 -> 0.878
-- RE + POSID AV F1: 0.217 -> 0.382
+Current untuned Full-558 primary results:
+- RE + POSID: Gender F1 0.983, Race F1 0.984, Height F1 0.235, Clothes AO F1 0.878, Clothes AV F1 0.732
+- WordNet + POSID: Gender F1 0.462, Race F1 0.462, Height F1 0.000, Clothes AO F1 0.311, Clothes AV F1 0.231
+- RE + WordNet + POSID: Gender F1 0.983, Race F1 0.983, Height F1 0.235, Clothes AO F1 0.879, Clothes AV F1 0.733
 
-Conclusion:
-- person fragmentation explains most of the Attr-Only discrepancy
-- person fragmentation does not explain most of the Attr-Value discrepancy
-- do not modify person resolution yet
+Person-aware diagnostic F1 remains much lower because of prediction fragmentation:
+- RE + POSID: AO 0.247, AV 0.217
+- WordNet + POSID: AO 0.093, AV 0.080
+- RE + WordNet + POSID: AO 0.249, AV 0.217
 
-Current priority:
-implement and validate the agreed extraction-evaluation policy below, preserving historical decomposable Attr-Only / Attr-Value semantics while avoiding the legacy `dict.update()` overwrite shortcut.
+The earlier document-level fragmentation diagnostic showed RE + POSID AO F1 0.247 -> 0.878 and strict person-aware-style AV F1 0.217 -> 0.382. This established that person fragmentation explains most of the Attr-Only discrepancy, but not most of the descriptor/value discrepancy. Do not modify person resolution merely to chase the primary extraction metric.
 
-Do not tune POSID, candidate thresholds, queries, or person resolution merely to improve agreement with published results.
+Current diagnostic priorities:
+1. audit Height misses/surface-form mismatches without introducing aggressive height equivalence rules
+2. audit clothing Attr-Value false negatives by descriptor/value category
+
+Do not tune POSID, candidate thresholds, queries, person resolution, or evaluation semantics solely to reduce published-result deltas.
 
 ## Repository design rule
 
@@ -506,65 +514,6 @@ Do not rewrite all old annotations into Schema 2.0 merely to run the current exp
 
 Future annotation schemas should require only a new loader/adapter that emits the same canonical model. Extractors, pipelines, evaluation, and experiment code should remain unchanged.
 
-## Extraction evaluation policy
-
-The canonical extractor output remains person-aware:
-
-```python
-dict[str, list[PersonPrediction]]
-```
-
-Person structure is preserved during prediction because it is useful for provenance and for the multi-person extension. However, the primary clothing-extraction metrics should measure extraction quality rather than penalize bookkeeping fragmentation when the gold document contains only one person.
-
-### Primary clothing metrics
-
-Use the historical decomposable extraction logic because it is appropriate for this task.
-
-**Attr-Only**
-- evaluate normalized clothing item names
-- use one-to-one matching with multiplicity preserved
-- a clothing item can be correct regardless of descriptor correctness
-- do not require whole-dictionary equality
-
-**Attr-Value**
-- score the clothing item itself and its individual descriptors/values as decomposable units
-- allow partial credit for partially correct structured extractions
-- a correct item with some correct and some missing/wrong descriptors receives credit for the correct units and FN/FP for the missing/wrong units
-- do not require exact equality of the entire descriptor set
-
-Do not reproduce the legacy `dict.update()` shortcut. Gold and predicted clothing must be represented as lists/multisets so duplicate item/value instances are preserved rather than overwritten.
-
-### Single-person gold documents
-
-When the gold contains exactly one person:
-- pool clothing predictions across all `PersonPrediction` records in that document
-- preserve every predicted item/value instance; do not collapse to a set
-- compare the pooled predictions against the sole gold person's clothing using the decomposable Attr-Only and Attr-Value metrics
-- correct facts split across multiple predicted-person records may still match the single gold person
-- extra or hallucinated pooled predictions remain false positives
-- fragmentation itself is not a primary extraction error
-
-### Multi-person gold documents
-
-When the gold contains more than one person:
-- primary clothing extraction still uses document-level pooled/multiset Attr-Only and Attr-Value metrics, preserving duplicate instances
-- do not overwrite duplicate clothing keys across people
-- additionally report a separate person-attribution extension metric measuring whether extracted facts are assigned to the correct gold person
-
-This separates two capabilities:
-
-```text
-information extraction
-    -> Attr-Only / Attr-Value
-
-person attribution
-    -> separate extension metric when multiple gold people exist
-```
-
-Do not fold person-attribution errors into the primary extraction metric, because that would confound extraction correctness with assignment correctness.
-
-For the current Full-558 legacy corpus, there is one known two-person document; future 2026 benchmark data may contain more multi-person cases.
-
 ### Data-layer checkpoint
 
 The current data layer has been implemented and tested.
@@ -648,18 +597,15 @@ Confirmed rules:
 - deterministic runtime IDs may use `<document_id>:0`, `<document_id>:1`, etc., in textual discovery order
 - do not introduce a heavy coreference/entity-resolution system unless explicitly requested
 
-### POSID clothing reconstruction checkpoint
+### Current POSID clothing implementation status
 
-The earlier temporary whitelist-based clothing implementation has been replaced with a closer Algorithm-1 reconstruction.
+The temporary fixed clothing-name whitelist is no longer the governing extraction mechanism. The current POSID clothing path is a closer Algorithm-1 reconstruction using POS-tagged/open-vocabulary noun/property construction, with candidate-scoped processing and the already-approved local context behavior.
 
-Current approved behavior:
-- candidate-scoped clothing extraction
-- open-vocabulary POS/noun property construction rather than a closed clothing-name whitelist
-- multiword noun/property construction where supported
-- WordNet color interpretation using the recovered historical color-synset behavior
-- when no explicit wear/wearing/wore clothing span exists, analyze the remaining selected candidate context after removing fixed-property spans
-
-Do not replace this reconstruction merely to chase corpus-level scores. Further POSID changes require a concrete historical-code finding, a demonstrated bug, or an explicitly approved new-benchmark change.
+For the current reproduction checkpoint:
+- preserve this implementation unless a concrete regression or recovered historical artifact justifies a narrow change
+- do not reintroduce a closed clothing vocabulary merely to increase scores
+- do not redesign POSID clothing from scratch while auditing evaluation mismatches
+- treat remaining clothing Attr-Value error primarily as an empirical descriptor/value-recall question until error analysis shows otherwise
 
 ## Testing
 
@@ -718,12 +664,7 @@ When asked to implement a file:
 6. Report any ambiguity before resolving it by assumption.
 7. Preserve small, reviewable diffs.
 
-During the current evaluation-stabilization stage, do not modify
-POSID clothing extraction, person resolution, candidate selectors,
-thresholds, or queries merely to improve agreement with published
-results. Implement the agreed extraction-evaluation policy separately
-and preserve the corrected person-aware evaluator for diagnostic /
-attribution use unless an explicitly approved refactor requires otherwise.
+During the current reproduction/evaluation-stabilization stage, do not modify `legacy_metrics.py`, `extraction_metrics.py`, POSID extraction, person resolution, candidate selectors, thresholds, or queries merely to improve agreement with published results. The current primary evaluation semantics are a frozen checkpoint. Diagnose Height mismatches and clothing descriptor/value false negatives first; any later semantic change requires explicit approval and evidence.
 
 ## Git discipline
 

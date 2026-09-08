@@ -599,18 +599,15 @@ Confirmed behavior:
 - runtime prediction IDs may be generated deterministically as `<document_id>:0`, `<document_id>:1`, etc.
 - no heavy coreference/entity-resolution system is part of the current baseline architecture
 
-### POSID clothing reconstruction checkpoint
+### Current POSID clothing implementation status
 
-The earlier temporary whitelist-based `POSIDExtractor` clothing implementation has now been replaced with a closer Algorithm-1 reconstruction.
+The earlier temporary whitelist-based clothing implementation has been replaced with a closer Algorithm-1 reconstruction using POS-tagged, open-vocabulary noun/property construction. Clothing extraction remains candidate-scoped, and previously approved local continuation/context behavior is preserved.
 
-Current approved behavior:
-- candidate-scoped clothing extraction
-- open-vocabulary POS/noun property construction rather than a small closed clothing whitelist
-- multiword noun/property construction where supported
-- recovered WordNet color behavior retained
-- candidate-scoped fallback when no explicit wear/wearing/wore span exists: analyze the remaining selected candidate context after fixed-property spans are removed
-
-This reconstruction is now the working legacy-reproduction checkpoint. Do not rewrite it merely to chase published scores. Further changes require a demonstrated implementation bug, stronger recovered historical evidence, or an explicitly approved new-benchmark requirement.
+Current status:
+- do not characterize the implementation as a temporary fixed clothing-name whitelist
+- do not reintroduce a closed vocabulary to improve benchmark numbers
+- keep the current clothing implementation stable while evaluation/error diagnostics are performed
+- revisit algorithm details only if a recovered historical artifact, a deterministic regression, or a clearly isolated extraction error justifies a narrow change
 
 ### Universal prediction representation
 
@@ -666,79 +663,87 @@ Empirical evaluation:
 Do not modify a method merely to force perfect corpus accuracy, and do not interpret a green unit-test suite as reproduction of the paper's reported tables.
 
 
-## 12C. Confirmed extraction-evaluation policy
+## 12C. Confirmed primary evaluation policy
 
-The current project distinguishes **extraction quality** from **person attribution quality**.
-
-The canonical prediction representation remains person-aware:
+The canonical extractor output remains person-structured:
 
 ```python
 dict[str, list[PersonPrediction]]
 ```
 
-This representation should be preserved during extraction. Evaluation may pool clothing facts when appropriate without changing the extractor contract.
+Person structure is preserved during extraction. Primary extraction evaluation and person attribution are intentionally separate questions.
 
-### Historical decomposable clothing metrics remain primary
+### Primary document-level extraction view
 
-The recovered legacy evaluator supports two conceptually appropriate clothing metrics:
+For each document, pool extractable facts across all gold people and across all predicted `PersonPrediction` records while preserving multiplicity. Do not use `dict.update()` or set-based flattening that can overwrite or collapse duplicate instances.
 
-**Attr-Only**
-- score clothing item-name extraction
-- item correctness does not depend on descriptor correctness
-- use exact normalized item-name matching with one-to-one matching and multiplicity preserved
-- do not require whole-dictionary equality
+This policy is especially important because the Full-558 corpus is almost entirely single-person: 551 single-person documents, 1 two-person document, and 6 zero-person documents.
 
-**Attr-Value**
-- score the clothing item itself plus its associated descriptor/value units
-- allow partial credit when only some descriptors/values are correct
-- wrong predicted descriptor/value units contribute FP
-- missing gold descriptor/value units contribute FN
-- do not require exact equality of the complete descriptor set
+For single-gold-person documents, person fragmentation by itself is not an extraction error: if the correct fact appears in any predicted person record, it can be matched. Extra/conflicting predicted facts still contribute false positives.
 
-These decomposable metrics remain primary because they measure the structured extraction task directly, not merely because they are historical.
+For multi-person gold documents, the same document-level extraction metric remains primary. Person-level attribution is reported separately as an extension/diagnostic rather than silently folded into the extraction score.
 
-### Do not reproduce the legacy `dict.update()` overwrite shortcut
+### Clothing Attr-Only
 
-The surviving historical notebook flattened gold clothing with dictionary updates. That implementation can overwrite duplicate clothing keys when more than one person has the same item.
+Attr-Only measures clothing-item extraction.
 
-The current implementation must **not** reproduce that shortcut.
-
-Instead:
-- represent pooled gold clothing as a list/multiset of item/value structures
-- represent pooled predicted clothing the same way
+Confirmed semantics:
+- normalize item names conservatively
 - preserve duplicate item instances
-- use deterministic one-to-one matching
+- perform one-to-one item-name matching
+- descriptors do not affect Attr-Only matching
+- matched item -> TP
+- unmatched predicted item -> FP
+- unmatched gold item -> FN
 
-### Single-person gold documents
+Historical Attr-Only is treated as item-name membership/matching rather than whole-dictionary equality.
 
-If a document has exactly one gold person:
-- pool clothing facts across every predicted `PersonPrediction` in that document
-- preserve all predicted item/value instances
-- evaluate the pooled prediction against the sole gold person's clothing using Attr-Only and Attr-Value
-- correct facts fragmented across several predicted-person records may still receive extraction credit
-- additional or hallucinated facts remain false positives
-- person fragmentation itself is not a primary extraction error in this case
+### Clothing Attr-Value
 
-### Multi-person gold documents
+Attr-Value is decomposable rather than all-or-nothing dictionary equality.
 
-If a document has more than one gold person:
-- primary extraction evaluation still pools clothing facts at document level using list/multiset semantics and the same decomposable Attr-Only / Attr-Value metrics
-- preserve duplicates across people; never overwrite same-name clothing items
-- additionally compute a separate **person-attribution extension metric** that evaluates whether extracted facts are assigned to the correct gold person
+For a matched clothing item:
+- the item itself is one evaluation unit
+- each descriptor/value is an additional evaluation unit
+- correctly matched descriptor/value -> TP
+- unmatched predicted descriptor/value -> FP
+- unmatched gold descriptor/value -> FN
 
-This yields two distinct evaluation questions:
+This provides partial credit when an item is correct but only some descriptors are recovered.
 
-```text
-What information was extracted?
-    -> Attr-Only / Attr-Value
+For duplicate same-name clothing instances, use deterministic one-to-one matching that maximizes descriptor/value overlap. Preserve multiplicity; do not collapse duplicates into a set.
 
-Who was that information assigned to?
-    -> Person-attribution metric for multi-person gold documents
-```
+The old `dict.update()` flattening shortcut is not adopted as the clean evaluator because it can overwrite duplicate clothing keys.
 
-Do not fold attribution errors into the primary extraction score, because extraction and assignment are distinct capabilities.
+### Gender, Race, and Height
 
-For the current Full-558 corpus, 551 documents contain one gold person and one document contains two gold people. Future 2026 benchmark data may contain additional multi-person cases.
+Gender, Race, and Height are evaluated as finite-valued attributes, independently, with micro P/R/F1.
+
+For each attribute:
+- pool non-null gold values across gold people in the document
+- pool non-null predicted values across predicted people
+- preserve multiplicity
+- perform deterministic one-to-one exact/current-normalized matching
+- matched value -> TP
+- unmatched predicted value -> FP
+- unmatched gold value -> FN
+
+The current evaluator does not introduce fuzzy semantic matching.
+
+For Height specifically, do not invent aggressive equivalence rules. Surface forms that current normalization does not already equate remain different for this checkpoint. Cases such as `6 feet` vs `6 feet tall` should be diagnosed before any normalization expansion; near values such as `5'11"` and `6 feet` must not be treated as equivalent merely because they are close.
+
+### Person-aware diagnostic / attribution view
+
+The corrected person-aware evaluator remains available and should not be weakened or replaced. Its purpose is to measure whether extracted facts were attached to the correct predicted person structure.
+
+Primary extraction score and person-aware attribution score must remain separately labeled. The person-aware view may be reported over the full corpus for diagnostics, but its conceptual importance is greatest for genuinely multi-person documents.
+
+### Historical-evaluator provenance
+
+Recovered evidence supports the clothing Attr-Only item-name interpretation and the decomposable Attr-Value conceptual behavior. The historical `dict.update()` implementation shortcut is not treated as theoretically necessary.
+
+The exact surviving historical TP/FP/FN implementation for Gender/Race/Height has not been recovered. Their current finite-value metric is therefore a defensible reconstruction consistent with the task and paper, not a claim that the historical evaluator code itself has been recovered.
+
 
 ## 13. Benchmark plan
 
@@ -756,9 +761,8 @@ All methods should emit the same canonical runtime prediction representation use
 
 Evaluation should eventually include:
 
-- primary decomposable clothing Attr-Only and Attr-Value metrics
-- per-attribute performance for other attributes
-- separate person-attribution evaluation for multi-person gold documents
+- overall F1
+- per-attribute performance
 - source/domain breakdown
 - real vs synthetic breakdown
 - runtime
@@ -766,7 +770,7 @@ Evaluation should eventually include:
 - document-level bootstrap confidence intervals
 - reproducible error analysis
 
-Do not implement this full benchmark yet during the candidate-module stage.
+The full modern benchmark remains a later stage. Current work is limited to stabilizing/reproducing the legacy POSID evaluation before expanding to the complete 2026 benchmark.
 
 ## 14. Main benchmark data split
 
@@ -822,7 +826,7 @@ For local Codex or any coding agent:
 
 ## 18. Current reproduction checkpoint
 
-The Full-558 legacy reproduction harness is operational.
+The Full-558 legacy reproduction harness and the reconciled primary evaluator are operational.
 
 Verified corpus:
 - 558 indexed documents
@@ -831,77 +835,99 @@ Verified corpus:
 - 551 single-person documents
 - 1 multi-person document
 
-The temporary whitelist-based POSID clothing implementation has been
-replaced with a closer Algorithm-1 reconstruction using POS-tagged,
-open-vocabulary noun/property construction and candidate-scoped fallback
-when no explicit wear/wearing/wore span exists.
+Verified primary gold denominators:
+- Gender values: 553
+- Race values: 552
+- Height values: 13
+- Clothing Attr-Only item units: 1503
+- Clothing Attr-Value decomposable units: 3011
 
-The corrected person-aware evaluator now counts unmatched gold people as
-false negatives and unmatched predicted people as false positives. Under
-that evaluator, the Full-558 clothing gold denominator is fixed at 1503
-items for every method.
+For every available method, `TP + FN` equals the corresponding fixed gold denominator.
 
-Current corrected untuned person-aware results:
-- RE + POSID: AO F1 0.247, AV F1 0.217
-- WordNet + POSID: AO F1 0.093, AV F1 0.080
-- RE + WordNet + POSID: AO F1 0.249, AV F1 0.217
+### Available-method primary results
 
-RE + POSID produced 1265 predicted people, including 721 unmatched
-predicted people, despite the corpus containing only 553 gold people and
-being almost entirely single-person.
+| Method | Gender P/R/F1 | Race P/R/F1 | Height P/R/F1 | Clothes AO P/R/F1 | Clothes AV P/R/F1 |
+|---|---:|---:|---:|---:|---:|
+| RE + POSID | 1.000 / 0.967 / 0.983 | 1.000 / 0.969 / 0.984 | 0.500 / 0.154 / 0.235 | 0.878 / 0.878 / 0.878 | 0.875 / 0.629 / 0.732 |
+| WordNet + POSID | 1.000 / 0.300 / 0.462 | 0.994 / 0.301 / 0.462 | 0.000 / 0.000 / 0.000 | 0.640 / 0.206 / 0.311 | 0.622 / 0.142 / 0.231 |
+| RE + WordNet + POSID | 1.000 / 0.967 / 0.983 | 0.998 / 0.969 / 0.983 | 0.500 / 0.154 / 0.235 | 0.878 / 0.880 / 0.879 | 0.875 / 0.630 / 0.733 |
 
-### Completed document-level fragmentation diagnostic
+Exact finite-attribute counts:
 
-RE + POSID:
+| Method | Gender TP/FP/FN | Race TP/FP/FN | Height TP/FP/FN |
+|---|---:|---:|---:|
+| RE + POSID | 535 / 0 / 18 | 535 / 0 / 17 | 2 / 2 / 11 |
+| WordNet + POSID | 166 / 0 / 387 | 166 / 1 / 386 | 0 / 0 / 13 |
+| RE + WordNet + POSID | 535 / 0 / 18 | 535 / 1 / 17 | 2 / 2 / 11 |
+
+Exact primary clothing counts:
+
+| Method | AO TP/FP/FN | AV TP/FP/FN |
+|---|---:|---:|
+| RE + POSID | 1320 / 184 / 183 | 1895 / 270 / 1116 |
+| WordNet + POSID | 309 / 174 / 1194 | 427 / 259 / 2584 |
+| RE + WordNet + POSID | 1322 / 184 / 181 | 1897 / 270 / 1114 |
+
+### Person-aware diagnostic checkpoint
+
+The corrected person-aware diagnostic remains much lower:
+
+| Method | Person-aware AO F1 | Person-aware AV F1 |
+|---|---:|---:|
+| RE + POSID | 0.247 | 0.217 |
+| WordNet + POSID | 0.093 | 0.080 |
+| RE + WordNet + POSID | 0.249 | 0.217 |
+
+An earlier diagnostic-only document pooling pass showed, for RE + POSID:
 - Attr-Only F1: 0.247 -> 0.878
-- Attr-Value F1: 0.217 -> 0.382
-- Attr-Only TP: 372 -> 1320
-- Attr-Only FP: 1132 -> 184
-- Attr-Only FN: 1131 -> 183
-- Attr-Value TP: 326 -> 574
-- Attr-Value FP: 1178 -> 930
-- Attr-Value FN: 1177 -> 929
+- strict person-aware-style Attr-Value F1: 0.217 -> 0.382
 
-Among single-gold-person documents with multiple predictions, pooling
-document clothing improved the diagnostic in 421/447 cases (94.2%).
-
-Conclusion:
+Interpretation:
 - person fragmentation explains most of the Attr-Only discrepancy
-- person fragmentation does not explain most of the Attr-Value discrepancy
-- do not modify person resolution yet
+- person fragmentation does not explain most of the descriptor/value discrepancy
+- do not modify person resolution merely to improve the primary extraction score
 
-### Recovered historical clothing-evaluation semantics
+The later primary decomposable Attr-Value evaluator gives RE + POSID F1 0.732 because it awards item/descriptor partial credit rather than requiring exact descriptor-set equality.
 
-The surviving Wearing-Model notebook confirms report/document-level
-clothing evaluation rather than person-level clothing matching.
+### Height diagnostic checkpoint
 
-Recovered historical behavior:
-- Attr-Only scores clothing item-name membership
-- Attr-Value scores the clothing item plus individual descriptor/value units
-- Attr-Value therefore allows partial credit for partially correct structured extraction
-- exact whole-descriptor-set equality is not the historical scoring rule
+RE + POSID has 11 Height false negatives and 2 false positives under the current conservative normalization. Representative mismatch types include:
+- gold `6 feet` vs prediction `6 feet tall` (surface-form mismatch under current rules)
+- gold numeric height vs prediction `tall`
+- several gold numeric heights with no prediction
+- the legacy gold contains `5'15"`, which should be reviewed as annotation quality rather than silently normalized
 
-The legacy notebook used `dict.update()` while flattening gold clothing.
-That overwrite shortcut is not theoretically desirable and will **not** be
-reproduced. Current evaluation should preserve duplicates through
-list/multiset one-to-one matching.
+No aggressive Height equivalence has been introduced. Keep this frozen until the mismatch audit is reviewed.
 
-### Agreed evaluation plan
+### Published-result comparison caution
 
-- keep `PersonPrediction` as the canonical extractor output
-- keep decomposable Attr-Only and Attr-Value as the primary clothing-extraction metrics
-- for single-person gold documents, pool all predicted clothing across
-  `PersonPrediction` records and evaluate against the sole gold person
-- for multi-person gold documents, keep the same pooled decomposable
-  extraction metrics while preserving duplicate instances
-- for multi-person gold documents, additionally report a separate
-  person-attribution extension metric
-- extra/hallucinated pooled predictions remain false positives
-- do not use `dict.update()` flattening
+Published Table I Gender/Race/Height values (`.94/.73/.82`, `.94/.73/.82`, `.72/.57/.63`) belong to the historical best RE + SBERT/zero-shot + POSID configuration. They are context, not a direct RE + POSID reproduction target.
 
-Next step:
-implement and test this agreed extraction-evaluation policy as a separate,
-explicit evaluation path while preserving the corrected person-aware
-evaluator for diagnostics/attribution. Do not tune POSID, candidate
-thresholds, queries, or person resolution based on the resulting scores.
+Published clothing F1 values for the historical method table remain separate comparison targets. Do not tune algorithms or metric semantics to force agreement.
 
+### Resource status
+
+Currently available:
+- WordNet
+- POS tagger
+
+Currently blocked without substitution:
+- Word2Vec + POSID: historical Word2Vec resource and/or `gensim` unavailable in the current environment
+- SBERT/zero-shot + POSID and RE + SBERT/zero-shot + POSID: required dependencies/local model unavailable
+
+No substitute models should be inserted into the legacy reproduction run.
+
+### Validation state
+
+Latest complete suite after finite-attribute evaluation extension:
+
+```text
+61 passed, 0 failed
+```
+
+Current next priorities:
+1. audit Height false negatives and surface-form mismatches without broadening equivalence rules
+2. decompose clothing Attr-Value false negatives into descriptor/value categories, separating item-miss errors from descriptor-miss errors
+3. only after those diagnostics, decide whether any extraction or normalization change is justified
+
+Do not change candidate queries, thresholds, person resolution, primary evaluation semantics, or POSID extraction merely to reduce the gap to published numbers.
