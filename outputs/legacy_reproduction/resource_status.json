@@ -1,0 +1,7 @@
+{
+  "POS tagger": "AVAILABLE",
+  "Word2Vec": "MISSING",
+  "WordNet": "AVAILABLE",
+  "gensim": "MISSING",
+  "zero-shot/NLI": "MISSING"
+}

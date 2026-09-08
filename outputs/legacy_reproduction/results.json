@@ -1,0 +1,164 @@
+{
+  "re_posid": {
+    "attr_only": {
+      "f1": 0.3911671924290221,
+      "false_negative": 1122,
+      "false_positive": 36,
+      "precision": 0.9117647058823529,
+      "recall": 0.24899598393574296,
+      "true_positive": 372
+    },
+    "attr_value": {
+      "f1": 0.34279705573080965,
+      "false_negative": 1168,
+      "false_positive": 82,
+      "precision": 0.7990196078431373,
+      "recall": 0.2182061579651941,
+      "true_positive": 326
+    },
+    "attributes": {
+      "gender": {
+        "f1": 0.9916589434661723,
+        "false_negative": 9,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.9834558823529411,
+        "true_positive": 535
+      },
+      "height": {
+        "f1": 0.25,
+        "false_negative": 10,
+        "false_positive": 2,
+        "precision": 0.5,
+        "recall": 0.16666666666666666,
+        "true_positive": 2
+      },
+      "race": {
+        "f1": 0.9916589434661723,
+        "false_negative": 9,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.9834558823529411,
+        "true_positive": 535
+      }
+    },
+    "counts": {
+      "ambiguous_multi_person_documents": 0,
+      "documents_attempted": 558,
+      "documents_successfully_processed": 558,
+      "documents_with_predictions": 544,
+      "evaluation_clothing_items": 1504,
+      "exceptions": 0,
+      "predicted_people": 1265
+    },
+    "errors": []
+  },
+  "re_wordnet_posid": {
+    "attr_only": {
+      "f1": 0.39244491080797483,
+      "false_negative": 1122,
+      "false_positive": 36,
+      "precision": 0.9121951219512195,
+      "recall": 0.25,
+      "true_positive": 374
+    },
+    "attr_value": {
+      "f1": 0.3420776495278069,
+      "false_negative": 1170,
+      "false_positive": 84,
+      "precision": 0.7951219512195122,
+      "recall": 0.2179144385026738,
+      "true_positive": 326
+    },
+    "attributes": {
+      "gender": {
+        "f1": 0.9907407407407407,
+        "false_negative": 10,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.981651376146789,
+        "true_positive": 535
+      },
+      "height": {
+        "f1": 0.25,
+        "false_negative": 10,
+        "false_positive": 2,
+        "precision": 0.5,
+        "recall": 0.16666666666666666,
+        "true_positive": 2
+      },
+      "race": {
+        "f1": 0.9898242368177612,
+        "false_negative": 10,
+        "false_positive": 1,
+        "precision": 0.9981343283582089,
+        "recall": 0.981651376146789,
+        "true_positive": 535
+      }
+    },
+    "counts": {
+      "ambiguous_multi_person_documents": 0,
+      "documents_attempted": 558,
+      "documents_successfully_processed": 558,
+      "documents_with_predictions": 545,
+      "evaluation_clothing_items": 1506,
+      "exceptions": 0,
+      "predicted_people": 1266
+    },
+    "errors": []
+  },
+  "wordnet_posid": {
+    "attr_only": {
+      "f1": 0.3082077051926298,
+      "false_negative": 387,
+      "false_positive": 26,
+      "precision": 0.7796610169491526,
+      "recall": 0.19206680584551147,
+      "true_positive": 92
+    },
+    "attr_value": {
+      "f1": 0.2646566164154104,
+      "false_negative": 400,
+      "false_positive": 39,
+      "precision": 0.6694915254237288,
+      "recall": 0.1649269311064718,
+      "true_positive": 79
+    },
+    "attributes": {
+      "gender": {
+        "f1": 0.9822485207100593,
+        "false_negative": 6,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.9651162790697675,
+        "true_positive": 166
+      },
+      "height": {
+        "f1": 0.0,
+        "false_negative": 5,
+        "false_positive": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "true_positive": 0
+      },
+      "race": {
+        "f1": 0.9793510324483776,
+        "false_negative": 6,
+        "false_positive": 1,
+        "precision": 0.9940119760479041,
+        "recall": 0.9651162790697675,
+        "true_positive": 166
+      }
+    },
+    "counts": {
+      "ambiguous_multi_person_documents": 0,
+      "documents_attempted": 558,
+      "documents_successfully_processed": 558,
+      "documents_with_predictions": 172,
+      "evaluation_clothing_items": 483,
+      "exceptions": 0,
+      "predicted_people": 416
+    },
+    "errors": []
+  }
+}
