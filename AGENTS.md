@@ -21,7 +21,7 @@ Completed checkpoints:
 - corrected person-aware evaluator retains unmatched gold/predicted people as FN/FP
 - primary document-level extraction evaluator added for clothing Attr-Only / Attr-Value
 - primary finite-attribute evaluation added for Gender, Race, and Height
-- current complete regression suite: 61 passed, 0 failed
+- current complete regression suite: 75 passed, 0 failed
 
 Primary evaluation policy is now stable for the current reproduction:
 - keep `PersonPrediction` as the extractor output contract
@@ -38,16 +38,17 @@ Verified Full-558 gold denominators:
 - Clothing Attr-Value decomposable units: 3011
 
 Current untuned Full-558 primary results:
-- RE + POSID: Gender F1 0.983, Race F1 0.984, Height F1 0.235, Clothes AO F1 0.878, Clothes AV F1 0.732
-- WordNet + POSID: Gender F1 0.462, Race F1 0.462, Height F1 0.000, Clothes AO F1 0.311, Clothes AV F1 0.231
-- RE + WordNet + POSID: Gender F1 0.983, Race F1 0.983, Height F1 0.235, Clothes AO F1 0.879, Clothes AV F1 0.733
+- RE + POSID: Gender F1 0.987, Race F1 0.988, Height F1 0.762, Clothes AO F1 0.991, Clothes AV F1 0.832
+- WordNet + POSID: Gender F1 0.462, Race F1 0.462, Height F1 0.000, Clothes AO F1 0.480, Clothes AV F1 0.368
+- RE + WordNet + POSID: Gender F1 0.987, Race F1 0.987, Height F1 0.762, Clothes AO F1 0.992, Clothes AV F1 0.832
 
-Person-aware diagnostic F1 remains much lower because of prediction fragmentation:
-- RE + POSID: AO 0.247, AV 0.217
-- WordNet + POSID: AO 0.093, AV 0.080
-- RE + WordNet + POSID: AO 0.249, AV 0.217
+Person-aware diagnostic interpretation:
+- An earlier diagnostic showed substantially lower person-aware AO/AV scores because POSID fragmented predictions across multiple predicted people.
+- That diagnostic established that person fragmentation explained much of the Attr-Only discrepancy.
+- The old person-aware numeric values predate the final clothing-extraction corrections and should not be treated as current metrics.
+- Rerun the person-aware diagnostic only if current attribution numbers are needed.
 
-The earlier document-level fragmentation diagnostic showed RE + POSID AO F1 0.247 -> 0.878 and strict person-aware-style AV F1 0.217 -> 0.382. This established that person fragmentation explains most of the Attr-Only discrepancy, but not most of the descriptor/value discrepancy. Do not modify person resolution merely to chase the primary extraction metric.
+The earlier document-level fragmentation diagnostic established that pooling fragmented predictions recovered most Attr-Only errors, but not most Attr-Value descriptor/value errors. Do not modify person resolution merely to chase the primary extraction metric.
 
 Current diagnostic priorities:
 1. audit Height misses/surface-form mismatches without introducing aggressive height equivalence rules
@@ -691,3 +692,122 @@ At the end of a task, report:
 - staged files
 - `git diff --stat`
 - `git diff --cached --stat`
+
+
+## Reproduction runner: methods and document subsets
+
+The experiment runner is:
+
+```text
+scripts/reproduce_legacy_posid.py
+```
+
+It should support independent method selection through `--methods` and document-slice selection through `--subset`. Method selection must be lazy: unselected heavy resources must not be initialized. In particular, a non-SBERT run must not initialize the zero-shot/BART pipeline, and an SBERT-only run should not load Word2Vec unnecessarily.
+
+Supported legacy method keys:
+
+```text
+re_posid
+wordnet_posid
+re_wordnet_posid
+word2vec_posid
+sbert_posid
+re_sbert_posid
+```
+
+Supported/expected subset keys:
+
+```text
+full
+non_generated_28
+non_generated_plus_generated_58
+generated_only
+generated_flash_only
+```
+
+Subset semantics:
+
+- `full`: all 558 authoritative InciText documents.
+- `non_generated_28`: 28 documents consisting of 10 `Synthetic`, 13 `Press Release`, and 5 `Incident Reports` documents. For this legacy analysis, the `Synthetic` descriptions are treated as police-provided/real descriptions and are included with the non-generated legacy documents. This slice excludes the 30 `Generated` and 500 `Generated_flash` documents.
+- `non_generated_plus_generated_58`: 58 documents consisting of the 28-document legacy slice plus the 30 `Generated` documents; equivalently 10 `Synthetic` + 13 `Press Release` + 5 `Incident Reports` + 30 `Generated`. This slice excludes all 500 `Generated_flash` documents.
+- `generated_only`: the 30 `Generated` documents.
+- `generated_flash_only`: the 500 `Generated_flash` documents.
+- `Generated_flash_2` is not part of the authoritative Full-558 inventory and must not be pulled in by folder scanning.
+
+Subset selection belongs in the runner/data-selection layer. Filter both the document records passed to extraction and the gold annotations passed to evaluation. Do not implement subset semantics inside an extractor or metric.
+
+Use a separate output directory for subset runs so the Full-558 artifacts are not overwritten.
+
+Examples:
+
+Full-558, three lightweight local methods:
+
+```bash
+python scripts/reproduce_legacy_posid.py \
+  --incitext-root ../InciText \
+  --output-dir outputs/legacy_reproduction \
+  --subset full \
+  --methods re_posid wordnet_posid re_wordnet_posid
+```
+
+Full-558, Word2Vec only:
+
+```bash
+python scripts/reproduce_legacy_posid.py \
+  --incitext-root ../InciText \
+  --output-dir outputs/legacy_reproduction_word2vec \
+  --subset full \
+  --methods word2vec_posid
+```
+
+Full-558, zero-shot/SBERT methods on a server/Colab runtime:
+
+```bash
+python scripts/reproduce_legacy_posid.py \
+  --incitext-root ../InciText \
+  --output-dir outputs/legacy_reproduction_sbert \
+  --subset full \
+  --methods sbert_posid re_sbert_posid
+```
+
+28-document non-generated legacy slice:
+
+```bash
+python scripts/reproduce_legacy_posid.py \
+  --incitext-root ../InciText \
+  --output-dir outputs/legacy_reproduction_non_generated_28 \
+  --subset non_generated_28 \
+  --methods re_posid wordnet_posid re_wordnet_posid word2vec_posid
+```
+
+58-document legacy + Generated slice, excluding `Generated_flash`:
+
+```bash
+python scripts/reproduce_legacy_posid.py \
+  --incitext-root ../InciText \
+  --output-dir outputs/legacy_reproduction_58 \
+  --subset non_generated_plus_generated_58 \
+  --methods re_posid wordnet_posid re_wordnet_posid word2vec_posid
+```
+
+Generated-only slice:
+
+```bash
+python scripts/reproduce_legacy_posid.py \
+  --incitext-root ../InciText \
+  --output-dir outputs/legacy_reproduction_generated_30 \
+  --subset generated_only \
+  --methods re_posid wordnet_posid re_wordnet_posid word2vec_posid
+```
+
+Generated-flash-only slice:
+
+```bash
+python scripts/reproduce_legacy_posid.py \
+  --incitext-root ../InciText \
+  --output-dir outputs/legacy_reproduction_generated_flash_500 \
+  --subset generated_flash_only \
+  --methods re_posid wordnet_posid re_wordnet_posid word2vec_posid
+```
+
+When adding or changing runner options, preserve algorithm/evaluator behavior and do not regenerate experiment artifacts unless explicitly requested.

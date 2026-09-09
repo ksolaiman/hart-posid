@@ -1,5 +1,1 @@
-{
-  "re_sbert_posid": "zero-shot/NLI dependencies or local model are missing",
-  "sbert_posid": "zero-shot/NLI dependencies or local model are missing",
-  "word2vec_posid": "historical Word2Vec resource or gensim is missing"
-}
+{}

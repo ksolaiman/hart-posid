@@ -946,15 +946,16 @@ The revised Full-558 numbers use the reconciled current evaluator and broader Fu
 
 ### Resource status
 
-Currently available:
-- WordNet
-- POS tagger
+Current local resource/runtime state:
+- WordNet: available
+- POS tagger: available
+- historical NLTK Word2Vec sample: available
+- `gensim`: available
+- Word2Vec + POSID has completed a full 558-document local run successfully
+- zero-shot/NLI dependencies and local BART checkpoint are present, but local macOS PyTorch/BART inference currently fails with a native bus error inside `torch.nn.Linear`
+- run `sbert_posid` and `re_sbert_posid` on a stable server/Colab runtime rather than treating them as algorithmically blocked
 
-Currently blocked without substitution:
-- Word2Vec + POSID: historical Word2Vec resource and/or `gensim` unavailable in the current environment
-- SBERT/zero-shot + POSID and RE + SBERT/zero-shot + POSID: required dependencies/local model unavailable
-
-No substitute models should be inserted into the legacy reproduction run merely to complete the old table.
+Do not substitute a different model merely to avoid the local runtime failure.
 
 ### Validation state
 
@@ -979,3 +980,186 @@ Focused final Height validation included:
 4. Treat the modern Regex + Dependency + POSID + LLM comparison on contemporary/real data as a separate conference-paper extension.
 
 Any future change to the legacy extraction/evaluation path should require a separately identified reproducible bug and explicit approval, not score chasing.
+
+
+## 18A. Non-generated 28-document legacy slice
+
+A dedicated non-generated legacy slice is now defined for evaluating whether Full-558 results are inflated by the 530 generated documents.
+
+Composition:
+
+| Source group | Documents |
+|---|---:|
+| Synthetic | 10 |
+| Press Release | 13 |
+| Incident Reports | 5 |
+| **Total** | **28** |
+
+For this analysis, the 10 documents stored under `Synthetic` are treated as police-provided/real descriptions and are included in the 28-document legacy slice. They are distinct from the explicitly generated augmentation sets.
+
+Excluded from this slice:
+
+| Source group | Documents |
+|---|---:|
+| Generated | 30 |
+| Generated_flash | 500 |
+| **Excluded generated total** | **530** |
+
+Thus the Full-558 corpus is approximately 95% generated augmentation (`530/558`), while the `non_generated_28` slice isolates the 28 legacy documents that are not from `Generated` or `Generated_flash`.
+
+This slice is intended as a diagnostic, not a replacement for Full-558. The purpose is to compare the same frozen extraction/evaluation pipeline across source composition and determine how much the generated data contributes to the very high Full-558 RE-based scores.
+
+The expected runner invocation is:
+
+```bash
+python scripts/reproduce_legacy_posid.py \
+  --incitext-root ../InciText \
+  --output-dir outputs/legacy_reproduction_non_generated_28 \
+  --subset non_generated_28 \
+  --methods re_posid wordnet_posid re_wordnet_posid word2vec_posid
+```
+
+Use a separate output directory so this diagnostic does not overwrite the Full-558 results.
+
+The same runner should support the following source-composition diagnostics without changing extractors or metrics:
+
+```text
+full                              = 558 authoritative documents
+non_generated_28                  = 10 Synthetic + 13 Press Release + 5 Incident Reports
+non_generated_plus_generated_58   = non_generated_28 + 30 Generated
+generated_only                    = 30 Generated
+generated_flash_only              = 500 Generated_flash
+```
+
+No 28-document POSID metric values are recorded here yet unless/until that subset is actually executed. Do not infer or copy Full-558 metrics into the 28-document slice.
+
+### Runner method selection
+
+The legacy reproduction runner supports/should support method selection independently of subset selection. Valid method keys are:
+
+```text
+re_posid
+wordnet_posid
+re_wordnet_posid
+word2vec_posid
+sbert_posid
+re_sbert_posid
+```
+
+The two controls are orthogonal:
+
+```text
+--methods  = which legacy algorithms run
+--subset   = which authoritative documents are evaluated
+```
+
+Examples:
+
+```bash
+# Full-558 lightweight/local methods
+python scripts/reproduce_legacy_posid.py \
+  --incitext-root ../InciText \
+  --output-dir outputs/legacy_reproduction \
+  --subset full \
+  --methods re_posid wordnet_posid re_wordnet_posid word2vec_posid
+
+# Full-558 zero-shot methods on server/Colab
+python scripts/reproduce_legacy_posid.py \
+  --incitext-root ../InciText \
+  --output-dir outputs/legacy_reproduction_sbert \
+  --subset full \
+  --methods sbert_posid re_sbert_posid
+
+# 28-document non-generated legacy slice
+python scripts/reproduce_legacy_posid.py \
+  --incitext-root ../InciText \
+  --output-dir outputs/legacy_reproduction_non_generated_28 \
+  --subset non_generated_28 \
+  --methods re_posid wordnet_posid re_wordnet_posid word2vec_posid
+
+# 58-document legacy + Generated slice, excluding Generated_flash
+python scripts/reproduce_legacy_posid.py \
+  --incitext-root ../InciText \
+  --output-dir outputs/legacy_reproduction_58 \
+  --subset non_generated_plus_generated_58 \
+  --methods re_posid wordnet_posid re_wordnet_posid word2vec_posid
+```
+
+Unselected heavy resources should not be initialized. This is especially important because the local macOS environment has successfully run Word2Vec but BART/PyTorch zero-shot inference has produced a native bus error; the zero-shot methods should therefore be run separately on a stable server/Colab runtime rather than forcing them into local non-SBERT runs.
+
+## 18B. 58-document legacy + Generated reproduction slice
+
+A second source-composition slice has now been executed using the frozen extraction and evaluation pipeline. It retains the 28-document legacy slice and the 30 documents in `Generated`, while excluding all 500 `Generated_flash` documents.
+
+Composition:
+
+| Source group | Documents |
+|---|---:|
+| Synthetic | 10 |
+| Press Release | 13 |
+| Incident Reports | 5 |
+| Generated | 30 |
+| **Total** | **58** |
+
+Observed corpus/gold counts:
+
+```text
+Indexed documents:       58
+Gold person annotations: 53
+Zero-person documents:    6
+Single-person documents: 51
+Multi-person documents:   1
+Gold Gender values:      53
+Gold Race values:        52
+Gold Height values:      13
+```
+
+The run used:
+
+```bash
+python scripts/reproduce_legacy_posid.py \
+  --incitext-root ../InciText \
+  --output-dir outputs/legacy_reproduction_58 \
+  --subset non_generated_plus_generated_58 \
+  --methods re_posid wordnet_posid re_wordnet_posid word2vec_posid
+```
+
+All four selected methods processed all 58 documents with zero per-document exceptions.
+
+Run-level prediction counts:
+
+| Method | Docs with predictions | Predicted people | Predicted clothing items |
+|---|---:|---:|---:|
+| Word2Vec + POSID | 22 | 36 | 62 |
+| RE + POSID | 44 | 68 | 117 |
+| WordNet + POSID | 11 | 25 | 32 |
+| RE + WordNet + POSID | 45 | 69 | 119 |
+
+### 58-document primary extraction results
+
+| Method | Gender P/R/F1 | Race P/R/F1 | Height P/R/F1 | Clothes AO P/R/F1 | Clothes AV P/R/F1 |
+|---|---|---|---|---|---|
+| Word2Vec + POSID | 1.000 / 0.302 / 0.464 | 1.000 / 0.308 / 0.471 | 1.000 / 0.154 / 0.267 | 0.855 / 0.457 / 0.596 | 0.907 / 0.451 / 0.603 |
+| RE + POSID | 1.000 / 0.736 / 0.848 | 1.000 / 0.750 / 0.857 | 1.000 / 0.615 / 0.762 | 0.880 / 0.888 / 0.884 | 0.928 / 0.869 / 0.898 |
+| WordNet + POSID | 1.000 / 0.094 / 0.172 | 0.833 / 0.096 / 0.172 | 0.000 / 0.000 / 0.000 | 0.812 / 0.224 / 0.351 | 0.864 / 0.215 / 0.345 |
+| RE + WordNet + POSID | 1.000 / 0.736 / 0.848 | 0.975 / 0.750 / 0.848 | 1.000 / 0.615 / 0.762 | 0.882 / 0.905 / 0.894 | 0.929 / 0.882 / 0.905 |
+
+### Clothing comparison with published paper values
+
+| Method | Published AO F1 | 58-doc AO F1 | Δ AO | Published AV F1 | 58-doc AV F1 | Δ AV |
+|---|---:|---:|---:|---:|---:|---:|
+| Word2Vec + POSID | 0.52 | 0.596 | +0.076 | 0.49 | 0.603 | +0.113 |
+| RE + POSID | 0.84 | 0.884 | +0.044 | 0.87 | 0.898 | +0.028 |
+| WordNet + POSID | 0.49 | 0.351 | -0.139 | 0.45 | 0.345 | -0.105 |
+| RE + WordNet + POSID | 0.77 | 0.894 | +0.124 | 0.90 | 0.905 | +0.005 |
+
+Interpretation:
+
+- Removing the 500 `Generated_flash` documents materially changes the RE-based results from the near-ceiling Full-558 regime.
+- RE + POSID on the 58-document slice is close to the published clothing results: AO F1 0.884 versus 0.84 and AV F1 0.898 versus 0.87.
+- RE + WordNet + POSID reproduces the published Attr-Value result especially closely: 0.905 versus 0.90, while its Attr-Only score remains higher than the paper.
+- Word2Vec + POSID is moderately above the published paper on both clothing metrics.
+- WordNet + POSID remains substantially below its published clothing values and is still an unresolved reproduction difference.
+- This source-slice result supports dataset-composition effects as an important contributor to the Full-558 discrepancy, especially for RE-based methods.
+- Do **not** claim that these 58 documents are the exact historical paper evaluation subset unless separate historical evidence establishes that fact. This is a controlled legacy-oriented/source-composition reproduction slice.
+

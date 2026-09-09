@@ -5,6 +5,7 @@ import importlib
 import importlib.util
 import json
 import sys
+import warnings
 from dataclasses import asdict
 from pathlib import Path
 from typing import Any, Callable
@@ -40,6 +41,32 @@ PUBLISHED_TABLE_I = {
     "height": (0.72, 0.57, 0.63),
     "clothes_attr_only": (0.87, 0.87, 0.87),
     "clothes_attr_value": (0.92, 0.87, 0.90),
+}
+METHOD_NAMES = (
+    "re_posid",
+    "wordnet_posid",
+    "re_wordnet_posid",
+    "word2vec_posid",
+    "sbert_posid",
+    "re_sbert_posid",
+)
+SUBSET_NAMES = (
+    "full",
+    "non_generated_28",
+    "non_generated_plus_generated_58",
+    "generated_only",
+    "generated_flash_only",
+)
+WLPD_AND_GENERATED_SOURCES = {
+    "Synthetic",
+    "Press Release",
+    "Incident Reports",
+    "Generated",
+}
+NON_GENERATED_SOURCES = {
+    "Synthetic",
+    "Press Release",
+    "Incident Reports",
 }
 
 
@@ -80,49 +107,111 @@ def _find_word2vec_resource() -> Path | None:
     return None
 
 
-def _build_methods(status: dict[str, str]) -> tuple[dict[str, Any], dict[str, str]]:
+def _source_group(record: Any) -> str | None:
+    source_group = getattr(record, "subset", None)
+    if isinstance(source_group, str) and source_group:
+        return source_group
+
+    source_parts = Path(record.source).parts
+    return source_parts[0] if source_parts else None
+
+
+def _filter_document_records(records: list[Any], subset: str) -> list[Any]:
+    if subset not in SUBSET_NAMES:
+        raise ValueError(f"Unknown subset: {subset}")
+    if subset == "full":
+        return list(records)
+  
+
+    included_sources = {
+        "non_generated_28": NON_GENERATED_SOURCES,
+        "non_generated_plus_generated_58": WLPD_AND_GENERATED_SOURCES,
+        "generated_only": {"Generated"},
+        "generated_flash_only": {"Generated_flash"},
+    }[subset]
+    selected = [record for record in records if _source_group(record) in included_sources]
+    if subset == "non_generated_28" and len(selected) != 28:
+        warnings.warn(
+            f"Expected 28 documents for non_generated_28, found {len(selected)}",
+            stacklevel=2,
+        )
+
+    if subset == "non_generated_plus_generated_58" and len(selected) != 58:
+        raise RuntimeError(
+            f"Expected 58 documents for --subset "
+            f"non_generated_plus_generated_58, found {len(records)}"
+        )
+    return selected
+
+
+def _build_methods(
+    status: dict[str, str], selected_methods: tuple[str, ...] = METHOD_NAMES
+) -> tuple[dict[str, Any], dict[str, str]]:
+    unknown_methods = set(selected_methods) - set(METHOD_NAMES)
+    if unknown_methods:
+        raise ValueError(f"Unknown method: {sorted(unknown_methods)[0]}")
+
+    selected = set(selected_methods)
     methods: dict[str, Any] = {}
     blocked: dict[str, str] = {}
-    regex = RegexSelector()
+    regex = (
+        RegexSelector()
+        if selected & {"re_posid", "re_wordnet_posid", "re_sbert_posid"}
+        else None
+    )
 
-    if status["WordNet"] == "AVAILABLE" and status["POS tagger"] == "AVAILABLE":
-        wordnet = WordNetSelector(threshold=0.9, synset_strategy="legacy_asymmetric")
-        methods["wordnet_posid"] = POSIDExtractor(wordnet, ["clothes"])
-        methods["re_wordnet_posid"] = POSIDExtractor(
-            StackedSelector(regex, wordnet, ["wearing"], ["clothes"]), []
-        )
-        methods["re_posid"] = POSIDExtractor(regex, ["wearing"])
-    else:
-        for name in ("wordnet_posid", "re_wordnet_posid", "re_posid"):
-            blocked[name] = "WordNet and/or POS tagger resource is missing"
-
-    if status["Word2Vec"] == "AVAILABLE" and status["gensim"] == "AVAILABLE":
-        gensim = importlib.import_module("gensim")
-        resource = _find_word2vec_resource()
-        if resource is None:
-            blocked["word2vec_posid"] = "historical pruned Word2Vec resource is missing"
+    wordnet_methods = selected & {"wordnet_posid", "re_wordnet_posid", "re_posid"}
+    if wordnet_methods:
+        if status["WordNet"] == "AVAILABLE" and status["POS tagger"] == "AVAILABLE":
+            if "re_posid" in selected:
+                methods["re_posid"] = POSIDExtractor(regex, ["wearing"])
+            if selected & {"wordnet_posid", "re_wordnet_posid"}:
+                wordnet = WordNetSelector(threshold=0.9, synset_strategy="legacy_asymmetric")
+                if "wordnet_posid" in selected:
+                    methods["wordnet_posid"] = POSIDExtractor(wordnet, ["clothes"])
+                if "re_wordnet_posid" in selected:
+                    methods["re_wordnet_posid"] = POSIDExtractor(
+                        StackedSelector(regex, wordnet, ["wearing"], ["clothes"]), []
+                    )
         else:
-            vectors = gensim.models.KeyedVectors.load_word2vec_format(str(resource), binary=False)
-            methods["word2vec_posid"] = POSIDExtractor(
-                Word2VecSelector(vectors, threshold=0.5), ["clothes"]
-            )
-    else:
-        blocked["word2vec_posid"] = "historical Word2Vec resource or gensim is missing"
+            for name in wordnet_methods:
+                blocked[name] = "WordNet and/or POS tagger resource is missing"
 
-    if status["zero-shot/NLI"] == "AVAILABLE":
-        pipeline = importlib.import_module("transformers").pipeline
-        classifier = pipeline(
-            "zero-shot-classification", 
-            model="facebook/bart-large-mnli",
-            local_files_only=True)
-        zero_shot = ZeroShotSelector(classifier, threshold=0.85)
-        methods["sbert_posid"] = POSIDExtractor(zero_shot, ["clothes"])
-        methods["re_sbert_posid"] = POSIDExtractor(
-            StackedSelector(regex, zero_shot, ["wearing"], ["clothes"]), []
-        )
-    else:
-        blocked["sbert_posid"] = "zero-shot/NLI dependencies or local model are missing"
-        blocked["re_sbert_posid"] = "zero-shot/NLI dependencies or local model are missing"
+    if "word2vec_posid" in selected:
+        if status["Word2Vec"] == "AVAILABLE" and status["gensim"] == "AVAILABLE":
+            gensim = importlib.import_module("gensim")
+            resource = _find_word2vec_resource()
+            if resource is None:
+                blocked["word2vec_posid"] = "historical pruned Word2Vec resource is missing"
+            else:
+                vectors = gensim.models.KeyedVectors.load_word2vec_format(
+                    str(resource), binary=False
+                )
+                methods["word2vec_posid"] = POSIDExtractor(
+                    Word2VecSelector(vectors, threshold=0.5), ["clothes"]
+                )
+        else:
+            blocked["word2vec_posid"] = "historical Word2Vec resource or gensim is missing"
+
+    zero_shot_methods = selected & {"sbert_posid", "re_sbert_posid"}
+    if zero_shot_methods:
+        if status["zero-shot/NLI"] == "AVAILABLE":
+            pipeline = importlib.import_module("transformers").pipeline
+            classifier = pipeline(
+                "zero-shot-classification",
+                model="facebook/bart-large-mnli",
+                local_files_only=True,
+            )
+            zero_shot = ZeroShotSelector(classifier, threshold=0.85)
+            if "sbert_posid" in selected:
+                methods["sbert_posid"] = POSIDExtractor(zero_shot, ["clothes"])
+            if "re_sbert_posid" in selected:
+                methods["re_sbert_posid"] = POSIDExtractor(
+                    StackedSelector(regex, zero_shot, ["wearing"], ["clothes"]), []
+                )
+        else:
+            for name in zero_shot_methods:
+                blocked[name] = "zero-shot/NLI dependencies or local model are missing"
     return methods, blocked
 
 
@@ -136,15 +225,17 @@ def run(args: argparse.Namespace) -> int:
         print(f"  {name}: {value}")
 
     records = load_document_index(incitext_root)
+    records = _filter_document_records(records, args.subset)
     annotations_path = incitext_root / "Annotation" / "consolidated_annotation_file.json"
     gold = LegacyAnnotationLoader().load(annotations_path)
     document_ids = [record.document_id for record in records]
+    gold = {document_id: gold.get(document_id, []) for document_id in document_ids}
     gold_attr_value_units = corpus_gold_attr_value_units(gold, document_ids)
     gold_finite_values = {
         attribute: corpus_gold_finite_values(gold, attribute, document_ids)
         for attribute in ("gender", "race", "height")
     }
-    print("DATA CHECK — Full-558 InciText reproduction")
+    print(f"DATA CHECK — InciText reproduction subset: {args.subset}")
     print(f"  total indexed documents = {len(records)}")
     print(f"  gold person annotations = {sum(len(people) for people in gold.values())}")
     print(f"  zero-person documents = {sum(not people for people in gold.values())}")
@@ -152,10 +243,10 @@ def run(args: argparse.Namespace) -> int:
     print(f"  multi-person documents = {sum(len(people) > 1 for people in gold.values())}")
     for attribute, count in gold_finite_values.items():
         print(f"  gold {attribute} values = {count}")
-    if len(records) != 558:
+    if args.subset == "full" and len(records) != 558:
         raise RuntimeError(f"Expected 558 indexed documents, found {len(records)}")
 
-    methods, blocked = _build_methods(status)
+    methods, blocked = _build_methods(status, tuple(args.methods))
     for name, reason in blocked.items():
         print(f"METHOD {name}: BLOCKED — {reason}")
 
@@ -239,7 +330,7 @@ def run(args: argparse.Namespace) -> int:
     (output_root / "results.json").write_text(json.dumps(results, indent=2, sort_keys=True), encoding="utf-8")
     (output_root / "resource_status.json").write_text(json.dumps(status, indent=2, sort_keys=True), encoding="utf-8")
     (output_root / "blocked_methods.json").write_text(json.dumps(blocked, indent=2, sort_keys=True), encoding="utf-8")
-    _print_tables(results)
+    _print_tables(results, args.subset, len(documents))
     return 0
 
 
@@ -265,8 +356,15 @@ def _sum_attribute_metrics(metrics: list[Any]):
     return MetricResult(precision, recall, f1, tp, fp, fn)
 
 
-def _print_tables(results: dict[str, Any]) -> None:
-    print("\nLEGACY CLOTHING COMPARISON — FULL 558 DOCUMENTS")
+def _print_tables(
+    results: dict[str, Any], subset: str = "full", document_count: int = 558
+) -> None:
+    scope = (
+        "FULL 558 DOCUMENTS"
+        if subset == "full"
+        else f"{subset} ({document_count} DOCUMENTS)"
+    )
+    print(f"\nLEGACY CLOTHING COMPARISON — {scope}")
     print("Method | Published F1 AO/AV | Reproduced F1 AO/AV | Delta AO/AV")
     labels = [
         ("word2vec_posid", "Word2Vec + POSID"), ("re_posid", "RE + POSID"),
@@ -288,7 +386,7 @@ def _print_tables(results: dict[str, Any]) -> None:
         print(f"  PRIMARY P/R/F1 AO={primary['attr_only']['precision']:.2f}/{primary['attr_only']['recall']:.2f}/{primary['attr_only']['f1']:.2f} AV={primary['attr_value']['precision']:.2f}/{primary['attr_value']['recall']:.2f}/{primary['attr_value']['f1']:.2f}")
         print(f"  PERSON-AWARE P/R/F1 AO={diagnostic['attr_only']['precision']:.2f}/{diagnostic['attr_only']['recall']:.2f}/{diagnostic['attr_only']['f1']:.2f} AV={diagnostic['attr_value']['precision']:.2f}/{diagnostic['attr_value']['recall']:.2f}/{diagnostic['attr_value']['f1']:.2f}")
 
-    print("\nPRIMARY EXTRACTION — FULL 558 DOCUMENTS")
+    print(f"\nPRIMARY EXTRACTION — {scope}")
     print("Method | Gender P/R/F1 | Race P/R/F1 | Height P/R/F1 | Clothes AO P/R/F1 | Clothes AV P/R/F1")
     for key, label in labels:
         if key not in results:
@@ -310,8 +408,35 @@ def _print_tables(results: dict[str, Any]) -> None:
         )
 
 
-if __name__ == "__main__":
+def _method_name(value: str) -> str:
+    if value not in METHOD_NAMES:
+        valid_methods = "\n".join(f"    {name}" for name in METHOD_NAMES)
+        raise argparse.ArgumentTypeError(
+            f"Unknown method: {value}\nValid methods:\n{valid_methods}"
+        )
+    return value
+
+
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run Full-558 InciText legacy POSID reproduction.")
     parser.add_argument("--incitext-root", default=str(SRC_ROOT.parent / "InciText"))
     parser.add_argument("--output-dir", default="outputs/legacy_reproduction")
-    raise SystemExit(run(parser.parse_args()))
+    parser.add_argument(
+        "--subset",
+        choices=SUBSET_NAMES,
+        default="full",
+        help="authoritative document subset to evaluate (default: full)",
+    )
+    parser.add_argument(
+        "--methods",
+        nargs="+",
+        type=_method_name,
+        default=METHOD_NAMES,
+        metavar="METHOD",
+        help="legacy method(s) to run (default: all supported methods)",
+    )
+    return parser.parse_args(argv)
+
+
+if __name__ == "__main__":
+    raise SystemExit(run(parse_args()))
