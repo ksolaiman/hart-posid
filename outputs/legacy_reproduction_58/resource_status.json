@@ -3,5 +3,5 @@
   "Word2Vec": "AVAILABLE",
   "WordNet": "AVAILABLE",
   "gensim": "AVAILABLE",
-  "zero-shot/NLI": "AVAILABLE"
+  "zero-shot/NLI": "MISSING"
 }
