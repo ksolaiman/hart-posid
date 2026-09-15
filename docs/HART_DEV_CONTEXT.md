@@ -286,7 +286,7 @@ The current smoke test lives outside the package:
 tests/test_candidates_sample.py
 ```
 
-A stacked selector may be added later, but should not be introduced until explicitly requested.
+`StackedSelector` is implemented as the confirmed fallback-composition selector described above.
 
 ## 10. Shared candidate abstraction
 
@@ -1031,7 +1031,20 @@ generated_only                    = 30 Generated
 generated_flash_only              = 500 Generated_flash
 ```
 
-No 28-document POSID metric values are recorded here yet unless/until that subset is actually executed. Do not infer or copy Full-558 metrics into the 28-document slice.
+This 28-document slice has now been executed with the frozen reproduction pipeline. Verified corpus/gold counts are:
+
+```text
+Indexed documents:       28
+Gold person annotations: 23
+Zero-person documents:    6
+Single-person documents: 21
+Multi-person documents:   1
+Gold Gender values:      23
+Gold Race values:        22
+Gold Height values:      13
+```
+
+The exact 28-document metric table is not reproduced in this context file yet. Do not infer or copy Full-558 or 58-document metric values into this slice; use the verified run output when adding the table.
 
 ### Runner method selection
 
