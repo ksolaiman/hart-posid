@@ -50,11 +50,11 @@ Person-aware diagnostic interpretation:
 
 The earlier document-level fragmentation diagnostic established that pooling fragmented predictions recovered most Attr-Only errors, but not most Attr-Value descriptor/value errors. Do not modify person resolution merely to chase the primary extraction metric.
 
-Current diagnostic priorities:
-1. audit Height misses/surface-form mismatches without introducing aggressive height equivalence rules
-2. audit clothing Attr-Value false negatives by descriptor/value category
-
-Do not tune POSID, candidate thresholds, queries, person resolution, or evaluation semantics solely to reduce published-result deltas.
+Current legacy checkpoint state:
+- the legacy extraction and primary evaluation path is frozen for the current arXiv revision checkpoint
+- remaining Height misses and residual clothing Attr-Value recall gaps are accepted at this stage
+- do not continue tuning POSID, candidate thresholds, queries, person resolution, extraction semantics, or evaluation semantics solely to reduce published-result deltas
+- any future change to the frozen legacy path requires a separately identified reproducible bug and explicit approval
 
 ## Repository design rule
 
@@ -780,6 +780,18 @@ python scripts/reproduce_legacy_posid.py \
   --methods re_posid wordnet_posid re_wordnet_posid word2vec_posid
 ```
 
+Executed 28-document checkpoint:
+- indexed documents: 28
+- gold person annotations: 23
+- zero-person documents: 6
+- single-person documents: 21
+- multi-person documents: 1
+- gold Gender values: 23
+- gold Race values: 22
+- gold Height values: 13
+
+The exact 28-document metric table is intentionally not duplicated here until copied from the verified run output. Do not infer it from Full-558 or 58-document results.
+
 58-document legacy + Generated slice, excluding `Generated_flash`:
 
 ```bash
@@ -789,6 +801,27 @@ python scripts/reproduce_legacy_posid.py \
   --subset non_generated_plus_generated_58 \
   --methods re_posid wordnet_posid re_wordnet_posid word2vec_posid
 ```
+
+Executed 58-document checkpoint:
+- indexed documents: 58
+- gold person annotations: 53
+- zero-person documents: 6
+- single-person documents: 51
+- multi-person documents: 1
+- gold Gender values: 53
+- gold Race values: 52
+- gold Height values: 13
+- all four selected local methods completed all 58 documents with zero per-document exceptions
+
+Primary F1 on this slice:
+- Word2Vec + POSID: Gender 0.464, Race 0.471, Height 0.267, Clothes AO 0.596, Clothes AV 0.603
+- RE + POSID: Gender 0.848, Race 0.857, Height 0.762, Clothes AO 0.884, Clothes AV 0.898
+- WordNet + POSID: Gender 0.172, Race 0.172, Height 0.000, Clothes AO 0.351, Clothes AV 0.345
+- RE + WordNet + POSID: Gender 0.848, Race 0.848, Height 0.762, Clothes AO 0.894, Clothes AV 0.905
+
+Interpretation rule:
+- treat this as a controlled source-composition reproduction slice, not as proof that these 58 documents are the exact historical paper evaluation subset
+- do not mix these values with Full-558 or 28-document results
 
 Generated-only slice:
 
