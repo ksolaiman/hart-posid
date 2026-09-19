@@ -52,6 +52,7 @@ METHOD_NAMES = (
 )
 SUBSET_NAMES = (
     "full",
+    "historical_loader_16",
     "non_generated_28",
     "non_generated_plus_generated_58",
     "generated_only",
@@ -69,6 +70,32 @@ NON_GENERATED_SOURCES = {
     "Incident Reports",
 }
 
+HISTORICAL_LOADER_16_IDS = (
+    # Synthetic_1–10
+    "5aa74430-bc58-4150-9422-db6098bf6359",
+    "3fcd11db-4875-4dcb-8ec6-93dd5a43804b",
+    "edb81d38-9727-486b-a8df-31b9b38ed7e9",
+    "6ed1c92e-3d3b-4a15-8a87-697a453c27af",
+    "9e7644dd-f9fe-40c9-bb58-6df531a154f2",
+    "bcc34546-7296-4d87-85d5-a08e77f3432b",
+    "15ddf338-814d-40f0-9c57-e328d4f093c6",
+    "0f7be28d-6254-4670-911c-b5dfe26798a8",
+    "e068c299-3f60-49d5-a6a8-3eeccb46d625",
+    "80f208fd-d9b4-4eca-a15f-a35ec8045246",
+
+    # Six files successfully opened by the 2021 loaderƒ
+    "b1cb5d91-ea74-4d5f-8684-970b18ace08e",  # Dorsett Dr shooting
+    "c4ea37c5-b7ea-493e-bf03-036f03ac4c99",  # Drug Take Back
+    "e18dc8e1-8450-4073-adb2-6d537c3f68e9",  # Hartford St shooting
+    "056d1da1-13c5-4a31-bb4c-fc0dee2297f5",  # Shooting Press Release
+    "7f471a54-7095-4364-9b00-9f81da4fc834",  # Citizens Academy
+    "1892974b-0460-4247-8347-dafd8902899f",  # Tippecanoe Mall
+)
+
+regex_queries = [
+    "wearing",
+    # r"REGEX:[^.]*suspect.*male[^.]*\.",
+]
 
 def resource_status() -> dict[str, str]:
     status = {}
@@ -121,6 +148,24 @@ def _filter_document_records(records: list[Any], subset: str) -> list[Any]:
         raise ValueError(f"Unknown subset: {subset}")
     if subset == "full":
         return list(records)
+    
+    elif subset == "historical_loader_16":
+        records_by_id = {record.document_id: record for record in records}
+        missing = [
+            document_id
+            for document_id in HISTORICAL_LOADER_16_IDS
+            if document_id not in records_by_id
+        ]
+        if missing:
+            raise RuntimeError(
+                f"Historical loader-16 documents missing: {missing}"
+            )
+
+        return [
+            records_by_id[document_id]
+            for document_id in HISTORICAL_LOADER_16_IDS
+        ]
+    
   
 
     included_sources = {
@@ -141,6 +186,7 @@ def _filter_document_records(records: list[Any], subset: str) -> list[Any]:
             f"Expected 58 documents for --subset "
             f"non_generated_plus_generated_58, found {len(records)}"
         )
+
     return selected
 
 
@@ -164,15 +210,21 @@ def _build_methods(
     if wordnet_methods:
         if status["WordNet"] == "AVAILABLE" and status["POS tagger"] == "AVAILABLE":
             if "re_posid" in selected:
-                methods["re_posid"] = POSIDExtractor(regex, ["wearing"])
+                methods["re_posid"] = POSIDExtractor(regex, regex_queries)
             if selected & {"wordnet_posid", "re_wordnet_posid"}:
                 wordnet = WordNetSelector(threshold=0.9, synset_strategy="legacy_asymmetric")
                 if "wordnet_posid" in selected:
                     methods["wordnet_posid"] = POSIDExtractor(wordnet, ["clothes"])
                 if "re_wordnet_posid" in selected:
                     methods["re_wordnet_posid"] = POSIDExtractor(
-                        StackedSelector(regex, wordnet, ["wearing"], ["clothes"]), []
-                    )
+                        StackedSelector(
+                            regex, 
+                            wordnet,
+                            regex_queries,
+                            ["clothes"]
+                            ),
+                        []
+                )
         else:
             for name in wordnet_methods:
                 blocked[name] = "WordNet and/or POS tagger resource is missing"
@@ -207,7 +259,13 @@ def _build_methods(
                 methods["sbert_posid"] = POSIDExtractor(zero_shot, ["clothes"])
             if "re_sbert_posid" in selected:
                 methods["re_sbert_posid"] = POSIDExtractor(
-                    StackedSelector(regex, zero_shot, ["wearing"], ["clothes"]), []
+                    StackedSelector(
+                        regex, 
+                        zero_shot, 
+                        regex_queries,
+                        ["clothes"]
+                        ),
+                    []
                 )
         else:
             for name in zero_shot_methods:
