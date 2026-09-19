@@ -30,8 +30,12 @@ class RegexSelector(CandidateSelector):
         if not query:
             raise ValueError("query must not be empty")
 
-        pattern = rf"{re.escape(query)}[^.]*"
         flags = re.IGNORECASE if self.ignore_case else 0
+
+        if query.startswith("REGEX:"):
+            pattern = query[len("REGEX:"):]
+        else:
+            pattern = rf"{re.escape(query)}[^.]*"
 
         return re.compile(pattern, flags)
 

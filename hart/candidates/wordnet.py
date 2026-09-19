@@ -60,7 +60,7 @@ class WordNetSelector(CandidateSelector):
             return None
 
         query_synset = query_synsets[0]
-        for token in tokenize_words(sentence):
+        for token in tokenize_words(sentence.lower()):
             for token_synset in self._synsets(token):
                 score = query_synset.wup_similarity(token_synset)
                 if score is not None and (
