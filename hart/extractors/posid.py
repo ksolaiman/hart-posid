@@ -243,21 +243,43 @@ class POSIDExtractor(Extractor):
                 mention_anchors = anchors
                 if pronoun_match and not mention_anchors and prior_anchors:
                     mention_anchors = prior_anchors
-                mentions.append(
-                    self._anchored_mention(
-                        "wearing",
-                        {"item": item, "descriptors": descriptors},
-                        sentence_id,
-                        position,
-                        mention_anchors,
-                        pronoun=pronoun_match.group(0).lower() if pronoun_match else None,
-                        shared_anchors=(
-                            shared_anchors
-                            if re.search(r"\bboth\b", sentence, re.IGNORECASE)
-                            else ()
-                        ),
+
+                # adding this for the one special case: jacket/hoodie, where the annotator labeled both items as a single item. 
+                # This is a hacky solution, but it works for this case.
+                # So posid extraction was correct, but annotator issue.
+                # Would be insteresting to see if LLMs can recognize them as a single item.
+                item_names = [
+                    name.strip()
+                    for name in item.split("/")
+                    if name.strip()
+                ]
+
+                for item_name in item_names:
+
+                    # the following part was already part of code without the jacket/ hoodie addition
+                    mentions.append(
+                        self._anchored_mention(
+                            "wearing",
+                            {
+                                "item": item_name,
+                                "descriptors": list(descriptors),
+                            },
+                            sentence_id,
+                            position,
+                            mention_anchors,
+                            pronoun=(
+                                pronoun_match.group(0).lower()
+                                if pronoun_match
+                                else None
+                            ),
+                            shared_anchors=(
+                                shared_anchors
+                                if re.search(r"\bboth\b", sentence, re.IGNORECASE)
+                                else ()
+                            ),
+                        )
                     )
-                )
+               
         return mentions
 
     @staticmethod
