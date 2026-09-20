@@ -93,9 +93,15 @@ HISTORICAL_LOADER_16_IDS = (
 )
 
 regex_queries = [
-    "wearing",
-    # r"REGEX:[^.]*suspect.*male[^.]*\.",
+    "wearing",                                  # keep "wearing" before fixed_query. Your RegexSelector stops checking 
+                                                # queries after the first match. Therefore, a sentence matching both gets 
+                                                # labeled "wearing", allowing it to be used for both clothing and fixed attributes later.
+    r"REGEX:[^.]*suspect.*male[^.]*\.",
 ]
+
+dual_purpose_query = "wearing"                      # for both clothing and fixed attributes
+fixed_query = r"REGEX:[^.]*suspect.*male[^.]*\."    # for fixed attributes - G / R/ H
+clothing_only_queries=["clothes"]
 
 def resource_status() -> dict[str, str]:
     status = {}
@@ -218,11 +224,11 @@ def _build_methods(
                 if "re_wordnet_posid" in selected:
                     methods["re_wordnet_posid"] = POSIDExtractor(
                         StackedSelector(
-                            regex, 
-                            wordnet,
-                            regex_queries,
-                            ["clothes"]
-                            ),
+                            regex,              # primary_model
+                            wordnet,            # fallback_model
+                            regex_queries,      # primary_queries
+                            ["clothes"]         # fallback_queries / clothing_only_quries
+                            ),                                  # regex
                         []
                 )
         else:
