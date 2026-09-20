@@ -141,16 +141,17 @@ class POSIDExtractor(Extractor):
             else:
                 raise ValueError(f"Unknown candidate query role: {candidate.query!r}")
 
-            mentions.extend(
-                self._extract_sentence(
-                    sentence,
-                    sentence_id,
-                    include_fixed=include_fixed,
-                    include_clothing=include_clothing,
-                    shared_anchors=shared_context.get(sentence_id, ()),
-                    prior_anchors=prior_context.get(sentence_id, []),
-                )
+
+            # need sentence_mentions as separate variable now, to use next sentence
+            sentence_mentions = self._extract_sentence(
+                sentence,
+                sentence_id,
+                include_fixed=include_fixed,
+                include_clothing=include_clothing,
+                shared_anchors=shared_context.get(sentence_id, ()),
+                prior_anchors=prior_context.get(sentence_id, []),
             )
+            mentions.extend(sentence_mentions)
 
             ########################
             # Historical 2021 behavior: if the candidate sentence does not
