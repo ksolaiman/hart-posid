@@ -369,6 +369,31 @@ class POSIDExtractor(Extractor):
             lowered = token.casefold()
             is_noun = tag.startswith("NN")
             is_adjective = tag.startswith("JJ")
+
+            # Compound modifier before a clothing noun:
+            # buttoned/VBD up/RP shirt/NN -> shirt["buttoned up"]
+            if (
+                tag in {"VBD", "VBN"}
+                and index + 2 < len(tagged)
+                and tagged[index + 1][1] in {"RP", "RB"}
+                and tagged[index + 2][1].startswith("NN")
+            ):
+                descriptors.append(
+                    f"{lowered} {tagged[index + 1][0].casefold()}"
+                )
+                continue
+
+            # The particle was already consumed as part of the descriptor.
+            if (
+                tag in {"RP", "RB"}
+                and index > 0
+                and tagged[index - 1][1] in {"VBD", "VBN"}
+                and index + 1 < len(tagged)
+                and tagged[index + 1][1].startswith("NN")
+            ):
+                continue
+
+            
             if lowered in _BOUNDARIES or lowered in {"both", "but"}:
                 if noun_start is not None:
                     flush_nouns()
@@ -381,7 +406,8 @@ class POSIDExtractor(Extractor):
                     flush_nouns()
                     continue
                 if self._is_color(lowered):
-                    flush_nouns()
+                    if noun_start is not None:
+                        flush_nouns()
                     descriptors.append(lowered)
                     continue
                 if noun_start is None:
@@ -536,12 +562,35 @@ class POSIDExtractor(Extractor):
 
         return spans
 
+    # @staticmethod
+    # def _person_anchors(sentence: str) -> list[tuple[str, int, str | None]]:
+    #     return [
+    #         anchor
+    #         for anchor in find_person_anchors(sentence)
+    #         if anchor[0].casefold() not in _RACES
+    #     ]
+
     @staticmethod
-    def _person_anchors(sentence: str) -> list[tuple[str, int, str | None]]:
+    def _person_anchors(
+        sentence: str,
+    ) -> list[tuple[str, int, str | None]]:
+        clothing_portion = POSIDExtractor._clothing_portion(sentence)
+        clothing_start = (
+            clothing_portion[1]
+            if clothing_portion is not None
+            else None
+        )
+
         return [
             anchor
             for anchor in find_person_anchors(sentence)
-            if anchor[0].casefold() not in _RACES
+            if (
+                anchor[0].casefold() not in _RACES
+                and (
+                    clothing_start is None
+                    or anchor[1] < clothing_start
+                )
+            )
         ]
 
     @staticmethod
