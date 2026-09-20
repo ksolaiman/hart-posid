@@ -32,7 +32,6 @@ _RACES = ("asian", "black", "white", "hispanic", "latino", "latina", "indian")
 _HEIGHT_PATTERNS = (
     r"\b\d+(?:\.\d+)?\s*(?:-?(?:feet?|foot)|ft\.?)\s*(?:\d+\s*(?:inches?|in\.?)?)?\s*(?:tall)?",
     r"\b\d{1,2}\s*['’]\s*\d{1,2}\s*[\"”](?:\s+tall\b)?",
-    r"\b(?:short|tall)\b",
 )
 _BOUNDARIES = {"and", "or", ",", ";", "."}
 _IGNORED_DESCRIPTORS = {"a", "an", "the", "wear", "wears", "wearing", "wore"}
@@ -43,8 +42,24 @@ _GENDER_PATTERN = "|".join(
     sorted(map(re.escape, _GENDERS), key=len, reverse=True)
 )
 
-_RACE_BEFORE_GENDER_PATTERN = re.compile(
-    rf"\b(?P<race>[A-Za-z]+)\s+(?P<gender>{_GENDER_PATTERN})\b",
+_RACE_PATTERN = "|".join(
+    sorted(map(re.escape, _RACES), key=len, reverse=True)
+)
+
+_RACE_GENDER_PATTERN = re.compile(
+    rf"\b(?:"
+    rf"(?P<race_before>{_RACE_PATTERN})\s+(?P<gender_after>{_GENDER_PATTERN})"
+    rf"|"
+    rf"(?P<gender_before>{_GENDER_PATTERN})\s+(?P<race_after>{_RACE_PATTERN})"
+    rf")\b",
+    re.IGNORECASE,
+)
+
+_RELATIVE_HEIGHT_PATTERN = re.compile(
+    rf"\b(?P<height>short|tall)\b"
+    rf"\s*,?\s*"
+    rf"(?:(?:{_RACE_PATTERN})\s*,?\s*)?"
+    rf"(?:{_GENDER_PATTERN})\b",
     re.IGNORECASE,
 )
 
@@ -248,6 +263,17 @@ class POSIDExtractor(Extractor):
                         )
                     )
                     height_spans.append(match.span())
+
+            for match in _RELATIVE_HEIGHT_PATTERN.finditer(sentence):
+                mentions.append(
+                    self._anchored_mention(
+                        "height",
+                        match.group("height").casefold(),
+                        sentence_id,
+                        match.start("height"),
+                        anchors,
+                    )
+                )
 
         if include_clothing:
             portion = self._clothing_portion(sentence)
@@ -659,6 +685,10 @@ class POSIDExtractor(Extractor):
                     continue
                 spans.append(match.span())
                 height_spans.append(match.span())
+
+        for match in _RELATIVE_HEIGHT_PATTERN.finditer(sentence):
+            spans.append(match.span("height"))
+
         return spans
 
     @staticmethod
