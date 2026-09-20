@@ -16,12 +16,11 @@ class CandidateSentence:
     human-attribute information.
     """
 
-    sentence_id: int
-    text: str                           # method's actual returned candidate
-    score: float
-    query: str | None = None
-
-    context_text: str | None = None     # full containing sentence/context
+    sentence_id: int                 # Position in the split document
+    text: str                        # Text (candidate) matched/returned by the selector method
+    score: float                     # Selector confidence or relevance score
+    query: str | None = None         # Query responsible for the selection
+    context_text: str | None = None  # Optional complete sentence or expanded context           # aka full containing sentence/context
 
 
 def split_sentences(text: str) -> list[str]:
