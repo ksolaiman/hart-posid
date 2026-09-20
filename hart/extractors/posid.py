@@ -197,6 +197,7 @@ class POSIDExtractor(Extractor):
                         )
                     )
 
+            ## 2026 race code, not used now
             # # This small symmetric race lexicon is reconstructed from task labels;
             # # it extracts explicit text only and never infers race from a name.
             # clothing_start = self._clothing_portion(sentence)
@@ -289,7 +290,7 @@ class POSIDExtractor(Extractor):
                 if pronoun_match and not mention_anchors and prior_anchors:
                     mention_anchors = prior_anchors
 
-                # adding this for the one special case: jacket/hoodie, where the annotator labeled both items as a single item. 
+                # adding this for special case: jacket/hoodie, where the annotator labeled both items as a single item. 
                 # This is a hacky solution, but it works for this case.
                 # So posid extraction was correct, but annotator issue.
                 # Would be insteresting to see if LLMs can recognize them as a single item.
