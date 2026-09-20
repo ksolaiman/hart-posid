@@ -38,6 +38,15 @@ _BOUNDARIES = {"and", "or", ",", ";", "."}
 _IGNORED_DESCRIPTORS = {"a", "an", "the", "wear", "wears", "wearing", "wore"}
 _IGNORED_CLOTHING_WORDS = _IGNORED_DESCRIPTORS | {"was", "were", "is", "are", "described", "about"}
 
+_GENDER_PATTERN = "|".join(
+    sorted(map(re.escape, _GENDERS), key=len, reverse=True)
+)
+
+_RACE_BEFORE_GENDER_PATTERN = re.compile(
+    rf"\b(?P<race>[A-Za-z]+)\s+(?P<gender>{_GENDER_PATTERN})\b",
+    re.IGNORECASE,
+)
+
 
 class POSIDExtractor(Extractor):
     """Legacy POSID property extraction after modular candidate retrieval."""
@@ -187,18 +196,34 @@ class POSIDExtractor(Extractor):
                         )
                     )
 
-            # This small symmetric race lexicon is reconstructed from task labels;
-            # it extracts explicit text only and never infers race from a name.
-            clothing_start = self._clothing_portion(sentence)
-            for race in _RACES:
-                for match in re.finditer(rf"\b{race}\b", sentence, re.IGNORECASE):
-                    if clothing_start is not None and match.start() >= clothing_start[1]:
-                        continue
-                    mentions.append(
-                        self._anchored_mention(
-                            "race", race, sentence_id, match.start(), anchors
-                        )
+            # # This small symmetric race lexicon is reconstructed from task labels;
+            # # it extracts explicit text only and never infers race from a name.
+            # clothing_start = self._clothing_portion(sentence)
+            # for race in _RACES:
+            #     for match in re.finditer(rf"\b{race}\b", sentence, re.IGNORECASE):
+            #         if clothing_start is not None and match.start() >= clothing_start[1]:
+            #             continue
+            #         mentions.append(
+            #             self._anchored_mention(
+            #                 "race", race, sentence_id, match.start(), anchors
+            #             )
+            #         )
+
+            for match in _RACE_BEFORE_GENDER_PATTERN.finditer(sentence):
+                race = match.group("race").casefold()
+
+                if race not in _RACES:
+                    continue
+
+                mentions.append(
+                    self._anchored_mention(
+                        "race",
+                        race,
+                        sentence_id,
+                        match.start("race"),
+                        anchors,
                     )
+                )
 
             height_spans: list[tuple[int, int]] = []
             for pattern_index, pattern in enumerate(_HEIGHT_PATTERNS):
@@ -601,13 +626,22 @@ class POSIDExtractor(Extractor):
                 match.span()
                 for match in re.finditer(rf"\b{word}\b", sentence, re.IGNORECASE)
             )
-        clothing_start = POSIDExtractor._clothing_portion(sentence)
-        for race in _RACES:
-            spans.extend(
-                match.span()
-                for match in re.finditer(rf"\b{race}\b", sentence, re.IGNORECASE)
-                if clothing_start is None or match.start() < clothing_start[1]
-            )
+
+
+        # clothing_start = POSIDExtractor._clothing_portion(sentence)
+        # for race in _RACES:
+        #     spans.extend(
+        #         match.span()
+        #         for match in re.finditer(rf"\b{race}\b", sentence, re.IGNORECASE)
+        #         if clothing_start is None or match.start() < clothing_start[1]
+        #     )
+
+        for match in _RACE_BEFORE_GENDER_PATTERN.finditer(sentence):
+            race = match.group("race").casefold()
+
+            if race in _RACES:
+                spans.append(match.span("race"))
+                
         height_spans: list[tuple[int, int]] = []
         for pattern_index, pattern in enumerate(_HEIGHT_PATTERNS):
             for match in re.finditer(pattern, sentence, re.IGNORECASE):
