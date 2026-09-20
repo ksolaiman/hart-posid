@@ -397,6 +397,145 @@ class POSIDExtractor(Extractor):
         flush_nouns()
         return spans
 
+    def _legacy_clothing_spans(
+        self,
+        tokens: list[str],
+        tagged: list[tuple[str, str]],
+        *,
+        excluded_words: set[str] | None = None,
+    ) -> list[tuple[int, int, str, list[str]]]:
+        """
+        Reproduce the conservative 2021 POSID clothing parser.
+
+        The historical parser stopped after unexpected POS patterns instead
+        of continuing through the complete candidate sentence. This reduces
+        unrelated nouns being interpreted as clothing.
+        """
+        excluded_words = excluded_words or set()
+
+        spans: list[tuple[int, int, str, list[str]]] = []
+        adjectives: list[str] = []
+        append_indices: list[int] = []
+
+        for index, (token, tag) in enumerate(tagged):
+            lowered = token.casefold()
+
+            # The 2021 notebook always ignored the first candidate token.
+            # For Regex candidates this was normally "wearing".
+            if index == 0:
+                continue
+
+            # Historical handling of:
+            #     "She had ..."
+            #     "He was wearing ..."
+            if tag.startswith("VBD") and index == 1:
+                continue
+
+            if (
+                tag.startswith("VBG")
+                and index == 2
+                and tagged[index - 1][1].startswith("VBD")
+            ):
+                continue
+
+            is_connector = (
+                tag.startswith("DT")
+                or tag.startswith("CC")
+                or tag.startswith("IN")
+                or tag.startswith("VBD")
+                or tag.startswith("RP")
+                or tag.startswith("RB")
+                or len(tag) == 1
+            )
+
+            if is_connector:
+                previous_tag = tagged[index - 1][1]
+
+                # Reproduce the old early-stop condition.
+                if (
+                    tag.startswith(("VBD", "RP", "RB"))
+                    and (
+                        len(previous_tag) == 1
+                        or previous_tag.startswith("PRP")
+                    )
+                ):
+                    break
+
+                append_indices.append(index)
+                continue
+
+            if tag.startswith("JJ"):
+                append_indices = []
+                adjectives.append(lowered)
+                continue
+
+            if tag.startswith("NN"):
+                if (
+                    lowered in excluded_words
+                    or lowered in _IGNORED_CLOTHING_WORDS
+                ):
+                    append_indices = []
+                    adjectives = []
+                    continue
+
+                # The historical code treated color-like nouns as descriptors.
+                if self._is_color(lowered):
+                    append_indices = []
+                    adjectives.append(lowered)
+                    continue
+
+                item = lowered
+                item_start = index
+
+                # Preserve historical items such as "buttoned up shirt".
+                for append_index in reversed(append_indices):
+                    append_token, append_tag = tagged[append_index]
+
+                    if append_tag.startswith(("VBD", "RP", "RB")):
+                        item = f"{append_token.casefold()} {item}"
+                        item_start = append_index
+                    else:
+                        break
+
+                # Combine consecutive nouns into one item, such as:
+                #     "tank top"
+                #     "dress pants"
+                if (
+                    index > 0
+                    and tagged[index - 1][1].startswith("NN")
+                    and spans
+                    and spans[-1][2].endswith(
+                        tagged[index - 1][0].casefold()
+                    )
+                ):
+                    previous_start, _, previous_item, previous_descriptors = spans[-1]
+
+                    spans[-1] = (
+                        previous_start,
+                        index + 1,
+                        f"{previous_item} {lowered}",
+                        previous_descriptors,
+                    )
+                else:
+                    spans.append(
+                        (
+                            item_start,
+                            index + 1,
+                            item,
+                            list(adjectives),
+                        )
+                    )
+
+                adjectives = []
+                append_indices = []
+                continue
+
+            # The key historical behavior: stop instead of continuing to
+            # search for nouns elsewhere in the sentence.
+            break
+
+        return spans
+
     @staticmethod
     def _person_anchors(sentence: str) -> list[tuple[str, int, str | None]]:
         return [
