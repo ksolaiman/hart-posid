@@ -22,11 +22,12 @@ class ZeroShotSelector(CandidateSelector):
             output = self.classifier(
                 sentence,
                 candidate_labels=labels,
-                hypothesis_template="This text is about {}",
+                # hypothesis_template="This text is about {}",        # legacy - 2019 - "This example is {}", (hugging face default)
                 multi_label=self.multi_label,
             )
             scores = dict(zip(output["labels"], output["scores"]))
             query, score = max(scores.items(), key=lambda item: item[1])
+             
             if self.threshold is None or score > self.threshold:
                 return [CandidateSentence(sentence_id, sentence, score, query, context_text=sentence)]
         return []
