@@ -37,6 +37,7 @@ _HEIGHT_PATTERNS = (
 _BOUNDARIES = {"and", "or", ",", ";", "."}
 _IGNORED_DESCRIPTORS = {"a", "an", "the", "wear", "wears", "wearing", "wore"}
 _IGNORED_CLOTHING_WORDS = _IGNORED_DESCRIPTORS | {"was", "were", "is", "are", "described", "about"}
+_CONTEXTUAL_CLOTHING_DESCRIPTORS = {"dark", "light"}
 
 _GENDER_PATTERN = "|".join(
     sorted(map(re.escape, _GENDERS), key=len, reverse=True)
@@ -394,6 +395,11 @@ class POSIDExtractor(Extractor):
             lowered = token.casefold()
             is_noun = tag.startswith("NN")
             is_adjective = tag.startswith("JJ")
+            is_contextual_descriptor = (
+                lowered in _CONTEXTUAL_CLOTHING_DESCRIPTORS
+                and index + 1 < len(tagged)
+                and tagged[index + 1][1].startswith("NN")
+            )
 
             # Compound modifier before a clothing noun:
             # buttoned/VBD up/RP shirt/NN -> shirt["buttoned up"]
@@ -423,7 +429,7 @@ class POSIDExtractor(Extractor):
                 if noun_start is not None:
                     flush_nouns()
                 continue
-            if is_adjective:
+            if is_adjective or is_contextual_descriptor:
                 descriptors.append(lowered)
                 continue
             if is_noun:
