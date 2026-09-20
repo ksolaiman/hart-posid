@@ -22,7 +22,9 @@ class ZeroShotSelector(CandidateSelector):
             output = self.classifier(
                 sentence,
                 candidate_labels=labels,
-                hypothesis_template= "This example is {}.",  
+                hypothesis_template= "This example is {}.",   # missing . ==> SBERT + POSID | 0.885/1.000/0.939 | 0.923/1.000/0.960; 
+                                                            # with . ; RE+SBERT+POSID and SBERT+POSID - higher and same perf.
+                # hypothesis_template="This text is about {}",        # legacy - 2019 - "This example is {}.", (hugging face default)
                 multi_label=self.multi_label,
             )
             scores = dict(zip(output["labels"], output["scores"]))
