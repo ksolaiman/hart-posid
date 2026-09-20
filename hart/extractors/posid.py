@@ -48,7 +48,7 @@ class POSIDExtractor(Extractor):
         queries: Iterable[str] | None = None,
         wordnet: Any = None,
         color_threshold: float = 0.7,
-        tagger: Callable[[list[str]], Sequence[tuple[str, str]]] = pos_tag,
+        tagger: Callable[[list[str]], Sequence[tuple[str, str]]] = pos_tag
     ):
         if wordnet is None:
             from nltk.corpus import wordnet as wordnet_corpus
@@ -97,12 +97,31 @@ class POSIDExtractor(Extractor):
                 continue
             seen_candidates.add(key)
 
+            ## fixing which query should be used to extract which attribute (fixed vs clothes attributes)
+            query = candidate.query.casefold()
+
+            if query == "wearing":
+                include_fixed = True
+                include_clothing = True
+
+            elif query == "clothes":
+                include_fixed = False
+                include_clothing = True
+
+            elif query.startswith("regex:"):
+                # The fixed REGEX query
+                include_fixed = True
+                include_clothing = False
+
+            else:
+                raise ValueError(f"Unknown candidate query role: {candidate.query!r}")
+
             mentions.extend(
                 self._extract_sentence(
                     sentence,
                     sentence_id,
-                    include_fixed=True,
-                    include_clothing=True,
+                    include_fixed=include_fixed,
+                    include_clothing=include_clothing,
                     shared_anchors=shared_context.get(sentence_id, ()),
                     prior_anchors=prior_context.get(sentence_id, []),
                 )
