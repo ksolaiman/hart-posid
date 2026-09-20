@@ -151,6 +151,35 @@ class POSIDExtractor(Extractor):
                     prior_anchors=prior_context.get(sentence_id, []),
                 )
             )
+
+            ########################
+            # Historical 2021 behavior: if the candidate sentence does not
+            # contain a height, also check the immediately following sentence.
+            # Only height mentions are carried over from that sentence.
+            if (
+                include_fixed
+                and not any(
+                    mention.attribute == "height"
+                    for mention in sentence_mentions
+                )
+                and sentence_id + 1 < len(sentences)
+            ):
+                next_sentence_id = sentence_id + 1
+                next_sentence_mentions = self._extract_sentence(
+                    sentences[next_sentence_id],
+                    next_sentence_id,
+                    include_fixed=True,
+                    include_clothing=False,
+                    shared_anchors=shared_context.get(next_sentence_id, ()),
+                    prior_anchors=prior_context.get(next_sentence_id, []),
+                )
+                mentions.extend(
+                    mention
+                    for mention in next_sentence_mentions
+                    if mention.attribute == "height"
+                )
+            ###########################
+
         return resolve_mentions(document_id, mentions)
 
     @staticmethod
