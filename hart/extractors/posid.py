@@ -226,18 +226,20 @@ class POSIDExtractor(Extractor):
             #             )
             #         )
 
-            for match in _RACE_BEFORE_GENDER_PATTERN.finditer(sentence):
-                race = match.group("race").casefold()
-
-                if race not in _RACES:
-                    continue
+            for match in _RACE_GENDER_PATTERN.finditer(sentence):
+                race_group = (
+                    "race_before"
+                    if match.group("race_before") is not None
+                    else "race_after"
+                )
+                race = match.group(race_group).casefold()
 
                 mentions.append(
                     self._anchored_mention(
                         "race",
                         race,
                         sentence_id,
-                        match.start("race"),
+                        match.start(race_group),
                         anchors,
                     )
                 )
@@ -669,11 +671,13 @@ class POSIDExtractor(Extractor):
         #         if clothing_start is None or match.start() < clothing_start[1]
         #     )
 
-        for match in _RACE_BEFORE_GENDER_PATTERN.finditer(sentence):
-            race = match.group("race").casefold()
-
-            if race in _RACES:
-                spans.append(match.span("race"))
+        for match in _RACE_GENDER_PATTERN.finditer(sentence):
+            race_group = (
+                "race_before"
+                if match.group("race_before") is not None
+                else "race_after"
+            )
+            spans.append(match.span(race_group))
                 
         height_spans: list[tuple[int, int]] = []
         for pattern_index, pattern in enumerate(_HEIGHT_PATTERNS):
