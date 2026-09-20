@@ -1,0 +1,4 @@
+*.pyc
+.DS_Store*
+outputs/*
+outputs/legacy_reproduction/*
