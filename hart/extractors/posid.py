@@ -113,14 +113,9 @@ class POSIDExtractor(Extractor):
             shared_context[sentence_id] = recent_shared
             seen_anchors.extend(anchors)
         
-        seen_candidates: set[tuple[int, str]] = set()
+        seen_candidates: set[tuple[int, str, bool, bool]] = set()
         for candidate in candidates:
             sentence_id, sentence = self._candidate_sentence(candidate, sentences)
-
-            key = (sentence_id, sentence)
-            if key in seen_candidates:
-                continue
-            seen_candidates.add(key)
 
             ## fixing which query should be used to extract which attribute (fixed vs clothes attributes)
             query = candidate.query.casefold()
@@ -141,6 +136,13 @@ class POSIDExtractor(Extractor):
             else:
                 raise ValueError(f"Unknown candidate query role: {candidate.query!r}")
 
+            # Deduplicate equivalent extraction work, not just identical text.
+            # The same sentence may legitimately appear once as a fixed-attribute
+            # candidate and once as a clothing candidate in stacked retrieval.
+            key = (sentence_id, sentence, include_fixed, include_clothing)
+            if key in seen_candidates:
+                continue
+            seen_candidates.add(key)
 
             # need sentence_mentions as separate variable now, to use next sentence
             sentence_mentions = self._extract_sentence(
