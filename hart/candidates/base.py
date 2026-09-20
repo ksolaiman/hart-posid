@@ -20,7 +20,7 @@ class CandidateSentence:
     text: str                        # Text (candidate) matched/returned by the selector method
     score: float                     # Selector confidence or relevance score
     query: str | None = None         # Query responsible for the selection
-    context_text: str | None = None  # Optional complete sentence or expanded context           # aka full containing sentence/context
+    context_text: str | None = None  # Optional complete sentence or expanded context      aka      # full containing sentence/context
 
 
 def split_sentences(text: str) -> list[str]:
