@@ -1,3 +1,7 @@
+conda activate hart39
+export NLTK_DATA=/opt/anaconda3/envs/femmir/nltk_data  
+
+
 ### Conda setup summary for HART/POSID reproduction
 
 We moved away from the old project `.venv` because the local macOS PyTorch/BART stack was unstable there and produced native `Bus error` crashes during zero-shot inference. We also discovered that the old Conda environment `femmir` was misleadingly active while `python` was actually resolving to base Anaconda, and `femmir` itself was too old for the current HART code because it used a Python version that could not parse the `:=` walrus operator.
