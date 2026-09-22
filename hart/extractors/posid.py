@@ -73,7 +73,8 @@ class POSIDExtractor(Extractor):
         queries: Iterable[str] | None = None,
         wordnet: Any = None,
         color_threshold: float = 0.7,
-        tagger: Callable[[list[str]], Sequence[tuple[str, str]]] = pos_tag
+        tagger: Callable[[list[str]], Sequence[tuple[str, str]]] = pos_tag,
+        stop_on_unexpected_pos: bool = False,
     ):
         if wordnet is None:
             from nltk.corpus import wordnet as wordnet_corpus
@@ -84,6 +85,7 @@ class POSIDExtractor(Extractor):
         self.wordnet = wordnet
         self.color_threshold = color_threshold
         self.tagger = tagger
+        self.stop_on_unexpected_pos = stop_on_unexpected_pos
 
     def extract(self, text: str, document_id: str = "document") -> PredictionIndex:
         candidates = self.candidate_selector.select(text, self.queries)
@@ -510,6 +512,15 @@ class POSIDExtractor(Extractor):
                 if noun_start is not None:
                     flush_nouns()
                 continue
+
+            # Ablation: once clothing parsing has begun, stop at the first
+            # otherwise-unhandled POS token. Leading scaffold such as
+            # wearing/VBG is still skipped, so the parser can reach clothing.
+            if self.stop_on_unexpected_pos and (
+                descriptors or noun_start is not None or spans
+            ):
+                break
+
             flush_nouns()
 
         flush_nouns()

@@ -197,7 +197,10 @@ def _filter_document_records(records: list[Any], subset: str) -> list[Any]:
 
 
 def _build_methods(
-    status: dict[str, str], selected_methods: tuple[str, ...] = METHOD_NAMES
+    status: dict[str, str],
+    selected_methods: tuple[str, ...] = METHOD_NAMES,
+    *,
+    stop_on_unexpected_pos: bool = False,
 ) -> tuple[dict[str, Any], dict[str, str]]:
     unknown_methods = set(selected_methods) - set(METHOD_NAMES)
     if unknown_methods:
@@ -216,11 +219,19 @@ def _build_methods(
     if wordnet_methods:
         if status["WordNet"] == "AVAILABLE" and status["POS tagger"] == "AVAILABLE":
             if "re_posid" in selected:
-                methods["re_posid"] = POSIDExtractor(regex, regex_queries)
+                methods["re_posid"] = POSIDExtractor(
+                    regex,
+                    regex_queries,
+                    stop_on_unexpected_pos=stop_on_unexpected_pos,
+                )
             if selected & {"wordnet_posid", "re_wordnet_posid"}:
                 wordnet = WordNetSelector(threshold=0.9, synset_strategy="legacy_asymmetric")
                 if "wordnet_posid" in selected:
-                    methods["wordnet_posid"] = POSIDExtractor(wordnet, ["clothes"])
+                    methods["wordnet_posid"] = POSIDExtractor(
+                        wordnet,
+                        ["clothes"],
+                        stop_on_unexpected_pos=stop_on_unexpected_pos,
+                    )
                 if "re_wordnet_posid" in selected:
                     methods["re_wordnet_posid"] = POSIDExtractor(
                         StackedSelector(
@@ -229,7 +240,8 @@ def _build_methods(
                             regex_queries,      # primary_queries
                             ["clothes"]         # fallback_queries / clothing_only_quries
                             ),                                  # regex
-                        []
+                        [],
+                        stop_on_unexpected_pos=stop_on_unexpected_pos,
                 )
         else:
             for name in wordnet_methods:
@@ -246,7 +258,9 @@ def _build_methods(
                     str(resource), binary=False
                 )
                 methods["word2vec_posid"] = POSIDExtractor(
-                    Word2VecSelector(vectors, threshold=0.5), ["clothes"]
+                    Word2VecSelector(vectors, threshold=0.5),
+                    ["clothes"],
+                    stop_on_unexpected_pos=stop_on_unexpected_pos,
                 )
         else:
             blocked["word2vec_posid"] = "historical Word2Vec resource or gensim is missing"
@@ -262,7 +276,11 @@ def _build_methods(
             )
             zero_shot = ZeroShotSelector(classifier, threshold=0.85)
             if "sbert_posid" in selected:
-                methods["sbert_posid"] = POSIDExtractor(zero_shot, ["clothes"])
+                methods["sbert_posid"] = POSIDExtractor(
+                    zero_shot,
+                    ["clothes"],
+                    stop_on_unexpected_pos=stop_on_unexpected_pos,
+                )
             if "re_sbert_posid" in selected:
                 methods["re_sbert_posid"] = POSIDExtractor(
                     StackedSelector(
@@ -271,7 +289,8 @@ def _build_methods(
                         regex_queries,
                         ["clothes"]
                         ),
-                    []
+                    [],
+                    stop_on_unexpected_pos=stop_on_unexpected_pos,
                 )
         else:
             for name in zero_shot_methods:
@@ -310,7 +329,12 @@ def run(args: argparse.Namespace) -> int:
     if args.subset == "full" and len(records) != 558:
         raise RuntimeError(f"Expected 558 indexed documents, found {len(records)}")
 
-    methods, blocked = _build_methods(status, tuple(args.methods))
+    print(f"ABLATION CONFIG — stop_on_unexpected_pos={args.stop_on_unexpected_pos}")
+    methods, blocked = _build_methods(
+        status,
+        tuple(args.methods),
+        stop_on_unexpected_pos=args.stop_on_unexpected_pos,
+    )
     for name, reason in blocked.items():
         print(f"METHOD {name}: BLOCKED — {reason}")
 
@@ -490,6 +514,15 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         choices=SUBSET_NAMES,
         default="full",
         help="authoritative document subset to evaluate (default: full)",
+    )
+    parser.add_argument(
+        "--stop-on-unexpected-pos",
+        action="store_true",
+        default=False,
+        help=(
+            "ablation: once clothing parsing has begun, stop at the first "
+            "otherwise-unhandled POS token"
+        ),
     )
     parser.add_argument(
         "--methods",
