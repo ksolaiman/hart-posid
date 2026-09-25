@@ -5,10 +5,8 @@ from dataclasses import dataclass
 from functools import lru_cache
 from typing import Any, Iterable, Sequence
 
-from .legacy_metrics import canonicalize_clothing_item
-
 from hart.schema import PersonAnnotation, PersonPrediction
-from hart.schema.normalize import normalize_height_surface
+from hart.schema.normalize import canonicalize_clothing_item, normalize_height_surface
 
 
 @dataclass(frozen=True)

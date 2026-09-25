@@ -1,6 +1,6 @@
 import pytest
 
-from hart.evaluation.legacy_metrics import canonicalize_clothing_item
+from hart.schema.normalize import canonicalize_clothing_item
 from hart.evaluation.legacy_metrics import clothing_metrics, compare_attribute, match_people
 from hart.schema import PersonAnnotation, PersonPrediction
 

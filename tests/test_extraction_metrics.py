@@ -1,6 +1,6 @@
 import pytest
 
-from hart.evaluation.legacy_metrics import canonicalize_clothing_item
+from hart.schema.normalize import canonicalize_clothing_item
 from hart.evaluation.extraction_metrics import (
     corpus_gold_finite_values,
     evaluate_corpus,
