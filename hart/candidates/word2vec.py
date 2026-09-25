@@ -9,9 +9,10 @@ from .base import CandidateSelector, CandidateSentence, split_sentences, tokeniz
 class Word2VecSelector(CandidateSelector):
     """Select sentences using token-level Word2Vec similarity."""
 
-    def __init__(self, vectors: Any, threshold: float | None = None):
+    def __init__(self, vectors: Any, threshold: float | None = None, *, candidate_selector_non_re_first_match_only: bool = False):
         self.vectors = vectors.wv if hasattr(vectors, "wv") else vectors
         self.threshold = threshold
+        self.candidate_selector_non_re_first_match_only = candidate_selector_non_re_first_match_only
 
     def select(self, text: str, queries: Iterable[str]) -> list[CandidateSentence]:
         queries = list(queries)
@@ -36,5 +37,7 @@ class Word2VecSelector(CandidateSelector):
             score, query = best_match
             if self.threshold is None or score >= self.threshold:
                 results.append(CandidateSentence(sentence_id, sentence, score, query, context_text=sentence))
+                if self.candidate_selector_non_re_first_match_only:
+                    return results
 
         return results

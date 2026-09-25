@@ -201,6 +201,7 @@ def _build_methods(
     selected_methods: tuple[str, ...] = METHOD_NAMES,
     *,
     stop_on_unexpected_pos: bool = False,
+    candidate_selector_non_re_first_match_only: bool = False,
 ) -> tuple[dict[str, Any], dict[str, str]]:
     unknown_methods = set(selected_methods) - set(METHOD_NAMES)
     if unknown_methods:
@@ -225,7 +226,7 @@ def _build_methods(
                     stop_on_unexpected_pos=stop_on_unexpected_pos,
                 )
             if selected & {"wordnet_posid", "re_wordnet_posid"}:
-                wordnet = WordNetSelector(threshold=0.9, synset_strategy="legacy_asymmetric")
+                wordnet = WordNetSelector(threshold=0.9, synset_strategy="legacy_asymmetric", candidate_selector_non_re_first_match_only=candidate_selector_non_re_first_match_only)
                 if "wordnet_posid" in selected:
                     methods["wordnet_posid"] = POSIDExtractor(
                         wordnet,
@@ -258,7 +259,7 @@ def _build_methods(
                     str(resource), binary=False
                 )
                 methods["word2vec_posid"] = POSIDExtractor(
-                    Word2VecSelector(vectors, threshold=0.5),
+                    Word2VecSelector(vectors, threshold=0.5, candidate_selector_non_re_first_match_only=candidate_selector_non_re_first_match_only),
                     ["clothes"],
                     stop_on_unexpected_pos=stop_on_unexpected_pos,
                 )
@@ -274,7 +275,7 @@ def _build_methods(
                 model="facebook/bart-large-mnli",
                 local_files_only=True,
             )
-            zero_shot = ZeroShotSelector(classifier, threshold=0.85)
+            zero_shot = ZeroShotSelector(classifier, threshold=0.85, candidate_selector_non_re_first_match_only=candidate_selector_non_re_first_match_only)
             if "sbert_posid" in selected:
                 methods["sbert_posid"] = POSIDExtractor(
                     zero_shot,
@@ -329,11 +330,13 @@ def run(args: argparse.Namespace) -> int:
     if args.subset == "full" and len(records) != 558:
         raise RuntimeError(f"Expected 558 indexed documents, found {len(records)}")
 
-    print(f"ABLATION CONFIG — stop_on_unexpected_pos={args.stop_on_unexpected_pos}")
+    print(f"ABLATION CONFIG — stop_on_unexpected_pos={args.stop_on_unexpected_pos} "
+          f"candidate_selector_non_re_first_match_only={args.candidate_selector_non_re_first_match_only}")
     methods, blocked = _build_methods(
         status,
         tuple(args.methods),
         stop_on_unexpected_pos=args.stop_on_unexpected_pos,
+        candidate_selector_non_re_first_match_only=args.candidate_selector_non_re_first_match_only,
     )
     for name, reason in blocked.items():
         print(f"METHOD {name}: BLOCKED — {reason}")
@@ -531,6 +534,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         default=METHOD_NAMES,
         metavar="METHOD",
         help="legacy method(s) to run (default: all supported methods)",
+    )
+    parser.add_argument(
+        "--candidate-selector-non-RE-first-match-only",
+        dest="candidate_selector_non_re_first_match_only",
+        action="store_true",
+        help="return only the first qualifying non-RE candidate (default: all)",
     )
     return parser.parse_args(argv)
 

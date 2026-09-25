@@ -108,3 +108,17 @@ def test_stacked_preserves_roles_and_posid_deduplicates_equivalent_work(monkeypa
         (0, text, False, True),
     ]
     assert fallback.calls == [(text, ["clothes"])]
+
+
+def test_stacked_keeps_regex_candidates_with_first_match_semantic_mode():
+    text = "A jacket. Some pants."
+    primary_results = [CandidateSentence(0, "A jacket.", 1.0, "wearing")]
+    semantic = WordNetSelector(
+        threshold=0.9, wordnet=LegacyWordNet(), synset_strategy="legacy_asymmetric",
+        candidate_selector_non_re_first_match_only=True,
+    )
+    selector = StackedSelector(FakeSelector(primary_results), semantic, ["wearing"], ["clothes"])
+    results = selector.select(text)
+    assert results == primary_results + semantic.select(text, ["clothes"])
+    assert len(results) == 2
+    assert [candidate.query for candidate in results] == ["wearing", "clothes"]

@@ -162,3 +162,62 @@ def test_sbert_methods_do_not_initialize_word2vec(monkeypatch) -> None:
             {"model": "facebook/bart-large-mnli", "local_files_only": True},
         )
     ]
+
+
+@pytest.mark.parametrize("first_only", [False, True])
+@pytest.mark.parametrize("stop_pos", [False, True])
+def test_semantic_first_match_cli_and_method_propagation(monkeypatch, first_only, stop_pos):
+    argv = []
+    if first_only:
+        argv.append("--candidate-selector-non-RE-first-match-only")
+    if stop_pos:
+        argv.append("--stop-on-unexpected-pos")
+    args = reproduce_legacy_posid.parse_args(argv)
+    assert args.candidate_selector_non_re_first_match_only is first_only
+    assert args.stop_on_unexpected_pos is stop_pos
+
+    vectors = object()
+    classifier = object()
+    modules = {
+        "gensim": SimpleNamespace(models=SimpleNamespace(KeyedVectors=SimpleNamespace(
+            load_word2vec_format=lambda *a, **kw: vectors))),
+        "transformers": SimpleNamespace(pipeline=lambda *a, **kw: classifier),
+    }
+    monkeypatch.setattr(reproduce_legacy_posid.importlib, "import_module", modules.__getitem__)
+    monkeypatch.setattr(reproduce_legacy_posid, "_find_word2vec_resource", lambda: Path("fake-vectors"))
+    methods, blocked = reproduce_legacy_posid._build_methods(
+        AVAILABLE_RESOURCES,
+        candidate_selector_non_re_first_match_only=args.candidate_selector_non_re_first_match_only,
+        stop_on_unexpected_pos=args.stop_on_unexpected_pos,
+    )
+    assert not blocked
+    for name, extractor in methods.items():
+        assert extractor.stop_on_unexpected_pos is stop_pos
+        selector = extractor.candidate_selector
+        if name == "re_posid":
+            assert not hasattr(selector, "candidate_selector_non_re_first_match_only")
+            continue
+        if name in {"re_wordnet_posid", "re_sbert_posid"}:
+            selector = selector.fallback
+        assert selector.candidate_selector_non_re_first_match_only is first_only
+
+
+@pytest.mark.parametrize("first_only", [False, True])
+def test_run_passes_semantic_first_match_option(monkeypatch, tmp_path, first_only):
+    argv = ["--output-dir", str(tmp_path), "--subset", "non_generated_28"]
+    if first_only:
+        argv.append("--candidate-selector-non-RE-first-match-only")
+    args = reproduce_legacy_posid.parse_args(argv)
+    monkeypatch.setattr(reproduce_legacy_posid, "resource_status", lambda: AVAILABLE_RESOURCES)
+    monkeypatch.setattr(reproduce_legacy_posid, "load_document_index", lambda root: [])
+    monkeypatch.setattr(reproduce_legacy_posid, "_filter_document_records", lambda records, subset: records)
+    monkeypatch.setattr(reproduce_legacy_posid.LegacyAnnotationLoader, "load", lambda self, path: {})
+
+    def build(status, methods, **kwargs):
+        assert kwargs["candidate_selector_non_re_first_match_only"] is first_only
+        assert kwargs["stop_on_unexpected_pos"] is False
+        raise RuntimeError("propagation verified")
+
+    monkeypatch.setattr(reproduce_legacy_posid, "_build_methods", build)
+    with pytest.raises(RuntimeError, match="propagation verified"):
+        reproduce_legacy_posid.run(args)

@@ -9,9 +9,10 @@ from .base import CandidateSelector, CandidateSentence, split_sentences
 class ZeroShotSelector(CandidateSelector):
     """Select sentences classified by an injected zero-shot pipeline."""
 
-    def __init__(self, classifier: Any, threshold: float | None = None, multi_label: bool = False):
+    def __init__(self, classifier: Any, threshold: float | None = None, multi_label: bool = False, *, candidate_selector_non_re_first_match_only: bool = False):
         self.classifier = classifier
         self.threshold = threshold
+        self.candidate_selector_non_re_first_match_only = candidate_selector_non_re_first_match_only
         self.multi_label = multi_label
 
     def select(self, text: str, queries: Iterable[str]) -> list[CandidateSentence]:
@@ -33,4 +34,6 @@ class ZeroShotSelector(CandidateSelector):
              
             if self.threshold is None or score > self.threshold:
                 results.append(CandidateSentence(sentence_id, sentence, score, query, context_text=sentence))
+                if self.candidate_selector_non_re_first_match_only:
+                    return results
         return results

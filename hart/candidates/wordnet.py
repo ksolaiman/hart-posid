@@ -14,6 +14,8 @@ class WordNetSelector(CandidateSelector):
         threshold: float | None = None,
         wordnet: Any = None,
         synset_strategy: str = "first",
+        *,
+        candidate_selector_non_re_first_match_only: bool = False,
     ):
         if synset_strategy not in {"first", "max_all", "average", "legacy_asymmetric"}:
             raise ValueError(
@@ -25,6 +27,7 @@ class WordNetSelector(CandidateSelector):
             wordnet = wordnet_corpus
         self.wordnet = wordnet
         self.threshold = threshold
+        self.candidate_selector_non_re_first_match_only = candidate_selector_non_re_first_match_only
         self.synset_strategy = synset_strategy
 
     def _synsets(self, token: str) -> list[Any]:
@@ -78,6 +81,8 @@ class WordNetSelector(CandidateSelector):
                     score = self._legacy_match(sentence, query)
                     if score is not None:
                         results.append(CandidateSentence(sentence_id, sentence, score, query, context_text=sentence))
+                        if self.candidate_selector_non_re_first_match_only:
+                            return results
                         break
                 continue
             matches = [
@@ -90,4 +95,6 @@ class WordNetSelector(CandidateSelector):
             score, query = max(matches)
             if self.threshold is None or score >= self.threshold:
                 results.append(CandidateSentence(sentence_id, sentence, score, query, context_text=sentence))
+                if self.candidate_selector_non_re_first_match_only:
+                    return results
         return results
