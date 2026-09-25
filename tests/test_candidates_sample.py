@@ -39,7 +39,7 @@ class SampleWordNet:
 
 def sample_classifier(text, candidate_labels, hypothesis_template, multi_label):
     assert candidate_labels == ["clothes"]
-    assert hypothesis_template.format(candidate_labels[0]) == "This text is about clothes"
+    assert hypothesis_template.format(candidate_labels[0]) == "This example is clothes."
     assert multi_label is False
     score = 0.86 if "wearing" in text else 0.85
     return {"labels": candidate_labels, "scores": [score]}

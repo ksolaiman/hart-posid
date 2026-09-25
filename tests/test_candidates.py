@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import pytest
+
 from hart.candidates import RegexSelector, Word2VecSelector, WordNetSelector, ZeroShotSelector
 
 
@@ -20,7 +22,7 @@ class FakeSynset:
 
 class FakeWordNet:
     def synsets(self, token, **kwargs):
-        return [FakeSynset(token)]
+        return [FakeSynset(token)] if token.isalpha() else []
 
 
 def test_regex_selector_matches_once_per_sentence():
@@ -29,13 +31,16 @@ def test_regex_selector_matches_once_per_sentence():
 
 
 def test_word2vec_selector_uses_configured_threshold():
-    results = Word2VecSelector(FakeVectors(), threshold=0.9).select("A red dress. A blue car.", ["red"])
-    assert [result.sentence_id for result in results] == [0]
+    results = Word2VecSelector(FakeVectors(), threshold=1.0).select("A red dress. A blue car. Another red dress.", ["red"])
+    assert [result.sentence_id for result in results] == [0, 2]
+    assert [result.score for result in results] == [1.0, 1.0]
+    assert all(result.context_text == result.text and result.query == "red" for result in results)
 
 
-def test_wordnet_selector_uses_injected_wordnet():
-    results = WordNetSelector(threshold=1.0, wordnet=FakeWordNet()).select(
-        "A red dress. A dress.", iter(["dress"])
+@pytest.mark.parametrize("strategy", ["first", "max_all", "average", "legacy_asymmetric"])
+def test_wordnet_selector_uses_injected_wordnet(strategy):
+    results = WordNetSelector(threshold=1.0, wordnet=FakeWordNet(), synset_strategy=strategy).select(
+        "Dress. Dress.", iter(["dress"])
     )
     assert [result.sentence_id for result in results] == [0, 1]
     assert all(result.query == "dress" for result in results)
@@ -60,17 +65,22 @@ def test_zero_shot_selector_uses_injected_classifier():
         ["clothing", "vehicle"],
     )
 
-    assert [result.sentence_id for result in results] == [1]
+    assert [result.sentence_id for result in results] == [1, 2]
     assert results[0].score == 0.8
     assert calls == [
         (
             "First sentence.",
-            ["This text is about clothing", "This text is about vehicle"],
+            ["This example is clothing.", "This example is vehicle."],
             False,
         ),
         (
             "Second sentence.",
-            ["This text is about clothing", "This text is about vehicle"],
+            ["This example is clothing.", "This example is vehicle."],
+            False,
+        ),
+        (
+            "Third sentence.",
+            ["This example is clothing.", "This example is vehicle."],
             False,
         ),
     ]

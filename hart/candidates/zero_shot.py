@@ -18,6 +18,7 @@ class ZeroShotSelector(CandidateSelector):
         labels = list(queries)
         if not labels:
             return []
+        results = []
         for sentence_id, sentence in enumerate(split_sentences(text)):
             output = self.classifier(
                 sentence,
@@ -31,5 +32,5 @@ class ZeroShotSelector(CandidateSelector):
             query, score = max(scores.items(), key=lambda item: item[1])
              
             if self.threshold is None or score > self.threshold:
-                return [CandidateSentence(sentence_id, sentence, score, query, context_text=sentence)]
-        return []
+                results.append(CandidateSentence(sentence_id, sentence, score, query, context_text=sentence))
+        return results

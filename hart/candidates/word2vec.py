@@ -16,6 +16,7 @@ class Word2VecSelector(CandidateSelector):
     def select(self, text: str, queries: Iterable[str]) -> list[CandidateSentence]:
         queries = list(queries)
 
+        results = []
         for sentence_id, sentence in enumerate(split_sentences(text)):
             best_match: tuple[float, str] | None = None
 
@@ -34,6 +35,6 @@ class Word2VecSelector(CandidateSelector):
 
             score, query = best_match
             if self.threshold is None or score >= self.threshold:
-                return [CandidateSentence(sentence_id, sentence, score, query, context_text=sentence)]
+                results.append(CandidateSentence(sentence_id, sentence, score, query, context_text=sentence))
 
-        return []
+        return results

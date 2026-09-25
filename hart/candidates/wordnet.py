@@ -77,7 +77,8 @@ class WordNetSelector(CandidateSelector):
                 for query in queries:
                     score = self._legacy_match(sentence, query)
                     if score is not None:
-                        return [CandidateSentence(sentence_id, sentence, score, query, context_text=sentence)]
+                        results.append(CandidateSentence(sentence_id, sentence, score, query, context_text=sentence))
+                        break
                 continue
             matches = [
                 (score, query)
