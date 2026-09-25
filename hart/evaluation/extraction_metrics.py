@@ -5,6 +5,8 @@ from dataclasses import dataclass
 from functools import lru_cache
 from typing import Any, Iterable, Sequence
 
+from .legacy_metrics import canonicalize_clothing_item
+
 from hart.schema import PersonAnnotation, PersonPrediction
 from hart.schema.normalize import normalize_height_surface
 
@@ -154,7 +156,7 @@ def _maximum_overlap_pairs(
 def _group_by_item(items: Iterable[dict[str, Any]]) -> dict[str, list[dict[str, Any]]]:
     groups: dict[str, list[dict[str, Any]]] = {}
     for item in items:
-        name = _normalize(item.get("item"))
+        name = canonicalize_clothing_item(item.get("item"))
         if name is not None:
             groups.setdefault(name, []).append(item)
     return groups

@@ -1,3 +1,6 @@
+import pytest
+
+from hart.evaluation.legacy_metrics import canonicalize_clothing_item
 from hart.evaluation.extraction_metrics import (
     corpus_gold_finite_values,
     evaluate_corpus,
@@ -305,3 +308,30 @@ def test_corpus_finite_metrics_use_constant_gold_denominator():
 
     assert result["gender"].true_positive + result["gender"].false_negative == 1
     assert corpus_gold_finite_values(gold_index, "gender") == 1
+
+
+@pytest.mark.parametrize("left,right,equal", [
+    ("hoodie", "hoodies", True),
+    ("t-shirt", "t-shirts", True),
+    ("sweatshirt", "sweatshirts", True),
+    ("jacket", "jackets", True),
+    ("pants", "pants", True),
+    ("jeans", "jeans", True),
+    ("pants", "pant", False),
+    ("jeans", "jean", False),
+    ("hoodie", "jacket", False),
+    ("clothes", "clothing", False),
+    ("  T‑SHIRTS. ", "t shirt", True),
+])
+def test_clothing_morphology_is_symmetric_and_conservative(left, right, equal):
+    assert canonicalize_clothing_item("pants") == "pants"
+    assert canonicalize_clothing_item("jeans") == "jeans"
+    for gold_name, predicted_name in ((left, right), (right, left)):
+        metrics = evaluate_document(
+            gold([{"item": gold_name, "descriptors": []}]),
+            prediction([{"item": predicted_name, "descriptors": []}]),
+        )
+        for view in ("attr_only", "attr_value"):
+            assert metrics[view].true_positive == int(equal)
+            assert metrics[view].false_positive == int(not equal)
+            assert metrics[view].false_negative == int(not equal)

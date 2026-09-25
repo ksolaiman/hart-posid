@@ -1,3 +1,6 @@
+import pytest
+
+from hart.evaluation.legacy_metrics import canonicalize_clothing_item
 from hart.evaluation.legacy_metrics import clothing_metrics, compare_attribute, match_people
 from hart.schema import PersonAnnotation, PersonPrediction
 
@@ -115,3 +118,29 @@ def test_matching_exposes_unmatched_people_without_changing_ambiguity_index():
     assert result[1] == 0
     assert len(result.unmatched_gold) == 1
     assert result.unmatched_predictions == []
+
+@pytest.mark.parametrize("left,right,equal", [
+    ("hoodie", "hoodies", True),
+    ("t-shirt", "t-shirts", True),
+    ("sweatshirt", "sweatshirts", True),
+    ("jacket", "jackets", True),
+    ("pants", "pants", True),
+    ("jeans", "jeans", True),
+    ("pants", "pant", False),
+    ("jeans", "jean", False),
+    ("hoodie", "jacket", False),
+    ("clothes", "clothing", False),
+    ("  T‑SHIRTS. ", "t shirt", True),
+])
+def test_clothing_morphology_is_symmetric_and_conservative(left, right, equal):
+    assert canonicalize_clothing_item("pants") == "pants"
+    assert canonicalize_clothing_item("jeans") == "jeans"
+    for gold_name, predicted_name in ((left, right), (right, left)):
+        metrics = clothing_metrics(
+            _gold([{"item": gold_name, "descriptors": []}]),
+            _prediction([{"item": predicted_name, "descriptors": []}]),
+        )
+        for view in ("attr_only", "attr_value"):
+            assert metrics[view].true_positive == int(equal)
+            assert metrics[view].false_positive == int(not equal)
+            assert metrics[view].false_negative == int(not equal)
