@@ -11,17 +11,17 @@ class FakeSelector:
         return self.results
 
 
-def test_stacked_returns_primary_results_without_calling_fallback():
+def test_stacked_combines_primary_and_semantic_results():
     primary_result = [CandidateSentence(0, "primary", 1.0, "wearing")]
     primary = FakeSelector(primary_result)
     fallback = FakeSelector([CandidateSentence(1, "fallback", 1.0, "clothes")])
     selector = StackedSelector(primary, fallback, ["wearing"], ["clothes"])
 
     result = selector.select("text", ["ignored"])
-    assert result == primary_result
+    assert result == primary_result + fallback.results
     assert result[0] is primary_result[0]
     assert primary.calls == [("text", ["wearing"])]
-    assert fallback.calls == []
+    assert fallback.calls == [("text", ["clothes"])]
 
 
 def test_stacked_uses_fallback_queries_after_primary_miss():
@@ -81,3 +81,30 @@ def test_verified_wordnet_mode_handles_query_without_noun_synset():
     ).select("A jacket.", ["unknown-query"])
 
     assert result == []
+
+
+def test_stacked_preserves_roles_and_posid_deduplicates_equivalent_work(monkeypatch):
+    from hart.extractors import POSIDExtractor
+
+    text = "The suspect was wearing a red jacket."
+    wearing = CandidateSentence(0, text, 1.0, "wearing", context_text=text)
+    fixed = CandidateSentence(0, text, 1.0, "regex:suspect", context_text=text)
+    semantic = CandidateSentence(0, text, 0.95, "clothes", context_text=text)
+    primary = FakeSelector([fixed, wearing, wearing])
+    fallback = FakeSelector([semantic, semantic])
+    selector = StackedSelector(primary, fallback, ["wearing"], ["clothes"])
+    extractor = POSIDExtractor(selector, [])
+    calls = []
+
+    def extract_sentence(sentence, sentence_id, **kwargs):
+        calls.append((sentence_id, sentence, kwargs["include_fixed"], kwargs["include_clothing"]))
+        return []
+
+    monkeypatch.setattr(extractor, "_extract_sentence", extract_sentence)
+    assert extractor.extract(text, "doc") == {"doc": []}
+    assert calls == [
+        (0, text, True, False),
+        (0, text, True, True),
+        (0, text, False, True),
+    ]
+    assert fallback.calls == [(text, ["clothes"])]

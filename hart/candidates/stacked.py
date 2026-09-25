@@ -6,7 +6,7 @@ from .base import CandidateSelector, CandidateSentence
 
 
 class StackedSelector(CandidateSelector):
-    """Run a primary selector and use a fallback only when it misses."""
+    """Combine primary and semantic candidates, preserving extraction roles."""
 
     def __init__(
         self,
@@ -79,29 +79,7 @@ class StackedSelector(CandidateSelector):
         # Regex runs with ["wearing", fixed_query].
         regex_candidates = self.primary.select(text, primary_queries)
 
-        # Separate Regex results by the query that produced them.
-        # Regex queries are same regardless of whether downstream fallback is Wordnet or SBERT or something else. 
-        # So both wearing and fixed candidate would remain as long as those two are in regex_queries list.
-        wearing_candidates = [
-            candidate
-            for candidate in regex_candidates
-            if candidate.query.casefold() == "wearing"
-        ]
-
-        fixed_candidates = [
-            candidate
-            for candidate in regex_candidates
-            if candidate.query.casefold() != "wearing"
-        ]
-
-        # Regex found clothing candidates (sentences with wearing + .suspect* in it), so WordNet is unnecessary.
-        if wearing_candidates:
-            return fixed_candidates + wearing_candidates
-
-        # Regex found no "wearing" candidate, so use WordNet for clothing.
-        wordnet_candidates = self.fallback.select(
-            text,
-            fallback_queries,
-        )
-
-        return fixed_candidates + wordnet_candidates
+        # POSID deduplicates equivalent extraction work by sentence and role.
+        # Preserve every candidate here, including distinct roles for one sentence.
+        semantic_candidates = self.fallback.select(text, fallback_queries)
+        return regex_candidates + semantic_candidates
