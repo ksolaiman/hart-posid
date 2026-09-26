@@ -308,9 +308,9 @@ def run(args: argparse.Namespace) -> int:
     for name, value in status.items():
         print(f"  {name}: {value}")
 
-    records = load_document_index(incitext_root)
+    records = load_document_index(incitext_root, args.metadata_filename)
     records = _filter_document_records(records, args.subset)
-    annotations_path = incitext_root / "Annotation" / "consolidated_annotation_file.json"
+    annotations_path = incitext_root / "Annotation" / args.annotations_filename
     gold = LegacyAnnotationLoader().load(annotations_path)
     document_ids = [record.document_id for record in records]
     gold = {document_id: gold.get(document_id, []) for document_id in document_ids}
@@ -508,10 +508,34 @@ def _method_name(value: str) -> str:
     return value
 
 
+def _annotation_filename(value: str) -> str:
+    if (
+        not value
+        or Path(value).is_absolute()
+        or value in {".", ".."}
+        or "/" in value
+        or "\\" in value
+    ):
+        raise argparse.ArgumentTypeError(
+            f"Annotation filename must be a filename, not a path: {value!r}"
+        )
+    return value
+
+
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run Full-558 InciText legacy POSID reproduction.")
     parser.add_argument("--incitext-root", default=str(SRC_ROOT.parent / "InciText"))
     parser.add_argument("--output-dir", default="outputs/legacy_reproduction")
+    parser.add_argument(
+        "--metadata-filename",
+        type=_annotation_filename,
+        default="consolidated_report_metadata.json",
+    )
+    parser.add_argument(
+        "--annotations-filename",
+        type=_annotation_filename,
+        default="consolidated_annotation_file.json",
+    )
     parser.add_argument(
         "--subset",
         choices=SUBSET_NAMES,

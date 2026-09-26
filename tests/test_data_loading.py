@@ -5,9 +5,12 @@ from collections import Counter
 from pathlib import Path
 from unittest.mock import patch
 
+import pytest
+
 from hart.data import (
     DocumentRecord,
     LegacyAnnotationLoader,
+    load_consolidated_metadata,
     load_document,
     load_document_index,
 )
@@ -91,6 +94,43 @@ def test_real_legacy_annotations_load_into_canonical_person_lists():
 
     authoritative_ids = {record["id"] for record in metadata["documents"]}
     assert set(annotations) == authoritative_ids
+
+
+def test_document_index_accepts_metadata_filename_under_annotation(tmp_path):
+    incitext_root = tmp_path / "InciText"
+    annotation_dir = incitext_root / "Annotation"
+    source_dir = incitext_root / "Documents"
+    annotation_dir.mkdir(parents=True)
+    source_dir.mkdir()
+    (source_dir / "example.txt").write_text("Example", encoding="utf-8")
+    metadata = {
+        "source_root": "Documents",
+        "documents": [
+            {
+                "id": "example",
+                "source": {"path": "example.txt", "media_type": "text/plain"},
+            }
+        ],
+    }
+    (annotation_dir / "custom_metadata.json").write_text(
+        json.dumps(metadata), encoding="utf-8"
+    )
+
+    assert load_consolidated_metadata(
+        incitext_root, "custom_metadata.json"
+    ) == metadata
+    records = load_document_index(incitext_root, "custom_metadata.json")
+    assert [record.document_id for record in records] == ["example"]
+
+
+@pytest.mark.parametrize(
+    "filename",
+    ["../metadata.json", "nested/metadata.json", r"nested\metadata.json", "/tmp/metadata.json", ".."],
+)
+@pytest.mark.parametrize("loader", [load_consolidated_metadata, load_document_index])
+def test_metadata_filename_rejects_paths(tmp_path, filename, loader):
+    with pytest.raises(ValueError, match="must be a filename"):
+        loader(tmp_path, filename)
 
 
 def _contains_literal_null(value):

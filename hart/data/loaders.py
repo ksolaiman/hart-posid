@@ -8,11 +8,29 @@ from typing import Any
 from .document import Document, DocumentRecord
 
 
-CONSOLIDATED_METADATA_PATH = Path("Annotation") / "consolidated_report_metadata.json"
+DEFAULT_METADATA_FILENAME = "consolidated_report_metadata.json"
 
 
-def load_consolidated_metadata(incitext_root: str | Path) -> dict[str, Any]:
-    metadata_path = Path(incitext_root) / CONSOLIDATED_METADATA_PATH
+def _annotation_filename_path(
+    incitext_root: str | Path,
+    filename: str,
+) -> Path:
+    if (
+        not filename
+        or Path(filename).is_absolute()
+        or filename in {".", ".."}
+        or "/" in filename
+        or "\\" in filename
+    ):
+        raise ValueError(f"Annotation filename must be a filename, not a path: {filename!r}")
+    return Path(incitext_root) / "Annotation" / filename
+
+
+def load_consolidated_metadata(
+    incitext_root: str | Path,
+    metadata_filename: str = DEFAULT_METADATA_FILENAME,
+) -> dict[str, Any]:
+    metadata_path = _annotation_filename_path(incitext_root, metadata_filename)
     with metadata_path.open(encoding="utf-8") as stream:
         metadata = json.load(stream)
 
@@ -60,9 +78,12 @@ def _read_document_text(source_path: Path, media_type: str) -> str:
     return text
 
 
-def load_document_index(incitext_root: str | Path) -> list[DocumentRecord]:
+def load_document_index(
+    incitext_root: str | Path,
+    metadata_filename: str = DEFAULT_METADATA_FILENAME,
+) -> list[DocumentRecord]:
     root = Path(incitext_root).resolve()
-    metadata = load_consolidated_metadata(root)
+    metadata = load_consolidated_metadata(root, metadata_filename)
     source_root = metadata.get("source_root")
     if not isinstance(source_root, str) or not source_root:
         raise ValueError("Consolidated metadata must define a non-empty source_root")

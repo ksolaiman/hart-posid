@@ -55,6 +55,29 @@ def test_default_subset_is_full() -> None:
     assert reproduce_legacy_posid._filter_document_records(records, args.subset) == records
 
 
+def test_data_filenames_default_and_accept_custom_names() -> None:
+    defaults = reproduce_legacy_posid.parse_args([])
+    custom = reproduce_legacy_posid.parse_args([
+        "--metadata-filename", "metadata_extension.json",
+        "--annotations-filename", "annotation_additions.json",
+    ])
+
+    assert defaults.metadata_filename == "consolidated_report_metadata.json"
+    assert defaults.annotations_filename == "consolidated_annotation_file.json"
+    assert custom.metadata_filename == "metadata_extension.json"
+    assert custom.annotations_filename == "annotation_additions.json"
+
+
+@pytest.mark.parametrize("option", ["--metadata-filename", "--annotations-filename"])
+@pytest.mark.parametrize(
+    "value",
+    ["../file.json", "nested/file.json", r"nested\file.json", "/tmp/file.json", ".."],
+)
+def test_data_filename_options_reject_paths(option, value) -> None:
+    with pytest.raises(SystemExit):
+        reproduce_legacy_posid.parse_args([option, value])
+
+
 def _record(document_id: str, source_group: str):
     return SimpleNamespace(
         document_id=document_id,
@@ -209,7 +232,11 @@ def test_run_passes_semantic_first_match_option(monkeypatch, tmp_path, first_onl
         argv.append("--candidate-selector-non-RE-first-match-only")
     args = reproduce_legacy_posid.parse_args(argv)
     monkeypatch.setattr(reproduce_legacy_posid, "resource_status", lambda: AVAILABLE_RESOURCES)
-    monkeypatch.setattr(reproduce_legacy_posid, "load_document_index", lambda root: [])
+    monkeypatch.setattr(
+        reproduce_legacy_posid,
+        "load_document_index",
+        lambda root, metadata_filename: [],
+    )
     monkeypatch.setattr(reproduce_legacy_posid, "_filter_document_records", lambda records, subset: records)
     monkeypatch.setattr(reproduce_legacy_posid.LegacyAnnotationLoader, "load", lambda self, path: {})
 
@@ -221,3 +248,39 @@ def test_run_passes_semantic_first_match_option(monkeypatch, tmp_path, first_onl
     monkeypatch.setattr(reproduce_legacy_posid, "_build_methods", build)
     with pytest.raises(RuntimeError, match="propagation verified"):
         reproduce_legacy_posid.run(args)
+
+
+def test_run_uses_selected_data_filenames(monkeypatch, tmp_path) -> None:
+    args = reproduce_legacy_posid.parse_args([
+        "--incitext-root", str(tmp_path / "InciText"),
+        "--output-dir", str(tmp_path / "output"),
+        "--subset", "non_generated_28",
+        "--metadata-filename", "metadata_extension.json",
+        "--annotations-filename", "annotation_additions.json",
+    ])
+    calls = {}
+
+    def load_index(root, metadata_filename):
+        calls["metadata"] = (root, metadata_filename)
+        return []
+
+    def load_annotations(_self, path):
+        calls["annotations"] = path
+        return {}
+
+    monkeypatch.setattr(reproduce_legacy_posid, "resource_status", lambda: AVAILABLE_RESOURCES)
+    monkeypatch.setattr(reproduce_legacy_posid, "load_document_index", load_index)
+    monkeypatch.setattr(
+        reproduce_legacy_posid,
+        "_filter_document_records",
+        lambda records, subset: records,
+    )
+    monkeypatch.setattr(reproduce_legacy_posid.LegacyAnnotationLoader, "load", load_annotations)
+    monkeypatch.setattr(reproduce_legacy_posid, "_build_methods", lambda *args, **kwargs: ({}, {}))
+
+    assert reproduce_legacy_posid.run(args) == 0
+    incitext_root = (tmp_path / "InciText").resolve()
+    assert calls["metadata"] == (incitext_root, "metadata_extension.json")
+    assert calls["annotations"] == (
+        incitext_root / "Annotation" / "annotation_additions.json"
+    )
