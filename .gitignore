@@ -1,4 +1,9 @@
 *.pyc
 .DS_Store*
-outputs/*
+outputs/
 outputs/legacy_reproduction/*
+hart-local.txt
+local-uncommitted-changes.txt
+current-uncommitted-changes.txt
+current-uncommitted.*
+
