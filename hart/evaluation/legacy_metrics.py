@@ -6,6 +6,8 @@ from typing import Any, Iterable, NamedTuple
 from hart.schema import PersonAnnotation, PersonPrediction
 from hart.schema.normalize import canonicalize_clothing_item
 
+from .extraction_metrics import _evaluate_clothing_items, _shared_clothing_groups
+
 
 @dataclass(frozen=True)
 class MetricResult:
@@ -124,13 +126,19 @@ def clothing_metrics(
     gold_people: Iterable[PersonAnnotation],
     predicted_people: Iterable[PersonPrediction],
 ) -> dict[str, MetricResult]:
+    gold_people, predicted_people = list(gold_people), list(predicted_people)
     matches = match_people(gold_people, predicted_people)
+    excluded_gold, excluded_predicted, groups = _shared_clothing_groups(gold_people, matches.pairs)
     attr_only_tp = attr_only_fp = attr_only_fn = 0
     attr_value_tp = attr_value_fp = attr_value_fn = 0
 
+    def ordinary_items(person, excluded):
+        return [item for index, item in enumerate(_clothing(person.attributes))
+                if (id(person), index) not in excluded]
+
     for gold_person, predicted_person in matches.pairs:
-        gold_items = _clothing(gold_person.attributes)
-        predicted_items = _clothing(predicted_person.attributes)
+        gold_items = ordinary_items(gold_person, excluded_gold)
+        predicted_items = ordinary_items(predicted_person, excluded_predicted)
         remaining_gold = list(gold_items)
         for predicted_item in predicted_items:
             match_index = next(
@@ -153,14 +161,26 @@ def clothing_metrics(
         attr_value_fn += len(remaining_gold)
 
     for gold_person in matches.unmatched_gold:
-        gold_count = len(_clothing(gold_person.attributes))
+        gold_count = len(ordinary_items(gold_person, excluded_gold))
         attr_only_fn += gold_count
         attr_value_fn += gold_count
 
     for predicted_person in matches.unmatched_predictions:
-        predicted_count = len(_clothing(predicted_person.attributes))
+        predicted_count = len(ordinary_items(predicted_person, excluded_predicted))
         attr_only_fp += predicted_count
         attr_value_fp += predicted_count
+
+    # Tagged evidence uses the existing pooled clothing comparison once; it
+    # has already been removed from the ordinary per-person work above.
+    for gold_items, predicted_items in groups:
+        result = _evaluate_clothing_items(gold_items, predicted_items)
+        ao, av = result["attr_only"], result["attr_value"]
+        attr_only_tp += ao.true_positive
+        attr_only_fp += ao.false_positive
+        attr_only_fn += ao.false_negative
+        attr_value_tp += av.true_positive
+        attr_value_fp += av.false_positive
+        attr_value_fn += av.false_negative
 
     return {
         "attr_only": _prf(attr_only_tp, attr_only_fp, attr_only_fn),

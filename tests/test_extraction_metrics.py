@@ -335,3 +335,86 @@ def test_clothing_morphology_is_symmetric_and_conservative(left, right, equal):
             assert metrics[view].true_positive == int(equal)
             assert metrics[view].false_positive == int(not equal)
             assert metrics[view].false_negative == int(not equal)
+
+
+def shared_gold(items_by_person, support="shared_identical", field="wearing.sweatshirt"):
+    return [
+        PersonAnnotation("doc", f"doc:{index}", None, {"wearing": items}, {
+            "shared_group_tags": [{"group_id": "group", "support_type": support, "fields": [field]}],
+        })
+        for index, items in enumerate(items_by_person)
+    ]
+
+
+@pytest.mark.parametrize("support", ["shared_identical", "shared_subgroup"])
+@pytest.mark.parametrize("prediction_count", [1, 5])
+@pytest.mark.parametrize("field", ["wearing.sweatshirt", "wearing"])
+def test_shared_clothing_is_one_primary_fact(support, prediction_count, field):
+    gold_people = shared_gold([[item("sweatshirt", ["hooded"])]] * 5, support, field)
+    predictions = [
+        PersonPrediction("doc", f"doc:{index}", None, {"wearing": [item("sweatshirt", ["hooded"])]})
+        for index in range(prediction_count)
+    ]
+    result = evaluate_document(gold_people, predictions)
+    assert (result["attr_only"].true_positive, result["attr_only"].false_positive,
+            result["attr_only"].false_negative) == (1, 0, 0)
+    assert (result["attr_value"].true_positive, result["attr_value"].false_positive,
+            result["attr_value"].false_negative) == (2, 0, 0)
+    from hart.evaluation.extraction_metrics import gold_attr_value_units
+    assert gold_attr_value_units(gold_people) == 2
+
+
+def test_shared_primary_descriptors_keep_unsupported_evidence():
+    result = evaluate_document(
+        shared_gold([[item("sweatshirt", ["hooded"])]] * 5),
+        prediction([item("sweatshirt", ["hooded", "hooded"])], "doc:0")
+        + prediction([item("sweatshirt", ["black"])], "doc:1"),
+    )
+    assert result["attr_only"].f1 == 1.0
+    assert (result["attr_value"].true_positive, result["attr_value"].false_positive,
+            result["attr_value"].false_negative) == (2, 1, 0)
+
+
+def test_distributed_primary_clothing_preserves_two_occurrences():
+    result = evaluate_document(
+        shared_gold([[item("hoodie", ["grey"])], [item("hoodie", ["dark"])]],
+                    "group_distributed", "wearing.hoodie"),
+        prediction([item("hoodie", ["dark"])], "doc:0")
+        + prediction([item("hoodie", ["grey"])], "doc:1"),
+    )
+    assert result["attr_only"].true_positive == 2
+    assert result["attr_value"].true_positive == 4
+    assert all(metric.f1 == 1.0 for metric in result.values())
+
+
+def test_unspecified_primary_descriptor_has_no_ownership_penalty():
+    result = evaluate_document(
+        shared_gold([[item("hoodie", ["bone texture"])], []],
+                    "one_of_group_unspecified", "wearing.hoodie.descriptor:bone texture"),
+        prediction([], "doc:0") + prediction([item("hoodie", ["bone texture"])], "doc:1"),
+    )
+    assert result["attr_value"].true_positive == 2
+    assert all(metric.f1 == 1.0 for metric in result.values())
+
+
+def test_untagged_primary_duplicates_still_count_as_separate_facts():
+    result = evaluate_document(
+        [PersonAnnotation("doc", f"doc:{index}", None, {"wearing": [item("sweatshirt", ["hooded"])]})
+         for index in range(5)],
+        prediction([item("sweatshirt", ["hooded"])]),
+    )
+    assert result["attr_only"].false_negative == 4
+    assert result["attr_value"].false_negative == 8
+
+
+def test_shared_primary_field_does_not_collapse_unrelated_same_name_item():
+    gold_people = shared_gold([[item("sweatshirt", ["hooded"])]] * 5)
+    gold_people += gold([item("sweatshirt", ["hooded"])], "doc:5")
+    result = evaluate_document(
+        gold_people,
+        prediction([item("sweatshirt", ["hooded"])], "doc:0")
+        + prediction([item("sweatshirt", ["hooded"])], "doc:5"),
+    )
+    assert result["attr_only"].true_positive == 2
+    assert result["attr_value"].true_positive == 4
+    assert all(metric.f1 == 1.0 for metric in result.values())

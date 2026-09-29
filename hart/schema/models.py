@@ -10,6 +10,7 @@ class PersonAnnotation:
     person_id: str
     role: str | None
     attributes: dict[str, Any]
+    metadata: dict[str, Any] | None = None
 
 
 @dataclass(frozen=True)

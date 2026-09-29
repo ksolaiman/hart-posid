@@ -32,7 +32,7 @@ class LegacyAnnotationLoader:
 
                 attributes: dict[str, Any] = {}
                 for field, value in raw_person.items():
-                    if field in {"id", "person_id", "role"}:
+                    if field in {"id", "person_id", "role", "shared_group_tags"}:
                         continue
                     if field == "wearing":
                         attributes[field] = normalize_legacy_wearing(value)
@@ -55,6 +55,10 @@ class LegacyAnnotationLoader:
                         person_id=person_id,
                         role=role,
                         attributes=attributes,
+                        metadata=(
+                            {"shared_group_tags": raw_person["shared_group_tags"]}
+                            if "shared_group_tags" in raw_person else None
+                        ),
                     )
                 )
 

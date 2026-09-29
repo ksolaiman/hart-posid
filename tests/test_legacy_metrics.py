@@ -144,3 +144,100 @@ def test_clothing_morphology_is_symmetric_and_conservative(left, right, equal):
             assert metrics[view].true_positive == int(equal)
             assert metrics[view].false_positive == int(not equal)
             assert metrics[view].false_negative == int(not equal)
+
+
+def _tagged_gold(items_by_person, support="shared_identical", field="wearing.sweatshirt"):
+    return [
+        PersonAnnotation("doc", f"doc:{index}", None, {"wearing": items}, {
+            "shared_group_tags": [{"group_id": "group", "support_type": support, "fields": [field]}],
+        })
+        for index, items in enumerate(items_by_person)
+    ]
+
+
+@pytest.mark.parametrize("support", ["shared_identical", "shared_subgroup"])
+@pytest.mark.parametrize("prediction_count", [1, 5])
+@pytest.mark.parametrize("field", ["wearing.sweatshirt", "wearing"])
+def test_shared_clothing_is_recovered_once_across_matched_group(support, prediction_count, field):
+    sweatshirt = {"item": "sweatshirt", "descriptors": ["hooded"]}
+    result = clothing_metrics(
+        _tagged_gold([[sweatshirt]] * 5, support, field),
+        [PersonPrediction("doc", f"doc:{index}", None, {"wearing": [sweatshirt]})
+         for index in range(prediction_count)],
+    )
+    assert (result["attr_only"].true_positive, result["attr_only"].false_positive,
+            result["attr_only"].false_negative) == (1, 0, 0)
+    assert (result["attr_value"].true_positive, result["attr_value"].false_positive,
+            result["attr_value"].false_negative) == (2, 0, 0)
+
+
+def test_shared_person_aware_descriptors_keep_unsupported_evidence():
+    result = clothing_metrics(
+        _tagged_gold([[{"item": "sweatshirt", "descriptors": ["hooded"]}]] * 5),
+        [
+            PersonPrediction("doc", "doc:0", None, {"wearing": [
+                {"item": "sweatshirt", "descriptors": ["hooded", "hooded"]},
+            ]}),
+            PersonPrediction("doc", "doc:1", None, {"wearing": [
+                {"item": "sweatshirt", "descriptors": ["black"]},
+            ]}),
+        ],
+    )
+    assert result["attr_only"].f1 == 1.0
+    assert (result["attr_value"].true_positive, result["attr_value"].false_positive,
+            result["attr_value"].false_negative) == (2, 1, 0)
+
+
+def test_group_distributed_swapped_hoodies_preserve_multiset():
+    grey = {"item": "hoodie", "descriptors": ["grey"]}
+    dark = {"item": "hoodie", "descriptors": ["dark"]}
+    result = clothing_metrics(
+        _tagged_gold([[grey], [dark]], "group_distributed", "wearing.hoodie"),
+        [PersonPrediction("doc", "doc:0", None, {"wearing": [dark]}),
+         PersonPrediction("doc", "doc:1", None, {"wearing": [grey]})],
+    )
+    assert result["attr_only"].true_positive == 2
+    assert result["attr_value"].true_positive == 4
+    assert all(metric.f1 == 1.0 for metric in result.values())
+
+
+def test_unspecified_descriptor_can_move_to_another_tagged_member():
+    hoodie = {"item": "hoodie", "descriptors": ["bone texture"]}
+    result = clothing_metrics(
+        _tagged_gold([[hoodie], []], "one_of_group_unspecified",
+                     "wearing.hoodie.descriptor:bone texture"),
+        [PersonPrediction("doc", "doc:0", None, {"wearing": []}),
+         PersonPrediction("doc", "doc:1", None, {"wearing": [hoodie]})],
+    )
+    assert result["attr_value"].true_positive == 2
+    assert all(metric.f1 == 1.0 for metric in result.values())
+
+
+def test_untagged_person_aware_duplicates_keep_previous_false_negatives():
+    sweatshirt = {"item": "sweatshirt", "descriptors": ["hooded"]}
+    result = clothing_metrics(
+        [PersonAnnotation("doc", f"doc:{index}", None, {"wearing": [sweatshirt]})
+         for index in range(5)],
+        _prediction([sweatshirt]),
+    )
+    assert result["attr_only"].true_positive == 1
+    assert result["attr_only"].false_negative == 4
+    assert result["attr_value"].true_positive == 1
+    assert result["attr_value"].false_negative == 4
+
+
+def test_legacy_loader_keeps_shared_tags_in_metadata_only(tmp_path):
+    import json
+    from hart.data.legacy_adapter import LegacyAnnotationLoader
+
+    tags = [{"group_id": "group", "support_type": "shared_identical", "fields": ["wearing.sweatshirt"]}]
+    path = tmp_path / "annotations.json"
+    path.write_text(json.dumps({"doc": [
+        {"wearing": {"sweatshirt": ["hooded"]}, "shared_group_tags": tags},
+        {"wearing": {"jacket": ["red"]}},
+    ]}))
+    people = LegacyAnnotationLoader().load(path)["doc"]
+    assert people[0].metadata == {"shared_group_tags": tags}
+    assert "shared_group_tags" not in people[0].attributes
+    assert people[1].metadata is None
+    assert people[1].attributes == {"wearing": [{"item": "jacket", "descriptors": ["red"]}]}
