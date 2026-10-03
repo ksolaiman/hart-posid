@@ -1,0 +1,282 @@
+{
+  "documents": {
+    "08c28178-0b96-43e8-ba9c-0fdf9c7e9023": [],
+    "e3c0ca54-1bd9-43d4-ade3-0e0f4975efb5": [],
+    "25dcb7fd-8158-4201-bd51-9c6538d273fe": [],
+    "6184e34a-24c7-44de-a2a3-f241020eecac": [
+      {
+        "person_id": "P1",
+        "role": null,
+        "sentence_id": 0,
+        "text": "w/m in red shirt, woman next to bike in argument",
+        "context_text": "w/m in red shirt, woman next to bike in argument",
+        "query": "clothing",
+        "attributes_supported": [
+          "wearing.shirt"
+        ],
+        "evidence_phrases": [
+          "red shirt"
+        ],
+        "annotation_concerns": []
+      }
+    ],
+    "12b89884-fc37-4c65-a6b5-32c43741f298": [],
+    "d8b019c8-693a-4922-8c23-5393d993287d": [
+      {
+        "person_id": "P1",
+        "role": null,
+        "sentence_id": 0,
+        "text": "GALLAGHER advised the possible suspect is a white male around six foot tall wearing a dark colored shirt with a mask over his face.",
+        "context_text": "GALLAGHER advised the possible suspect is a white male around six foot tall wearing a dark colored shirt with a mask over his face.",
+        "query": "clothing",
+        "attributes_supported": [
+          "wearing.shirt",
+          "wearing.mask"
+        ],
+        "evidence_phrases": [
+          "dark colored shirt",
+          "mask over his face"
+        ],
+        "annotation_concerns": []
+      },
+      {
+        "person_id": "P1",
+        "role": null,
+        "sentence_id": 1,
+        "text": "REN then advised the guy was wearing a sweatshirt with a hood.",
+        "context_text": "REN then advised the guy was wearing a sweatshirt with a hood.",
+        "query": "clothing",
+        "attributes_supported": [
+          "wearing.sweatshirt"
+        ],
+        "evidence_phrases": [
+          "sweatshirt with a hood"
+        ],
+        "annotation_concerns": []
+      }
+    ],
+    "30b84f16-06cf-4264-ae05-afbc3b9fa425": [
+      {
+        "person_id": "P1",
+        "role": null,
+        "sentence_id": 2,
+        "text": "I noticed the guy had pulled his hood over his head and he was wearing big black sunglasses",
+        "context_text": "I noticed the guy had pulled his hood over his head and he was wearing big black sunglasses",
+        "query": "clothing",
+        "attributes_supported": [
+          "wearing.sunglasses"
+        ],
+        "evidence_phrases": [
+          "big black sunglasses"
+        ],
+        "annotation_concerns": []
+      },
+      {
+        "person_id": "P2",
+        "role": null,
+        "sentence_id": 1,
+        "text": "Shortly after, his friend came by, he was wearing a light colored hoodie and had fair skin.",
+        "context_text": "Shortly after, his friend came by, he was wearing a light colored hoodie and had fair skin.",
+        "query": "clothing",
+        "attributes_supported": [
+          "wearing.hoodie"
+        ],
+        "evidence_phrases": [
+          "light colored hoodie"
+        ],
+        "annotation_concerns": []
+      },
+      {
+        "person_id": "P1",
+        "role": null,
+        "sentence_id": 2,
+        "text": "The big guy (6°S\"*) wore his hoodie and immediately wore big sunglasses to cover his face when he came near me.",
+        "context_text": "The big guy (6°S\"*) wore his hoodie and immediately wore big sunglasses to cover his face when he came near me.",
+        "query": "clothing",
+        "attributes_supported": [
+          "wearing.hoodie",
+          "wearing.sunglasses"
+        ],
+        "evidence_phrases": [
+          "hoodie",
+          "big sunglasses"
+        ],
+        "annotation_concerns": []
+      }
+    ],
+    "99069427-ddfc-4c68-9df1-569969308e94": [
+      {
+        "person_id": "group:99069427-ddfc-4c68-9df1-569969308e94:g1",
+        "role": null,
+        "sentence_id": 0,
+        "text": "When J asked KERR for a description of the suspects, he initially could not advise one, but later changed his mind to two white males similar in height to him (5°7\"-5°9\"), light brown/blonde hair, wearing lighter colored t-shirts and blue jeans.",
+        "context_text": "When J asked KERR for a description of the suspects, he initially could not advise one, but later changed his mind to two white males similar in height to him (5°7\"-5°9\"), light brown/blonde hair, wearing lighter colored t-shirts and blue jeans.",
+        "query": "clothing",
+        "attributes_supported": [
+          "wearing.t-shirt",
+          "wearing.jeans"
+        ],
+        "evidence_phrases": [
+          "lighter colored t-shirts",
+          "blue jeans"
+        ],
+        "annotation_concerns": []
+      }
+    ],
+    "48ada196-404c-40e0-9ce5-c0e62e3a3101": [
+      {
+        "person_id": "group:48ada196-404c-40e0-9ce5-c0e62e3a3101:g2",
+        "role": null,
+        "sentence_id": 0,
+        "text": "GOSWAMI states that while walking home from McDonalds he was approached by three males, two were wearing \"hoodies\" and the third wearing darker clothes, approached him and asked him to give them his wallet and cell phone.",
+        "context_text": "GOSWAMI states that while walking home from McDonalds he was approached by three males, two were wearing \"hoodies\" and the third wearing darker clothes, approached him and asked him to give them his wallet and cell phone.",
+        "query": "clothing",
+        "attributes_supported": [
+          "wearing.hoodie",
+          "wearing.clothing"
+        ],
+        "evidence_phrases": [
+          "two were wearing \"hoodies\"",
+          "third wearing darker clothes"
+        ],
+        "annotation_concerns": []
+      },
+      {
+        "person_id": "P1",
+        "role": null,
+        "sentence_id": 1,
+        "text": "GOSWAMI advised me the subject that took his items was wearing a blue hoodie and shorts.",
+        "context_text": "GOSWAMI advised me the subject that took his items was wearing a blue hoodie and shorts.",
+        "query": "clothing",
+        "attributes_supported": [
+          "wearing.hoodie",
+          "wearing.shorts"
+        ],
+        "evidence_phrases": [
+          "blue hoodie",
+          "shorts"
+        ],
+        "annotation_concerns": []
+      }
+    ],
+    "283a17ef-0463-4739-b451-ef847826a9ad": [
+      {
+        "person_id": "group:283a17ef-0463-4739-b451-ef847826a9ad:g2",
+        "role": null,
+        "sentence_id": 0,
+        "text": "Both of them were about in my height, 75cm (5°9\") looked skinny and wore hoodies in colors kind of grey and dark.",
+        "context_text": "Both of them were about in my height, 75cm (5°9\") looked skinny and wore hoodies in colors kind of grey and dark.",
+        "query": "clothing",
+        "attributes_supported": [
+          "wearing.hoodie"
+        ],
+        "evidence_phrases": [
+          "hoodies in colors kind of grey and dark"
+        ],
+        "annotation_concerns": []
+      },
+      {
+        "person_id": "group:283a17ef-0463-4739-b451-ef847826a9ad:g3",
+        "role": null,
+        "sentence_id": 1,
+        "text": "ORKAN stated \"J think one of the guys had a \"bone\" texture on his hoodie\".",
+        "context_text": "ORKAN stated \"J think one of the guys had a \"bone\" texture on his hoodie\".",
+        "query": "clothing",
+        "attributes_supported": [
+          "wearing.hoodie.descriptor:bone texture"
+        ],
+        "evidence_phrases": [
+          "one of the guys had a \"bone\" texture on his hoodie"
+        ],
+        "annotation_concerns": []
+      }
+    ],
+    "f9ea093b-979b-4ce6-b5e0-18c46db33f58": [
+      {
+        "person_id": "group:f9ea093b-979b-4ce6-b5e0-18c46db33f58:g1",
+        "role": null,
+        "sentence_id": 0,
+        "text": "Conley said when the males ran Northbound, he could see another male on the Southwest corner of the intersection and he ran with the other males, The only description Conley could provide was at least 5 black males, 14-18 yoa, 140Ibs, wearing hooded sweatshirts.",
+        "context_text": "Conley said when the males ran Northbound, he could see another male on the Southwest corner of the intersection and he ran with the other males, The only description Conley could provide was at least 5 black males, 14-18 yoa, 140Ibs, wearing hooded sweatshirts.",
+        "query": "clothing",
+        "attributes_supported": [
+          "wearing.sweatshirt"
+        ],
+        "evidence_phrases": [
+          "wearing hooded sweatshirts"
+        ],
+        "annotation_concerns": []
+      }
+    ],
+    "8bbeb037-4416-4f50-9f72-e855f3147ba8": [
+      {
+        "person_id": "P1",
+        "role": null,
+        "sentence_id": 0,
+        "text": "WIGGINTON stated that the primary aggressor was a black male, approximately the same height as him (5°10\") or shorter, wearing a black Purdue sweatshirt, WIGGINTON stated that after BHARADWAJ was knocked to the ground, the primary suspect asked him for his wallet.",
+        "context_text": "WIGGINTON stated that the primary aggressor was a black male, approximately the same height as him (5°10\") or shorter, wearing a black Purdue sweatshirt, WIGGINTON stated that after BHARADWAJ was knocked to the ground, the primary suspect asked him for his wallet.",
+        "query": "clothing",
+        "attributes_supported": [
+          "wearing.sweatshirt"
+        ],
+        "evidence_phrases": [
+          "black Purdue sweatshirt"
+        ],
+        "annotation_concerns": []
+      }
+    ],
+    "95ec4075-5006-465c-94e9-325731771529": [
+      {
+        "person_id": "P1",
+        "role": null,
+        "sentence_id": 0,
+        "text": "This male had short, buzzed hair, and was wearing a dark orange T-shirt and jeans.",
+        "context_text": "This male had short, buzzed hair, and was wearing a dark orange T-shirt and jeans.",
+        "query": "clothing",
+        "attributes_supported": [
+          "wearing.t-shirt",
+          "wearing.jeans"
+        ],
+        "evidence_phrases": [
+          "dark orange T-shirt",
+          "jeans"
+        ],
+        "annotation_concerns": []
+      }
+    ],
+    "63083185-6dac-4349-bb92-d288b2f2570f": [
+      {
+        "person_id": null,
+        "role": null,
+        "sentence_id": 0,
+        "text": "ind he was detained in handcuffs and placed into a patrol car (LEIGH was wearing a black shirt with long dreadlock style hi Next we ordered the backseat passenger side occupant out of the vehicle, who was later identified as Kierre D MCCOY (MCCOY was wearing a light colored white/light blue shirt).",
+        "context_text": "ind he was detained in handcuffs and placed into a patrol car (LEIGH was wearing a black shirt with long dreadlock style hi Next we ordered the backseat passenger side occupant out of the vehicle, who was later identified as Kierre D MCCOY (MCCOY was wearing a light colored white/light blue shirt).",
+        "query": "clothing",
+        "attributes_supported": [
+          "P1:wearing.shirt",
+          "P2:wearing.shirt"
+        ],
+        "evidence_phrases": [
+          "LEIGH was wearing a black shirt",
+          "MCCOY was wearing a light colored white/light blue shirt"
+        ],
+        "annotation_concerns": []
+      },
+      {
+        "person_id": "P3",
+        "role": null,
+        "sentence_id": 1,
+        "text": "After MCCOY was detained in handcuffs the front seat passenger exited the vehicle and was later identified as Derek C SMITH (1 and he was detained in handcuffs as well (SMITH was wearing a red Adidas track jacket).",
+        "context_text": "After MCCOY was detained in handcuffs the front seat passenger exited the vehicle and was later identified as Derek C SMITH (1 and he was detained in handcuffs as well (SMITH was wearing a red Adidas track jacket).",
+        "query": "clothing",
+        "attributes_supported": [
+          "wearing.track jacket"
+        ],
+        "evidence_phrases": [
+          "SMITH was wearing a red Adidas track jacket"
+        ],
+        "annotation_concerns": []
+      }
+    ]
+  }
+}

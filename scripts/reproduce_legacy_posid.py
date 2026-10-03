@@ -16,7 +16,15 @@ SRC_ROOT = Path(__file__).resolve().parents[1]
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
-from hart.candidates import RegexSelector, StackedSelector, Word2VecSelector, WordNetSelector, ZeroShotSelector
+from hart.candidates import (
+    CandidateSentence,
+    RegexSelector,
+    StackedSelector,
+    Word2VecSelector,
+    WordNetSelector,
+    ZeroShotSelector,
+    split_sentences,
+)
 from hart.data import LegacyAnnotationLoader, load_document_index, load_document
 from hart.evaluation.legacy_metrics import clothing_metrics, compare_attribute, match_people
 from hart.evaluation.extraction_metrics import (
@@ -102,6 +110,71 @@ regex_queries = [
 dual_purpose_query = "wearing"                      # for both clothing and fixed attributes
 fixed_query = r"REGEX:[^.]*suspect.*male[^.]*\."    # for fixed attributes - G / R/ H
 clothing_only_queries=["clothes"]
+
+
+class _OracleSelector:
+    def __init__(self, candidates: list[CandidateSentence]):
+        self.candidates = candidates
+
+    def select(self, text: str, queries: Any) -> list[CandidateSentence]:
+        return self.candidates
+
+
+def _oracle_candidates_for_document(
+    document_text: str,
+    entries: list[dict[str, Any]],
+    document_id: str,
+) -> list[CandidateSentence]:
+    sentences = split_sentences(document_text)
+
+    def normalize(value: Any) -> str:
+        return " ".join(str(value or "").strip().casefold().split())
+
+    candidates = []
+    for entry in entries:
+        reference = entry.get("context_text") or entry.get("text")
+        normalized_reference = normalize(reference)
+        normalized_sentences = [normalize(sentence) for sentence in sentences]
+        matches = [
+            index for index, sentence in enumerate(normalized_sentences)
+            if normalized_reference and sentence == normalized_reference
+        ]
+        if not matches:
+            matches = [
+                index for index, sentence in enumerate(normalized_sentences)
+                if normalized_reference and normalized_reference in sentence
+            ]
+        evidence = [
+            normalize(phrase)
+            for phrase in entry.get("evidence_phrases", [])
+            if normalize(phrase)
+        ]
+        if not matches and evidence:
+            matches = [
+                index for index, sentence in enumerate(normalized_sentences)
+                if all(phrase in sentence for phrase in evidence)
+            ]
+        if len(matches) != 1:
+            oracle_evidence = {
+                "text": reference,
+                "evidence_phrases": entry.get("evidence_phrases", []),
+            }
+            raise RuntimeError(
+                f"Oracle candidate resolution failed for {document_id}: "
+                f"oracle={oracle_evidence!r}, matches={len(matches)}"
+            )
+        sentence_id = matches[0]
+        oracle_text = entry.get("context_text") or entry.get("text")
+
+        candidates.append(CandidateSentence(
+            sentence_id=sentence_id,
+            text=oracle_text,
+            context_text=oracle_text,
+            score=1.0,
+            query="clothes",
+        ))
+    return candidates
+
 
 def resource_status() -> dict[str, str]:
     status = {}
@@ -330,14 +403,34 @@ def run(args: argparse.Namespace) -> int:
     if args.subset == "full" and len(records) != 558:
         raise RuntimeError(f"Expected 558 indexed documents, found {len(records)}")
 
+    oracle_documents = None
+    if args.oracle_candidates is not None:
+        oracle_data = json.loads(args.oracle_candidates.read_text(encoding="utf-8"))
+        oracle_documents = oracle_data.get("documents") if isinstance(oracle_data, dict) else None
+        if not isinstance(oracle_documents, dict):
+            raise RuntimeError("Oracle candidate file must contain a top-level 'documents' object")
+        if len(document_ids) != 14:
+            raise RuntimeError(f"Oracle mode requires the 14-document new14 set, found {len(document_ids)}")
+        expected_ids = set(document_ids)
+        actual_ids = set(oracle_documents)
+        if actual_ids != expected_ids:
+            raise RuntimeError(
+                f"Oracle document IDs do not match evaluated documents: "
+                f"missing={sorted(expected_ids - actual_ids)}, "
+                f"extra={sorted(actual_ids - expected_ids)}"
+            )
+
     print(f"ABLATION CONFIG — stop_on_unexpected_pos={args.stop_on_unexpected_pos} "
           f"candidate_selector_non_re_first_match_only={args.candidate_selector_non_re_first_match_only}")
-    methods, blocked = _build_methods(
-        status,
-        tuple(args.methods),
-        stop_on_unexpected_pos=args.stop_on_unexpected_pos,
-        candidate_selector_non_re_first_match_only=args.candidate_selector_non_re_first_match_only,
-    )
+    if oracle_documents is not None:
+        methods, blocked = {"oracle_posid": None}, {}
+    else:
+        methods, blocked = _build_methods(
+            status,
+            tuple(args.methods),
+            stop_on_unexpected_pos=args.stop_on_unexpected_pos,
+            candidate_selector_non_re_first_match_only=args.candidate_selector_non_re_first_match_only,
+        )
     for name, reason in blocked.items():
         print(f"METHOD {name}: BLOCKED — {reason}")
 
@@ -347,8 +440,25 @@ def run(args: argparse.Namespace) -> int:
         predictions: dict[str, list[Any]] = {}
         errors = []
         for document in documents:
+            document_extractor = extractor
+            if oracle_documents is not None:
+                entries = oracle_documents[document.document_id]
+                if not isinstance(entries, list):
+                    raise RuntimeError(
+                        f"Oracle candidates for {document.document_id} must be a list"
+                    )
+                candidates = _oracle_candidates_for_document(
+                    document.text,
+                    entries,
+                    document.document_id,
+                )
+                document_extractor = POSIDExtractor(
+                    _OracleSelector(candidates),
+                    ["clothes"],
+                    stop_on_unexpected_pos=args.stop_on_unexpected_pos,
+                )
             try:
-                predictions.update(extractor.extract(document.text, document.document_id))
+                predictions.update(document_extractor.extract(document.text, document.document_id))
             except Exception as error:  # report every document failure, do not omit it
                 errors.append({"document_id": document.document_id, "error": repr(error)})
                 predictions[document.document_id] = []
@@ -476,10 +586,21 @@ def _print_tables(
         diagnostic = results[key]["person_aware_diagnostic"]
         print(f"  PRIMARY P/R/F1 AO={primary['attr_only']['precision']:.2f}/{primary['attr_only']['recall']:.2f}/{primary['attr_only']['f1']:.2f} AV={primary['attr_value']['precision']:.2f}/{primary['attr_value']['recall']:.2f}/{primary['attr_value']['f1']:.2f}")
         print(f"  PERSON-AWARE P/R/F1 AO={diagnostic['attr_only']['precision']:.2f}/{diagnostic['attr_only']['recall']:.2f}/{diagnostic['attr_only']['f1']:.2f} AV={diagnostic['attr_value']['precision']:.2f}/{diagnostic['attr_value']['recall']:.2f}/{diagnostic['attr_value']['f1']:.2f}")
+    if "oracle_posid" in results:
+        oracle = results["oracle_posid"]
+        primary = oracle["primary_extraction"]
+        diagnostic = oracle["person_aware_diagnostic"]
+        print(
+            f"Oracle + POSID | N/A | "
+            f"{primary['attr_only']['f1']:.2f}/{primary['attr_value']['f1']:.2f} | N/A"
+        )
+        print(f"  PRIMARY P/R/F1 AO={primary['attr_only']['precision']:.2f}/{primary['attr_only']['recall']:.2f}/{primary['attr_only']['f1']:.2f} AV={primary['attr_value']['precision']:.2f}/{primary['attr_value']['recall']:.2f}/{primary['attr_value']['f1']:.2f}")
+        print(f"  PERSON-AWARE P/R/F1 AO={diagnostic['attr_only']['precision']:.2f}/{diagnostic['attr_only']['recall']:.2f}/{diagnostic['attr_only']['f1']:.2f} AV={diagnostic['attr_value']['precision']:.2f}/{diagnostic['attr_value']['recall']:.2f}/{diagnostic['attr_value']['f1']:.2f}")
 
     print(f"\nPRIMARY EXTRACTION — {scope}")
     print("Method | Gender P/R/F1 | Race P/R/F1 | Height P/R/F1 | Clothes AO P/R/F1 | Clothes AV P/R/F1")
-    for key, label in labels:
+    primary_labels = labels + ([('oracle_posid', 'Oracle + POSID')] if "oracle_posid" in results else [])
+    for key, label in primary_labels:
         if key not in results:
             continue
         primary = results[key]["primary_extraction"]
@@ -564,6 +685,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         dest="candidate_selector_non_re_first_match_only",
         action="store_true",
         help="return only the first qualifying non-RE candidate (default: all)",
+    )
+    parser.add_argument(
+        "--oracle-candidates",
+        type=Path,
+        help="JSON file containing oracle candidates for the 14-document new14 set",
     )
     return parser.parse_args(argv)
 
