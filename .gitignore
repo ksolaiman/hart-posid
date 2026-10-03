@@ -6,4 +6,5 @@ hart-local.txt
 local-uncommitted-changes.txt
 current-uncommitted-changes.txt
 current-uncommitted.*
-
+api
+prompt-to-annotate-group-shared-attributes.md
