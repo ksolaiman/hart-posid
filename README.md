@@ -56,9 +56,20 @@ conda env create -f environment.yml
 conda activate hart39
 ```
 
-Runs require local NLTK tokenizer, WordNet, POS-tagger, and Word2Vec sample
-resources. NLI methods require `facebook/bart-large-mnli`. The runner prints a
-resource report and records unavailable methods in `blocked_methods.json`.
+Download the required NLTK resources once after activation:
+
+```bash
+python -m nltk.downloader punkt_tab wordnet averaged_perceptron_tagger_eng word2vec_sample
+```
+
+For NLI methods, also cache the model before running (internet required):
+
+```bash
+python -c "from huggingface_hub import snapshot_download; snapshot_download('facebook/bart-large-mnli', allow_patterns=['*.json', 'merges.txt', 'model.safetensors'])"
+```
+
+The runner reports resource availability and records unavailable methods in
+`blocked_methods.json`.
 
 ## Quick start
 
@@ -138,3 +149,17 @@ python -m pytest -q
 
 - Paper: [arXiv:2507.03949](https://arxiv.org/abs/2507.03949)
 - Dataset: [InciText on Zenodo](https://zenodo.org/records/23334976)
+
+If you use POSID or the InciText dataset, please cite:
+
+```bibtex
+@misc{solaiman2025modularunsupervisedframeworkattribute,
+  title={A Modular Unsupervised Framework for Attribute Recognition from Unstructured Text},
+  author={KMA Solaiman},
+  year={2025},
+  eprint={2507.03949},
+  archivePrefix={arXiv},
+  primaryClass={cs.CL},
+  url={https://arxiv.org/abs/2507.03949}
+}
+```
